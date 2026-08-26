@@ -61,6 +61,7 @@ research/            # 论文撰写（草稿 html，投稿前转 LaTeX）
 
 - Semantic Scholar API key 存放于项目根 `.env`（`S2_API_KEY`），**已 gitignore，严禁写入任何会提交的文件**。
 - 凡下载/阅读过的材料一律归档：论文 → `raw/papers/`，数据集 → `raw/dataset/`，网页剪藏 → `Clipping/`。
+- 每次归档后**必须**在对应目录的 `index.yaml` 中登记条目（含下载链接），否则视为未归档。
 - 调研**结论**写入 `wiki/`，调研**过程报告**写入 `Project/survey_reports/`，原始数据留在 `raw/`。
 
 ## 7. 文档规范
@@ -84,7 +85,7 @@ research/            # 论文撰写（草稿 html，投稿前转 LaTeX）
 
 - 代码仓库托管 GitHub，账号 **Chao1208**；克隆/远程一律用 **SSH**（`git@github.com:...`），不用 HTTPS。
 - **commit 不需用户批准**：有进展随时 commit；消息用中文，格式 `[agent] 动作：摘要`（如 `[survey] 新增：MemGPT 论文调研`）。
-- 大文件（`raw/` 下 PDF、数据集）按需用 Git LFS 或在 `.gitignore` 中排除超大数据集，但目录结构与索引文件必须入库。
+- **大文件策略**：论文 PDF、数据集等大文件只存本地，`.gitignore` 已排除；远端（GitHub）只存 `raw/papers/index.yaml`、`raw/dataset/index.yaml` 中的下载链接。不使用 Git LFS。
 - `.env` 及一切密钥永不入库。
 
 ## 10. 红线（违反即为事故）

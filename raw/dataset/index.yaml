@@ -1,0 +1,10 @@
+# 数据集索引：数据只存本地，远端仓库仅保留本索引（下载链接）
+# 每次下载数据集后必须在此登记，格式如下：
+# - id: longmemeval               # 本地目录名
+#   name: "LongMemEval"
+#   url: "https://github.com/xiaowu0162/LongMemEval"
+#   size: "~2GB"
+#   license: "MIT"
+#   added: "2026-08-26 12:20"
+#   agent: "survey-agent"
+datasets: []

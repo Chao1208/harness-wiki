@@ -1,0 +1,11 @@
+# 论文索引：PDF 只存本地，远端仓库仅保留本索引（下载链接）
+# 每次下载论文后必须在此登记，格式如下：
+# - id: memgpt-2023                  # 本地文件名（不含 .pdf）
+#   title: "MemGPT: Towards LLMs as Operating Systems"
+#   authors: "Packer et al."
+#   year: 2023
+#   url: "https://arxiv.org/abs/2310.08560"
+#   pdf: "https://arxiv.org/pdf/2310.08560"
+#   added: "2026-08-26 12:20"
+#   agent: "survey-agent"
+papers: []
