@@ -1,0 +1,8 @@
+# harness-wiki 版本配置（唯一版本事实来源）
+current_version: "0.1"
+
+history:
+  - version: "0.1"
+    date: "2026-08-26 12:20"
+    agent: "main-agent"
+    summary: "项目初始化：建立顶层目录结构、CLAUDE.md、版本配置"
