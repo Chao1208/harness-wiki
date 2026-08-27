@@ -1,7 +1,11 @@
 # harness-wiki 版本配置（唯一版本事实来源）
-current_version: "0.1"
+current_version: "0.2"
 
 history:
+  - version: "0.2"
+    date: "2026-08-27 12:20"
+    agent: "main-agent"
+    summary: "change-001 首轮全面调研完成：4分支底稿、67篇论文归档索引、综合报告、wiki首批5条目、工作日志、24个下层候选问题"
   - version: "0.1"
     date: "2026-08-26 12:20"
     agent: "main-agent"

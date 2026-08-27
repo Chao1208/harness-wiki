@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工作日志 · change-001 首轮全面调研</title>
+<style>
+  :root {
+    --ink: #1a1a2e; --sub: #666; --accent: #1f4e79;
+    --line: #c5d6e8; --bg: #fdfdfb; --warn: #8b3a3a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.8;
+    margin: 0; font-size: 15.5px;
+  }
+  .page { max-width: 860px; margin: 0 auto; padding: 44px 36px 72px; }
+  header { border-bottom: 3px double var(--accent); padding-bottom: 16px; margin-bottom: 30px; }
+  h1 { font-size: 23px; color: var(--accent); margin: 0 0 6px; }
+  .meta { color: var(--sub); font-size: 13.5px; }
+  h2 { font-size: 18px; color: var(--accent); margin: 38px 0 14px; padding-left: 10px; border-left: 5px solid var(--accent); }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.87em; background: #eef0f3; padding: 1px 5px; border-radius: 3px; }
+  /* 时间线 */
+  .timeline { position: relative; margin: 10px 0 10px 8px; padding-left: 30px; border-left: 2px solid var(--line); }
+  .event { position: relative; margin: 0 0 26px; }
+  .event::before {
+    content: ""; position: absolute; left: -37px; top: 7px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--accent);
+  }
+  .event.warn::before { background: var(--warn); box-shadow: 0 0 0 2px var(--warn); }
+  .stamp { font-weight: 700; color: var(--accent); font-size: 14px; letter-spacing: 0.5px; }
+  .event.warn .stamp { color: var(--warn); }
+  .event h3 { margin: 2px 0 6px; font-size: 16px; }
+  .event p, .event ul { margin: 4px 0; color: #333; font-size: 14.5px; }
+  .event ul { padding-left: 20px; }
+  .lesson {
+    background: #f6f3ea; border-left: 4px solid #b8963e;
+    border-radius: 0 6px 6px 0; padding: 14px 20px; margin: 14px 0;
+  }
+  .lesson strong { color: #7a6222; }
+  .warnbox { background: #faf0f0; border-left: 4px solid var(--warn); padding: 12px 18px; margin: 12px 0; border-radius: 0 6px 6px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13.5px; }
+  th { background: #eaf1f8; color: var(--accent); }
+  th, td { border: 1px solid #d9dee5; padding: 6px 10px; text-align: left; }
+  footer { margin-top: 56px; padding-top: 14px; border-top: 1px solid #d9dee5; color: var(--sub); font-size: 13.5px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>工作日志：change-001 首轮全面调研</h1>
+  <div class="meta">项目 harness-wiki（主题：Harness 的记忆与持续学习）· 时间线依据 git log 与文件时间戳重建 · 记录者 report-agent</div>
+</header>
+
+<h2>一、时间线</h2>
+<div class="timeline">
+
+<div class="event">
+  <div class="stamp">2026-08-26 20:15 – 20:16</div>
+  <h3>项目初始化（main-agent）</h3>
+  <p>建立顶层目录结构、<code>CLAUDE.md</code>（全体 agent 最高行为准则，≤200 行红线）、<code>version.yaml</code>（v0.1）；随即确立大文件策略——论文 PDF/数据集只存本地，远端仅保留 <code>index.yaml</code> 中的下载链接（commit <code>b9b0f9b</code>、<code>4a738a8</code>）。</p>
+</div>
+
+<div class="event">
+  <div class="stamp">2026-08-27 11:12 – 11:13</div>
+  <h3>openspec 初始化 + change-001 立项（main-agent）</h3>
+  <p>撰写 change-001 提案（proposal.md：全景调研的动机、四分支范围、五项交付物、非目标）、任务清单（tasks.md，10 项）与 <strong>BFS search tree</strong>（search_tree.yaml：A 记忆 / B 自进化 / C 持续学习 / D harness 动态四分支，各 3–4 个 L2 子问题）。遵循 CLAUDE.md 第 4.2 条"先建树再展开、禁止未建树就深入单一分支"。commit <code>37300a5</code>。</p>
+</div>
+
+<div class="event">
+  <div class="stamp">2026-08-27 11:13 起</div>
+  <h3>四分支 survey subagent 并行派发（main-agent 调度）</h3>
+  <p>survey-agent-A/B/C/D 按分支并行执行 BFS 第一层。各分支独立写入 <code>Project/survey/branch_*.md</code> 底稿，论文 PDF 归档 <code>raw/papers/</code>，索引写入各自的 <code>raw/papers/index_fragments/{A..D}.yaml</code> 片段——<strong>并行写索引片段而非直接写共享 index.yaml，避免写冲突</strong>。</p>
+</div>
+
+<div class="event warn">
+  <div class="stamp">2026-08-27 11 时段（首轮）</div>
+  <h3>⚠ 分支 B / D 首次运行失败，重新派发</h3>
+  <div class="warnbox">B、D 两个 subagent 首轮运行中把论文 PDF 下载挂到<strong>裸 shell 后台</strong>执行，进程在 subagent 会话结束时被清理、下载悄悄失败，且无完成信号可查——正是全局规则明令禁止的 <code>nohup ... &amp;</code> 模式问题。main-agent 按"完成判定看真实产出"原则用 ls/Read 核查时发现 PDF 缺失，遂重派两个分支：<strong>先落盘底稿、再前台逐篇下载并即时登记索引片段</strong>。此教训已提炼至下方"经验教训"节。</div>
+</div>
+
+<div class="event">
+  <div class="stamp">2026-08-27 11:21 – 11:58</div>
+  <h3>论文批量归档（四分支）</h3>
+  <p>从索引登记时间看各分支下载节奏：A 分支 11:21–11:33（MemGPT、HippoRAG 2、Zep、A-MEM、Mem0、MemOS、MIRIX、Titans、Du 综述、Harness the Memory 等）；C 分支 11:41 批量登记 14 篇（Voyager、ExpeL、CLIN、AWM、ACE、Memento、ReasoningBank、Memp、LifelongAgentBench 等）；D 分支 11:43–11:49（HCL、SIGIL、Claw-SWE-Bench、Code Isn't Memory、Scaffold Effect 等 6 篇）；B 分支（重派后）11:49–11:58（Promptbreeder、STOP、Gödel Agent、EvoAgent、AFlow、R-Zero、ShinkaEvolve、EvoAgentX、Agent0、Self-Harness、AHE、Meta-Harness、MCE 等）。</p>
+</div>
+
+<div class="event">
+  <div class="stamp">2026-08-27 11:37 – 11:50</div>
+  <h3>四份分支底稿定稿</h3>
+  <ul>
+    <li>11:37 分支 D 底稿落款（<code>branch_D_harness动态.md</code>，31KB）</li>
+    <li>11:43 分支 A 底稿落款（<code>branch_A_agent记忆.md</code>，40KB）；commit <code>64a684e</code> 提交分支 C 定稿 + 分支 A（进行中）</li>
+    <li>11:44 分支 B、C 底稿落款（36KB / 40KB）；期间 11:44 commit <code>492cc39</code> 调整 gitignore 排除 Obsidian 工作区状态文件</li>
+    <li>11:50 commit <code>1227e41</code> 提交分支 D 底稿定稿（6 篇论文归档）</li>
+  </ul>
+  <p>四份底稿合计约 149KB，每份含分类法、代表工作摘要（标注库内 PDF 路径）、开源项目 star 实测、综合分析与"下一层待深挖问题"。</p>
+</div>
+
+<div class="event">
+  <div class="stamp">2026-08-27 12:04 – 12:05</div>
+  <h3>索引合并去重（main-agent，含 merge_index.py 脚本）</h3>
+  <p>将四个 index_fragments 片段合并为统一 <code>raw/papers/index.yaml</code>（脚本存 <code>Project/develop/merge_index.py</code>）：</p>
+  <ul>
+    <li><strong>3 组跨分支重复</strong>按 arXiv id 去重（并行分支各自引用同一论文所致，如 Memp、ACE、Reflexion 等 A/B/C 交界文献）；</li>
+    <li><strong>13 个孤儿 PDF 补登</strong>（文件在 <code>raw/papers/</code> 但无索引条目，12:04 由 main-agent 逐一补登，含 Generative Agents、LoCoMo、LongMemEval、SWE-agent ACI、OpenHands 平台/SDK、Harness-Bench、harness 披露论文等）；</li>
+    <li><strong>2 个别名副本删除</strong>（同一论文的异名 PDF 文件，如 <code>2025-fang-memp-procedural-memory.pdf</code> 与 <code>2025-fang-memp.pdf</code>）。</li>
+  </ul>
+  <p>最终索引 <strong>67 条</strong>，与 <code>raw/papers/</code> 下 67 个 PDF 一一对应。同 commit（<code>f3b12d0</code>，12:05）更新 search tree：四分支全部置 done，登记 <strong>24 个下层候选问题</strong>（其中 5 个标记 paper_potential: high）。</p>
+</div>
+
+<div class="event">
+  <div class="stamp">2026-08-27 12:06 – 12:18</div>
+  <h3>报告与 wiki 产出（report-agent，即本日志撰写者）</h3>
+  <p>通读四份底稿、search tree 与 index.yaml 后依次产出：</p>
+  <ul>
+    <li>综合调研报告：<code>Project/survey_reports/2026-08-27_change001_首轮全面调研报告.html</code>（八条核心判断、四分支综述、跨分支综合、论文选题排序、67 篇论文附录）</li>
+    <li>wiki 首批 5 条目：<code>wiki/index.md</code>（总览+知识地图）、<code>wiki/agent记忆.md</code>、<code>wiki/agent自进化.md</code>、<code>wiki/agent持续学习.md</code>、<code>wiki/harness.md</code>（Karpathy LLM-wiki 风格：一个概念一页、结论先行、互相链接、附引文与本地 PDF 路径）</li>
+    <li>本工作日志：<code>Project/notebooks/2026-08-27_change001_survey日志.html</code></li>
+  </ul>
+  <p>至此 tasks.md 第 7–9 项完成；第 10 项（search tree 状态收尾与 commit 推送）留给 main-agent 验收后执行。</p>
+</div>
+
+</div>
+
+<h2>二、经验教训</h2>
+
+<div class="lesson">
+<strong>教训 1：subagent 禁止后台下载。</strong>B/D 分支首轮失败的直接原因是把批量 PDF 下载挂到裸 shell 后台——subagent 会话结束时进程被清理，下载静默失败且无任何完成信号。规则：subagent 内一切下载必须前台同步执行、逐篇确认文件落盘；确需后台必须走 harness 后台机制（框架跟踪、完成通知、输出落 task 文件）。
+</div>
+
+<div class="lesson">
+<strong>教训 2：先落盘底稿，再下载归档。</strong>重派后的 B/D 采用"先写完底稿正文（调研结论不依赖 PDF 本体），再集中下载登记"的顺序，即使下载环节再出问题，调研成果也不会丢——把最贵的产出（综合与判断）放在最脆弱的环节（网络下载）之前。
+</div>
+
+<div class="lesson">
+<strong>教训 3：并行 agent 写索引用片段文件，合并交给单点。</strong>四分支各写 <code>index_fragments/{A..D}.yaml</code>，由 main-agent 用脚本统一合并去重——全程零写冲突。代价是需要一次显式合并（本次处理了 3 组重复、13 个孤儿、2 个别名副本），但比并发写共享文件的随机损坏便宜得多。孤儿与别名副本的产生也提示：<strong>"下载即登记"的纪律在并行场景仍会漏，合并时必须做文件系统 ↔ 索引的双向核对</strong>。
+</div>
+
+<div class="lesson">
+<strong>教训 4：完成判定看真实产出。</strong>本次能及时发现 B/D 失败，靠的是 main-agent 不轻信 subagent 的"任务完成"信号，而用 ls/Read 核实 PDF 文件与索引条目——CLAUDE.md 第 3 节的这条规则在首个 change 就兑现了价值。
+</div>
+
+<h2>三、产出清单与量化小结</h2>
+<table>
+<tr><th>类别</th><th>产出</th><th>规模</th></tr>
+<tr><td>工程管理</td><td>proposal / tasks / search_tree（openspec）</td><td>四分支 + 24 个下层候选（5 个高论文潜力）</td></tr>
+<tr><td>调研底稿</td><td>Project/survey/branch_{A,B,C,D}_*.md</td><td>4 份，合计约 149KB</td></tr>
+<tr><td>论文归档</td><td>raw/papers/*.pdf + index.yaml</td><td>67 篇（2023×10 / 2024×14 / 2025×29 / 2026×14）</td></tr>
+<tr><td>调研报告</td><td>survey_reports/2026-08-27_change001_首轮全面调研报告.html</td><td>1 份（八条核心判断 + 选题排序）</td></tr>
+<tr><td>wiki</td><td>index + 4 主题页</td><td>5 页，互链成网</td></tr>
+<tr><td>工具脚本</td><td>Project/develop/merge_index.py</td><td>索引合并去重</td></tr>
+<tr><td>git</td><td>7 次 commit（8-26 两次初始化 + 8-27 五次）</td><td>全部遵循 <code>[agent] 动作：摘要</code> 格式</td></tr>
+</table>
+
+<footer>
+report-agent · 2026-08-27 12:18
+</footer>
+
+</div>
+</body>
+</html>

@@ -6,9 +6,9 @@
 - [x] 4. 分支 C：Agent 持续学习调研（survey-agent-C）
 - [x] 5. 分支 D：Harness 最新动态调研（survey-agent-D）
 - [x] 6. 合并 raw/papers/index.yaml，核实 PDF 归档（main-agent）
-- [ ] 7. 综合调研报告 html → Project/survey_reports/（report-agent）
-- [ ] 8. wiki 首批条目：总览 + 三大主题页（report-agent）
-- [ ] 9. 工作日志 html → Project/notebooks/（report-agent）
-- [ ] 10. 更新 search_tree 状态与 next_layer_candidates，commit 推送（main-agent）
+- [x] 7. 综合调研报告 html → Project/survey_reports/（report-agent）
+- [x] 8. wiki 首批条目：总览 + 三大主题页（report-agent）
+- [x] 9. 工作日志 html → Project/notebooks/（report-agent）
+- [x] 10. 更新 search_tree 状态与 next_layer_candidates，commit 推送（main-agent）
 
 撰写者：main-agent · 2026-08-27 11:12
