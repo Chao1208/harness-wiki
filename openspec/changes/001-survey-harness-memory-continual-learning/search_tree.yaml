@@ -1,0 +1,46 @@
+# Change 001 · BFS Search Tree（先建树，逐层展开；本轮只展开到 L2）
+# 状态：pending / in_progress / done
+root: "Harness 的记忆与持续学习 · 2023-2026 全景调研"
+strategy: BFS
+built: "2026-08-27 11:12"
+agent_assignment:
+  A: survey-agent-A
+  B: survey-agent-B
+  C: survey-agent-C
+  D: survey-agent-D
+
+branches:
+  A:
+    name: "Agent 记忆（memory for LLM agents）"
+    status: in_progress
+    children:
+      A1: { q: "记忆架构与系统论文（分层记忆、图记忆、参数化记忆、记忆 OS）", status: in_progress }
+      A2: { q: "记忆基准与评测（长程对话、跨会话、个性化）", status: in_progress }
+      A3: { q: "开源记忆系统 GitHub（框架、star 数、活跃度、设计取舍）", status: in_progress }
+      A4: { q: "工业界记忆实践博客（模型厂商、agent 产品、框架）", status: in_progress }
+  B:
+    name: "Agent 自进化（self-evolving / self-improving agents）"
+    status: in_progress
+    children:
+      B1: { q: "综述与分类法（self-evolving agents surveys）", status: in_progress }
+      B2: { q: "自我改进与自动化 agent 设计（自我反思、代码自改、进化搜索）", status: in_progress }
+      B3: { q: "prompt / 工作流自动优化（程序化提示优化、文本梯度）", status: in_progress }
+      B4: { q: "开源项目与博客", status: in_progress }
+  C:
+    name: "Agent 持续学习（continual / lifelong learning）"
+    status: in_progress
+    children:
+      C1: { q: "经验积累与技能库（经验蒸馏、工作流记忆、技能发现）", status: in_progress }
+      C2: { q: "在线学习与测试时适应（memory-based online learning, test-time training）", status: in_progress }
+      C3: { q: "灾难性遗忘与知识保持（LLM continual learning 交叉）", status: in_progress }
+      C4: { q: "基准评测与开源实现", status: in_progress }
+  D:
+    name: "Harness 最新动态（agent harness 本体）"
+    status: in_progress
+    children:
+      D1: { q: "主流 harness 盘点（coding CLI、通用 agent、框架）及其记忆/学习机制", status: in_progress }
+      D2: { q: "harness 设计相关论文（context engineering、agent 架构）", status: in_progress }
+      D3: { q: "官方工程博客与 changelog（2025-2026 重点更新）", status: in_progress }
+
+# L3 及以后：各分支调研中发现的值得深挖的子问题，登记于此，供下一轮 change 展开
+next_layer_candidates: []

@@ -1,0 +1,17 @@
+schema: spec-driven
+
+context: |
+  项目：harness-wiki —— LLM-wiki，主题"Harness 的记忆与持续学习"。
+  目标：汇集领域最先进研究与实践；指导现实问题；产出 ML 顶会论文。
+  行为准则见根目录 CLAUDE.md（目录结构、多 agent 架构、文档规范、红线）。
+  约定：
+  - 所有文档用中文，落款到分钟 + 具体 agent 名
+  - change 目录命名 NNN-<slug>；多分支探索必须先建 search_tree.yaml（BFS）
+  - 论文归档 raw/papers/ 并登记 index.yaml；报告 html 落各自 _reports 目录
+
+rules:
+  proposal:
+    - 必须包含"非目标（Non-goals）"一节
+    - 多分支探索的 change 必须附 search_tree.yaml
+  tasks:
+    - 每个任务标注负责 agent（survey/develop/qa/review/main）
