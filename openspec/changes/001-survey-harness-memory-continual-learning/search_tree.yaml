@@ -12,35 +12,60 @@ agent_assignment:
 branches:
   A:
     name: "Agent 记忆（memory for LLM agents）"
-    status: in_progress
+    status: done
     children:
-      A1: { q: "记忆架构与系统论文（分层记忆、图记忆、参数化记忆、记忆 OS）", status: in_progress }
-      A2: { q: "记忆基准与评测（长程对话、跨会话、个性化）", status: in_progress }
-      A3: { q: "开源记忆系统 GitHub（框架、star 数、活跃度、设计取舍）", status: in_progress }
-      A4: { q: "工业界记忆实践博客（模型厂商、agent 产品、框架）", status: in_progress }
+      A1: { q: "记忆架构与系统论文（分层记忆、图记忆、参数化记忆、记忆 OS）", status: done }
+      A2: { q: "记忆基准与评测（长程对话、跨会话、个性化）", status: done }
+      A3: { q: "开源记忆系统 GitHub（框架、star 数、活跃度、设计取舍）", status: done }
+      A4: { q: "工业界记忆实践博客（模型厂商、agent 产品、框架）", status: done }
   B:
     name: "Agent 自进化（self-evolving / self-improving agents）"
-    status: in_progress
+    status: done
     children:
-      B1: { q: "综述与分类法（self-evolving agents surveys）", status: in_progress }
-      B2: { q: "自我改进与自动化 agent 设计（自我反思、代码自改、进化搜索）", status: in_progress }
-      B3: { q: "prompt / 工作流自动优化（程序化提示优化、文本梯度）", status: in_progress }
-      B4: { q: "开源项目与博客", status: in_progress }
+      B1: { q: "综述与分类法（self-evolving agents surveys）", status: done }
+      B2: { q: "自我改进与自动化 agent 设计（自我反思、代码自改、进化搜索）", status: done }
+      B3: { q: "prompt / 工作流自动优化（程序化提示优化、文本梯度）", status: done }
+      B4: { q: "开源项目与博客", status: done }
   C:
     name: "Agent 持续学习（continual / lifelong learning）"
-    status: in_progress
+    status: done
     children:
-      C1: { q: "经验积累与技能库（经验蒸馏、工作流记忆、技能发现）", status: in_progress }
-      C2: { q: "在线学习与测试时适应（memory-based online learning, test-time training）", status: in_progress }
-      C3: { q: "灾难性遗忘与知识保持（LLM continual learning 交叉）", status: in_progress }
-      C4: { q: "基准评测与开源实现", status: in_progress }
+      C1: { q: "经验积累与技能库（经验蒸馏、工作流记忆、技能发现）", status: done }
+      C2: { q: "在线学习与测试时适应（memory-based online learning, test-time training）", status: done }
+      C3: { q: "灾难性遗忘与知识保持（LLM continual learning 交叉）", status: done }
+      C4: { q: "基准评测与开源实现", status: done }
   D:
     name: "Harness 最新动态（agent harness 本体）"
-    status: in_progress
+    status: done
     children:
-      D1: { q: "主流 harness 盘点（coding CLI、通用 agent、框架）及其记忆/学习机制", status: in_progress }
-      D2: { q: "harness 设计相关论文（context engineering、agent 架构）", status: in_progress }
-      D3: { q: "官方工程博客与 changelog（2025-2026 重点更新）", status: in_progress }
+      D1: { q: "主流 harness 盘点（coding CLI、通用 agent、框架）及其记忆/学习机制", status: done }
+      D2: { q: "harness 设计相关论文（context engineering、agent 架构）", status: done }
+      D3: { q: "官方工程博客与 changelog（2025-2026 重点更新）", status: done }
 
 # L3 及以后：各分支调研中发现的值得深挖的子问题，登记于此，供下一轮 change 展开
-next_layer_candidates: []
+# 完整表述见各分支底稿"下一层待深挖问题"节（Project/survey/branch_*.md）
+next_layer_candidates:
+  - { id: A-1, q: "程序性/技能记忆在 coding harness 的可移植性与评测（AWM/Voyager/Memp）", cross: [B, C] }
+  - { id: A-2, q: "记忆固结算法：sleep-time compute、明文→参数蒸馏、固结时机与安全护栏" }
+  - { id: A-3, q: "时间知识图谱记忆 vs 轻量文件式记忆的成本-收益边界" }
+  - { id: A-4, q: "记忆安全与污染：poisoning 攻击面、固结管线放大风险、审计隔离", cross: [C, D] }
+  - { id: A-5, q: "评测方法学：为 harness 记忆设计新基准（潜在论文方向）", paper_potential: high }
+  - { id: A-6, q: "多 agent 共享记忆：一致性、命名空间、权限模型" }
+  - { id: B-1, q: "harness 可编辑面的最小充分集：逐组件消融（AHE/Self-Harness/Meta-Harness）", paper_potential: high }
+  - { id: B-2, q: "技能/经验固化时机与机制：临时笔记→skill→权重的升级信号", cross: [A, C] }
+  - { id: B-3, q: "弱评估器下的自进化：无快速 verifier 任务的进化信号构造（几乎空白）", paper_potential: high }
+  - { id: B-4, q: "进化环安全审计协议：MisEvolution 四通路检测做成标准回归门（无开源实现）" }
+  - { id: B-5, q: "小模型进化器×大模型执行器的成本最优组合" }
+  - { id: B-6, q: "改 harness vs 改权重的联合优化决策问题", cross: [C] }
+  - { id: C-1, q: "经验条目的验证与淘汰机制：可实现的算法与阈值策略" }
+  - { id: C-2, q: "非参数记忆的容量-检索退化曲线：经验库 scaling 实证" }
+  - { id: C-3, q: "LLM-as-judge 自判成败的错误率对经验库质量的长期影响" }
+  - { id: C-4, q: "参数化 TTT 在 agent 落地：harness+夜间 LoRA 巩固的成本收益" }
+  - { id: C-5, q: "多 agent/多用户共享经验库治理：provenance、权限、注入传播", cross: [A] }
+  - { id: C-6, q: "面向 coding harness 的 lifelong 基准设计（潜在论文选题）", paper_potential: high }
+  - { id: D-1, q: "harness-level forgetting 量化与 retention 回归集构建", paper_potential: high }
+  - { id: D-2, q: "auto memory 写入策略逐字对比：Claude Code/OpenHands/Gemini 实测命中率" }
+  - { id: D-3, q: "持久记忆文件的攻击面分类与防御评测", cross: [A, C] }
+  - { id: D-4, q: "记忆分层加载成本-召回实证：全量 vs 索引按需 vs 向量检索对照实验" }
+  - { id: D-5, q: "skills 可移植性与编译路线：SIGIL 式编译的 faithfulness 边界" }
+  - { id: D-6, q: "模型-harness 协同训练：harness 学习成果会否被下一代模型吸收而贬值" }

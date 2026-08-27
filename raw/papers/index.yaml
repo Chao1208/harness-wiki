@@ -1,11 +1,495 @@
 # 论文索引：PDF 只存本地，远端仓库仅保留本索引（下载链接）
-# 每次下载论文后必须在此登记，格式如下：
-# - id: memgpt-2023                  # 本地文件名（不含 .pdf）
-#   title: "MemGPT: Towards LLMs as Operating Systems"
-#   authors: "Packer et al."
-#   year: 2023
-#   url: "https://arxiv.org/abs/2310.08560"
-#   pdf: "https://arxiv.org/pdf/2310.08560"
-#   added: "2026-08-26 12:20"
-#   agent: "survey-agent"
-papers: []
+# 每次下载论文后必须在此登记；字段：id/title/authors/year/url/pdf/added/agent
+# 本文件由 change-001 四分支片段合并生成，按 arXiv id 去重，孤儿文件已补登。
+papers:
+- id: 2023-fernando-promptbreeder
+  title: 'Promptbreeder: Self-Referential Self-Improvement via Prompt Evolution'
+  authors: Fernando et al.
+  year: 2023
+  url: https://arxiv.org/abs/2309.16797
+  pdf: https://arxiv.org/pdf/2309.16797
+  added: 2026-08-27 11:50
+  agent: survey-agent-B
+- id: 2023-khattab-dspy
+  title: 'DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines'
+  url: https://arxiv.org/abs/2310.03714
+  agent: survey-agent-B (引用)
+  year: 2023
+- id: 2023-madaan-self-refine
+  title: 'Self-Refine: Iterative Refinement with Self-Feedback'
+  url: https://arxiv.org/abs/2303.17651
+  agent: survey-agent-B (引用)
+  year: 2023
+- id: 2023-majumder-clin
+  title: 'CLIN: A Continually Learning Language Agent for Rapid Task Adaptation and Generalization'
+  authors: Bodhisattwa Prasad Majumder et al.
+  year: 2023
+  url: https://arxiv.org/abs/2310.10134
+  pdf: https://arxiv.org/pdf/2310.10134
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2023-packer-memgpt
+  title: 'MemGPT: Towards LLMs as Operating Systems'
+  authors: Packer et al.
+  year: 2023
+  url: https://arxiv.org/abs/2310.08560
+  pdf: https://arxiv.org/pdf/2310.08560
+  added: 2026-08-27 11:21
+  agent: survey-agent-A
+- id: 2023-park-generative-agents
+  title: 'Generative Agents: Interactive Simulacra of Human Behavior'
+  authors: Park et al.
+  year: 2023
+  url: https://arxiv.org/abs/2304.03442
+  pdf: https://arxiv.org/pdf/2304.03442
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2023-shinn-reflexion
+  title: 'Reflexion: Language Agents with Verbal Reinforcement Learning'
+  url: https://arxiv.org/abs/2303.11366
+  agent: survey-agent-B (引用)
+  year: 2023
+- id: 2023-wang-voyager
+  title: 'Voyager: An Open-Ended Embodied Agent with Large Language Models'
+  url: https://arxiv.org/abs/2305.16291
+  agent: survey-agent-B (引用)
+  year: 2023
+- id: 2023-zelikman-stop
+  title: 'Self-Taught Optimizer (STOP): Recursively Self-Improving Code Generation'
+  authors: Zelikman et al.
+  year: 2023
+  url: https://arxiv.org/abs/2310.02304
+  pdf: https://arxiv.org/pdf/2310.02304
+  added: 2026-08-27 11:49
+  agent: survey-agent-B
+- id: 2023-zhao-expel
+  title: 'ExpeL: LLM Agents Are Experiential Learners'
+  authors: Andrew Zhao et al.
+  year: 2023
+  url: https://arxiv.org/abs/2308.10144
+  pdf: https://arxiv.org/pdf/2308.10144
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2024-gutierrez-hipporag
+  title: 'HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models'
+  authors: Gutiérrez et al.
+  year: 2024
+  url: https://arxiv.org/abs/2405.14831
+  pdf: https://arxiv.org/pdf/2405.14831
+  added: 2026-08-27 11:23
+  agent: survey-agent-A
+- id: 2024-hu-adas
+  title: Automated Design of Agentic Systems (ADAS)
+  url: https://arxiv.org/abs/2408.08435
+  agent: survey-agent-B (引用)
+  year: 2024
+- id: 2024-maharana-locomo
+  title: Evaluating Very Long-Term Conversational Memory of LLM Agents (LoCoMo)
+  authors: Maharana et al.
+  year: 2024
+  url: https://arxiv.org/abs/2402.17753
+  pdf: https://arxiv.org/pdf/2402.17753
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2024-shi-llm-continual-learning-survey
+  title: 'Continual Learning of Large Language Models: A Comprehensive Survey'
+  authors: Haizhou Shi et al.
+  year: 2024
+  url: https://arxiv.org/abs/2404.16789
+  pdf: https://arxiv.org/pdf/2404.16789
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2024-wang-agent-workflow-memory
+  title: Agent Workflow Memory
+  authors: Zora Zhiruo Wang et al.
+  year: 2024
+  url: https://arxiv.org/abs/2409.07429
+  pdf: https://arxiv.org/pdf/2409.07429
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2024-wang-openhands-platform
+  title: 'OpenHands: An Open Platform for AI Software Developers as Generalist Agents'
+  authors: Wang et al.
+  year: 2024
+  url: https://arxiv.org/abs/2407.16741
+  pdf: https://arxiv.org/pdf/2407.16741
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2024-wu-longmemeval
+  title: 'LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory'
+  authors: Wu et al.
+  year: 2024
+  url: https://arxiv.org/abs/2410.10813
+  pdf: https://arxiv.org/pdf/2410.10813
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2024-wu-streambench
+  title: 'StreamBench: Towards Benchmarking Continuous Improvement of Language Agents'
+  authors: Cheng-Kuang Wu et al.
+  year: 2024
+  url: https://arxiv.org/abs/2406.08747
+  pdf: https://arxiv.org/pdf/2406.08747
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2024-yang-swe-agent-aci
+  title: 'SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering'
+  authors: Yang et al.
+  year: 2024
+  url: https://arxiv.org/abs/2405.15793
+  pdf: https://arxiv.org/pdf/2405.15793
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2024-yin-godel-agent
+  title: 'Gödel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement'
+  authors: Yin et al.
+  year: 2024
+  url: https://arxiv.org/abs/2410.04444
+  pdf: https://arxiv.org/pdf/2410.04444
+  added: 2026-08-27 11:52
+  agent: survey-agent-B
+- id: 2024-yuan-evoagent
+  title: 'EvoAgent: Towards Automatic Multi-Agent Generation via Evolutionary Algorithms'
+  authors: Yuan et al.
+  year: 2024
+  url: https://arxiv.org/abs/2406.14228
+  pdf: https://arxiv.org/pdf/2406.14228
+  added: 2026-08-27 11:51
+  agent: survey-agent-B
+- id: 2024-yuksekgonul-textgrad
+  title: 'TextGrad: Optimizing Generative AI by Backpropagating Language Model Feedback'
+  url: https://arxiv.org/abs/2406.07496
+  agent: survey-agent-B (引用)
+  year: 2024
+- id: 2024-zhang-aflow
+  title: 'AFlow: Automating Agentic Workflow Generation'
+  authors: Zhang et al.
+  year: 2024
+  url: https://arxiv.org/abs/2410.10762
+  pdf: https://arxiv.org/pdf/2410.10762
+  added: 2026-08-27 11:51
+  agent: survey-agent-B
+- id: 2024-zhang-memory-survey
+  title: A Survey on the Memory Mechanism of Large Language Model based Agents
+  authors: Zhang et al.
+  year: 2024
+  url: https://arxiv.org/abs/2404.13501
+  pdf: https://arxiv.org/pdf/2404.13501
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2025-agrawal-gepa
+  title: 'GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning'
+  url: https://arxiv.org/abs/2507.19457
+  agent: survey-agent-B (引用)
+  year: 2025
+- id: 2025-behrouz-titans
+  title: 'Titans: Learning to Memorize at Test Time'
+  authors: Behrouz et al.
+  year: 2025
+  url: https://arxiv.org/abs/2501.00663
+  pdf: https://arxiv.org/pdf/2501.00663
+  added: 2026-08-27 11:29
+  agent: survey-agent-A
+- id: 2025-chhikara-mem0
+  title: 'Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory'
+  authors: Chhikara et al.
+  year: 2025
+  url: https://arxiv.org/abs/2504.19413
+  pdf: https://arxiv.org/pdf/2504.19413
+  added: 2026-08-27 11:25
+  agent: survey-agent-A
+- id: 2025-fang-memp
+  title: 'Memp: Exploring Agent Procedural Memory'
+  authors: Runnan Fang et al.
+  year: 2025
+  url: https://arxiv.org/abs/2508.06433
+  pdf: https://arxiv.org/pdf/2508.06433
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2025-fang-self-evolving-ai-agents-survey
+  title: A Comprehensive Survey of Self-Evolving AI Agents
+  url: https://arxiv.org/abs/2508.07407
+  agent: survey-agent-B (引用)
+  year: 2025
+- id: 2025-gao-self-evolving-agents-survey
+  title: 'A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve'
+  url: https://arxiv.org/abs/2507.21046
+  agent: survey-agent-B (引用)
+  year: 2025
+- id: 2025-gutierrez-hipporag2
+  title: 'From RAG to Memory: Non-Parametric Continual Learning for Large Language Models (HippoRAG 2)'
+  authors: Gutiérrez et al.
+  year: 2025
+  url: https://arxiv.org/abs/2502.14802
+  pdf: https://arxiv.org/pdf/2502.14802
+  added: 2026-08-27 11:24
+  agent: survey-agent-A
+- id: 2025-huang-r-zero
+  title: 'R-Zero: Self-Evolving Reasoning LLM from Zero Data'
+  authors: Huang et al.
+  year: 2025
+  url: https://arxiv.org/abs/2508.05004
+  pdf: https://arxiv.org/pdf/2508.05004
+  added: 2026-08-27 11:54
+  agent: survey-agent-B
+- id: 2025-lange-shinkaevolve
+  title: 'ShinkaEvolve: Towards Open-Ended and Sample-Efficient Program Evolution'
+  authors: Lange, Imajuku & Cetin (Sakana AI)
+  year: 2025
+  url: https://arxiv.org/abs/2509.19349
+  pdf: https://arxiv.org/pdf/2509.19349
+  added: 2026-08-27 11:53
+  agent: survey-agent-B
+- id: 2025-li-memos
+  title: 'MemOS: A Memory OS for AI System'
+  authors: Li et al.
+  year: 2025
+  url: https://arxiv.org/abs/2507.03724
+  pdf: https://arxiv.org/pdf/2507.03724
+  added: 2026-08-27 11:26
+  agent: survey-agent-A
+- id: 2025-mei-context-engineering-survey
+  title: A Survey of Context Engineering for Large Language Models
+  authors: Mei et al.
+  year: 2025
+  url: https://arxiv.org/abs/2507.13334
+  pdf: https://arxiv.org/pdf/2507.13334
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2025-novikov-alphaevolve
+  title: 'AlphaEvolve: A Coding Agent for Scientific and Algorithmic Discovery'
+  url: https://arxiv.org/abs/2506.13131
+  agent: survey-agent-B (引用)
+  year: 2025
+- id: 2025-ouyang-reasoningbank
+  title: 'ReasoningBank: Scaling Agent Self-Evolving with Reasoning Memory'
+  authors: Siru Ouyang et al.
+  year: 2025
+  url: https://arxiv.org/abs/2509.25140
+  pdf: https://arxiv.org/pdf/2509.25140
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2025-rasmussen-zep
+  title: 'Zep: A Temporal Knowledge Graph Architecture for Agent Memory'
+  authors: Rasmussen et al.
+  year: 2025
+  url: https://arxiv.org/abs/2501.13956
+  pdf: https://arxiv.org/pdf/2501.13956
+  added: 2026-08-27 11:24
+  agent: survey-agent-A
+- id: 2025-robeyns-sica
+  title: A Self-Improving Coding Agent (SICA)
+  url: https://arxiv.org/abs/2504.15228
+  agent: survey-agent-B (引用)
+  year: 2025
+- id: 2025-shao-misevolution
+  title: 'Your Agent May Misevolve: Emergent Risks in Self-evolving LLM Agents'
+  url: https://arxiv.org/abs/2509.26354
+  agent: survey-agent-B (引用)
+  year: 2025
+- id: 2025-suzgun-dynamic-cheatsheet
+  title: 'Dynamic Cheatsheet: Test-Time Learning with Adaptive Memory'
+  authors: Mirac Suzgun et al.
+  year: 2025
+  url: https://arxiv.org/abs/2504.07952
+  pdf: https://arxiv.org/pdf/2504.07952
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2025-wang-evoagentx
+  title: 'EvoAgentX: An Automated Framework for Evolving Agentic Workflows'
+  authors: Wang et al.
+  year: 2025
+  url: https://arxiv.org/abs/2507.03616
+  pdf: https://arxiv.org/pdf/2507.03616
+  added: 2026-08-27 11:53
+  agent: survey-agent-B
+- id: 2025-wang-huxley-godel-machine
+  title: Huxley-Gödel Machine
+  url: https://arxiv.org/abs/2510.21614
+  agent: survey-agent-B (引用)
+  year: 2025
+- id: 2025-wang-mirix
+  title: 'MIRIX: Multi-Agent Memory System for LLM-Based Agents'
+  authors: Wang et al.
+  year: 2025
+  url: https://arxiv.org/abs/2507.07957
+  pdf: https://arxiv.org/pdf/2507.07957
+  added: 2026-08-27 11:28
+  agent: survey-agent-A
+- id: 2025-wang-openhands-sdk
+  title: The OpenHands Software Agent SDK
+  authors: Wang et al.
+  year: 2025
+  url: https://arxiv.org/abs/2511.03690
+  pdf: https://arxiv.org/pdf/2511.03690
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2025-xia-agent0
+  title: 'Agent0: Unleashing Self-Evolving Agents from Zero Data via Tool-Integrated Reasoning'
+  authors: Xia et al.
+  year: 2025
+  url: https://arxiv.org/abs/2511.16043
+  pdf: https://arxiv.org/pdf/2511.16043
+  added: 2026-08-27 11:55
+  agent: survey-agent-B
+- id: 2025-xu-amem
+  title: 'A-MEM: Agentic Memory for LLM Agents'
+  authors: Xu et al.
+  year: 2025
+  url: https://arxiv.org/abs/2502.12110
+  pdf: https://arxiv.org/pdf/2502.12110
+  added: 2026-08-27 11:24
+  agent: survey-agent-A
+- id: 2025-ye-agentfold
+  title: 'AgentFold: Long-Horizon Web Agents with Proactive Context Management'
+  authors: Ye et al.
+  year: 2025
+  url: https://arxiv.org/abs/2510.24699
+  pdf: https://arxiv.org/pdf/2510.24699
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2025-zhang-ace
+  title: 'ACE: Agentic Context Engineering'
+  url: https://arxiv.org/abs/2510.04618
+  agent: survey-agent-B (引用)
+  year: 2025
+- id: 2025-zhang-darwin-godel-machine
+  title: 'Darwin Gödel Machine: Open-Ended Evolution of Self-Improving Agents'
+  url: https://arxiv.org/abs/2505.22954
+  agent: survey-agent-B (引用)
+  year: 2025
+- id: 2025-zheng-lifelongagentbench
+  title: 'LifelongAgentBench: Evaluating LLM Agents as Lifelong Learners'
+  authors: Junhao Zheng et al.
+  year: 2025
+  url: https://arxiv.org/abs/2505.11942
+  pdf: https://arxiv.org/pdf/2505.11942
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2025-zheng-skillweaver
+  title: 'SkillWeaver: Web Agents can Self-Improve by Discovering and Honing Skills'
+  authors: Boyuan Zheng et al.
+  year: 2025
+  url: https://arxiv.org/abs/2504.07079
+  pdf: https://arxiv.org/pdf/2504.07079
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2025-zhou-memento
+  title: 'Memento: Fine-tuning LLM Agents without Fine-tuning LLMs'
+  authors: Huichi Zhou et al.
+  year: 2025
+  url: https://arxiv.org/abs/2508.16153
+  pdf: https://arxiv.org/pdf/2508.16153
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2026-bhola-code-isnt-memory
+  title: 'Code Isn''t Memory: A Structural Codebase Index Inside a Coding Agent'
+  authors: Bhola et al.
+  year: 2026
+  url: https://arxiv.org/abs/2606.22417
+  pdf: https://arxiv.org/pdf/2606.22417
+  added: 2026-08-27 11:47
+  agent: survey-agent-D
+- id: 2026-dantanarayana-sigil
+  title: 'SIGIL: Compiling Agent Skills into Typed Harnesses'
+  authors: Dantanarayana et al.
+  year: 2026
+  url: https://arxiv.org/abs/2607.27309
+  pdf: https://arxiv.org/pdf/2607.27309
+  added: 2026-08-27 11:44
+  agent: survey-agent-D
+- id: 2026-du-agent-memory-survey
+  title: 'Memory for Autonomous LLM Agents: Mechanisms, Evaluation, and Emerging Frontiers'
+  authors: Du et al.
+  year: 2026
+  url: https://arxiv.org/abs/2603.07670
+  pdf: https://arxiv.org/pdf/2603.07670
+  added: 2026-08-27 11:31
+  agent: survey-agent-A
+- id: 2026-huang-harness-memory
+  title: 'Harness the Memory: A Holistic Evaluation of Memory Substrates in Memory Agents'
+  authors: Huang et al.
+  year: 2026
+  url: https://arxiv.org/abs/2608.15008
+  pdf: https://arxiv.org/pdf/2608.15008
+  added: 2026-08-27 11:33
+  agent: survey-agent-A
+- id: 2026-kang-harness-continual-learning
+  title: 'Harness Continual Learning: Continual Adaptation Beyond Model Parameters'
+  authors: Kang et al.
+  year: 2026
+  url: https://arxiv.org/abs/2608.19013
+  pdf: https://arxiv.org/pdf/2608.19013
+  added: 2026-08-27 11:43
+  agent: survey-agent-D
+- id: 2026-lee-meta-harness
+  title: 'Meta-Harness: End-to-End Optimization of Model Harnesses'
+  authors: Lee et al.
+  year: 2026
+  url: https://arxiv.org/abs/2603.28052
+  pdf: https://arxiv.org/pdf/2603.28052
+  added: 2026-08-27 11:57
+  agent: survey-agent-B
+- id: 2026-lin-agentic-harness-engineering
+  title: 'Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses'
+  authors: Lin et al.
+  year: 2026
+  url: https://arxiv.org/abs/2604.25850
+  pdf: https://arxiv.org/pdf/2604.25850
+  added: 2026-08-27 11:56
+  agent: survey-agent-B
+- id: 2026-vats-scaffold-effect
+  title: 'The Scaffold Effect in Coding Agents: Harness Choice as a Hidden Variable in Coding-Agent Evaluation'
+  authors: Vats & Golev
+  year: 2026
+  url: https://arxiv.org/abs/2607.22585
+  pdf: https://arxiv.org/pdf/2607.22585
+  added: 2026-08-27 11:49
+  agent: survey-agent-D
+- id: 2026-yao-harness-bench
+  title: 'Harness-Bench: Measuring Harness Effects across Models in Realistic Agent Workflows'
+  authors: Yao et al.
+  year: 2026
+  url: https://arxiv.org/abs/2605.27922
+  pdf: https://arxiv.org/pdf/2605.27922
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2026-ye-meta-context-engineering
+  title: Meta Context Engineering via Agentic Skill Evolution
+  authors: Ye et al.
+  year: 2026
+  url: https://arxiv.org/abs/2601.21557
+  pdf: https://arxiv.org/pdf/2601.21557
+  added: 2026-08-27 11:58
+  agent: survey-agent-B
+- id: 2026-zhang-harness-disclosure
+  title: Stop Comparing LLM Agents Without Disclosing the Harness
+  authors: Zhang et al.
+  year: 2026
+  url: https://arxiv.org/abs/2605.23950
+  pdf: https://arxiv.org/pdf/2605.23950
+  added: 2026-08-27 12:04
+  agent: main-agent(补登)
+- id: 2026-zhang-memskill
+  title: 'MemSkill: Learning and Evolving Memory Skills for Self-Evolving Agents'
+  authors: Haozhen Zhang et al.
+  year: 2026
+  url: https://arxiv.org/abs/2602.02474
+  pdf: https://arxiv.org/pdf/2602.02474
+  added: 2026-08-27 11:41
+  agent: survey-agent-C
+- id: 2026-zhang-self-harness
+  title: 'Self-Harness: Harnesses That Improve Themselves'
+  authors: Zhang et al. (Shanghai AI Lab)
+  year: 2026
+  url: https://arxiv.org/abs/2606.09498
+  pdf: https://arxiv.org/pdf/2606.09498
+  added: 2026-08-27 11:56
+  agent: survey-agent-B
+- id: 2026-zheng-claw-swe-bench
+  title: 'Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks'
+  authors: Zheng et al.
+  year: 2026
+  url: https://arxiv.org/abs/2606.12344
+  pdf: https://arxiv.org/pdf/2606.12344
+  added: 2026-08-27 11:44
+  agent: survey-agent-D
