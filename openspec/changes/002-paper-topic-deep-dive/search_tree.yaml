@@ -1,0 +1,48 @@
+# Change 002 · BFS Search Tree(5 个高论文潜力方向深挖)
+# 状态:pending / in_progress / done
+root: "高论文潜力方向深挖与选题收敛"
+strategy: BFS
+built: "2026-08-28 16:58"
+parent_change: "001"
+
+branches:
+  A5:
+    name: "harness 记忆评测方法学:新基准设计空间"
+    status: in_progress
+    children:
+      A5-1: { q: "现有记忆基准全谱盘点:任务形态、指标、与真实 harness 使用的差距", status: pending }
+      A5-2: { q: "harness 场景独有的评测维度(跨会话、跨项目、固结正确性)是否已有覆盖", status: pending }
+      A5-3: { q: "基准构建可行性:数据来源、标注量、污染控制", status: pending }
+  B1:
+    name: "harness 可编辑面最小充分集:逐组件消融"
+    status: in_progress
+    children:
+      B1-1: { q: "AHE/Self-Harness/Meta-Harness 等工作的可编辑面粒度对照", status: pending }
+      B1-2: { q: "已有消融证据盘点:哪些组件开放进化的收益/风险有实证", status: pending }
+      B1-3: { q: "消融实验设计可行性:任务集、成本、评估协议", status: pending }
+  B3:
+    name: "弱评估器下的自进化:进化信号构造"
+    status: in_progress
+    children:
+      B3-1: { q: "无快速 verifier 任务上的已有尝试(RLAIF、self-consistency、代理指标)", status: pending }
+      B3-2: { q: "'几乎空白'判断核实:2025-2026 是否已有直接工作", status: pending }
+      B3-3: { q: "候选方法草案与实验可行性", status: pending }
+  C6:
+    name: "coding harness 的 lifelong 基准设计"
+    status: in_progress
+    children:
+      C6-1: { q: "现有 lifelong/continual agent 基准盘点与 coding 场景缺口", status: pending }
+      C6-2: { q: "与 A5 的边界与合并可能性(记忆基准 vs lifelong 基准)", status: pending }
+      C6-3: { q: "任务序列构造:真实仓库演化数据的可得性", status: pending }
+  D1:
+    name: "harness-level forgetting 量化与 retention 回归集"
+    status: in_progress
+    children:
+      D1-1: { q: "HCL 之外触及 harness 行为回归的工作全查", status: pending }
+      D1-2: { q: "retention 回归集构建方法与统计效力要求", status: pending }
+      D1-3: { q: "与 C6/A5 基准工作的互补或竞争关系", status: pending }
+
+synthesis:
+  q: "跨 5 方向综合:收敛 1-2 个选题,给出立项论证"
+  status: pending
+  depends_on: [A5, B1, B3, C6, D1]
