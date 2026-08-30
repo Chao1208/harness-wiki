@@ -16,21 +16,21 @@
 
 ## 代表工作
 
-| 工作 | 贡献 | 引用 |
-|---|---|---|
-| Reflexion（2023, NeurIPS） | "以文本代替梯度"的最小自改进范式，HumanEval pass@1 91% | [arXiv:2303.11366](https://arxiv.org/abs/2303.11366) · `raw/papers/2023-shinn-reflexion.pdf` |
-| STOP（2023, COLM'24） | 最早"改进改进器"实验；警示：弱模型上递归改进反而退化 | [arXiv:2310.02304](https://arxiv.org/abs/2310.02304) · `raw/papers/2023-zelikman-stop.pdf` |
-| ADAS（2024, ICLR'25） | meta-agent search 确立"agent 设计空间=代码空间"范式 | [arXiv:2408.08435](https://arxiv.org/abs/2408.08435) · `raw/papers/2024-hu-adas.pdf` |
-| AFlow（2024, ICLR'25 oral） | 工作流代码上的 MCTS 搜索，比 ADAS +19.5% | [arXiv:2410.10762](https://arxiv.org/abs/2410.10762) · `raw/papers/2024-zhang-aflow.pdf` |
-| Darwin Gödel Machine（2025, ICLR'26） | 冻结模型 + 进化 harness 代码，SWE-bench Verified 20.0%→50.0% | [arXiv:2505.22954](https://arxiv.org/abs/2505.22954) · `raw/papers/2025-zhang-darwin-godel-machine.pdf` |
-| Huxley-Gödel Machine（2025） | 指出 Metaproductivity–Performance Mismatch，CMP 谱系搜索超 DGM/SICA | [arXiv:2510.21614](https://arxiv.org/abs/2510.21614) · `raw/papers/2025-wang-huxley-godel-machine.pdf` |
-| AlphaEvolve（2025, DeepMind） | artifact 层进化天花板：56 年来首次改进 Strassen 4×4 复矩阵乘法、回收全球 0.7% 算力 | [arXiv:2506.13131](https://arxiv.org/abs/2506.13131) · `raw/papers/2025-novikov-alphaevolve.pdf` |
-| ShinkaEvolve（2025, Sakana） | 样本效率降一个数量级（约 150 样本达 SOTA），个人跑 harness 进化成为现实 | [arXiv:2509.19349](https://arxiv.org/abs/2509.19349) · `raw/papers/2025-lange-shinkaevolve.pdf` |
-| GEPA（2025, ICLR'26 oral） | 遗传-Pareto 进化 + 轨迹反思，比 GRPO 高最多 +20% 且 rollout 少 35 倍；prompt 优化当前 SOTA | [arXiv:2507.19457](https://arxiv.org/abs/2507.19457) · `raw/papers/2025-agrawal-gepa.pdf` |
-| Self-Harness（2026） | 弱点挖掘→提案→双重回归验证；学到的 harness 机制是**模型特异的** | [arXiv:2606.09498](https://arxiv.org/abs/2606.09498) · `raw/papers/2026-zhang-self-harness.pdf` |
-| AHE（2026） | 可观测性三支柱驱动 harness 自动进化，Terminal-Bench 2 达 77.0% 超人工 Codex harness；消融定位收益主要来自 tools/middleware/长期记忆 | [arXiv:2604.25850](https://arxiv.org/abs/2604.25850) · `raw/papers/2026-lin-agentic-harness-engineering.pdf` |
-| MCE（2026） | 双层优化：进化的不是上下文内容而是**管理上下文的机制**；技能=文件目录，与 Claude Code Skills 同构 | [arXiv:2601.21557](https://arxiv.org/abs/2601.21557) · `raw/papers/2026-ye-meta-context-engineering.pdf` |
-| Misevolution（2025, 上海 AI Lab） | 首次系统定义自进化风险：四条进化通路条条是攻击面，顶级模型无一幸免 | [arXiv:2509.26354](https://arxiv.org/abs/2509.26354) · `raw/papers/2025-shao-misevolution.pdf` |
+| 工作                                  | 贡献                                                                                                 | 引用                                                                                                           |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Reflexion（2023, NeurIPS）            | "以文本代替梯度"的最小自改进范式，HumanEval pass@1 91%                                                             | [arXiv:2303.11366](https://arxiv.org/abs/2303.11366) · `raw/papers/2023-shinn-reflexion.pdf`                 |
+| STOP（2023, COLM'24）                 | 最早"改进改进器"实验；警示：弱模型上递归改进反而退化                                                                        | [arXiv:2310.02304](https://arxiv.org/abs/2310.02304) · `raw/papers/2023-zelikman-stop.pdf`                   |
+| ADAS（2024, ICLR'25）                 | meta-agent search 确立"agent 设计空间=代码空间"范式                                                            | [arXiv:2408.08435](https://arxiv.org/abs/2408.08435) · `raw/papers/2024-hu-adas.pdf`                         |
+| AFlow（2024, ICLR'25 oral）           | 工作流代码上的 MCTS 搜索，比 ADAS +19.5%                                                                      | [arXiv:2410.10762](https://arxiv.org/abs/2410.10762) · `raw/papers/2024-zhang-aflow.pdf`                     |
+| Darwin Gödel Machine（2025, ICLR'26） | 冻结模型 + 进化 harness 代码，SWE-bench Verified 20.0%→50.0%                                                | [arXiv:2505.22954](https://arxiv.org/abs/2505.22954) · `raw/papers/2025-zhang-darwin-godel-machine.pdf`      |
+| Huxley-Gödel Machine（2025）          | 指出 Metaproductivity–Performance Mismatch，CMP 谱系搜索超 DGM/SICA                                        | [arXiv:2510.21614](https://arxiv.org/abs/2510.21614) · `raw/papers/2025-wang-huxley-godel-machine.pdf`       |
+| AlphaEvolve（2025, DeepMind）         | artifact 层进化天花板：56 年来首次改进 Strassen 4×4 复矩阵乘法、回收全球 0.7% 算力                                          | [arXiv:2506.13131](https://arxiv.org/abs/2506.13131) · `raw/papers/2025-novikov-alphaevolve.pdf`             |
+| ShinkaEvolve（2025, Sakana）          | 样本效率降一个数量级（约 150 样本达 SOTA），个人跑 harness 进化成为现实                                                      | [arXiv:2509.19349](https://arxiv.org/abs/2509.19349) · `raw/papers/2025-lange-shinkaevolve.pdf`              |
+| GEPA（2025, ICLR'26 oral）            | 遗传-Pareto 进化 + 轨迹反思，比 GRPO 高最多 +20% 且 rollout 少 35 倍；prompt 优化当前 SOTA                              | [arXiv:2507.19457](https://arxiv.org/abs/2507.19457) · `raw/papers/2025-agrawal-gepa.pdf`                    |
+| Self-Harness（2026）                  | 弱点挖掘→提案→双重回归验证；学到的 harness 机制是**模型特异的**                                                            | [arXiv:2606.09498](https://arxiv.org/abs/2606.09498) · `raw/papers/2026-zhang-self-harness.pdf`              |
+| AHE（2026）                           | 可观测性三支柱驱动 harness 自动进化，Terminal-Bench 2 达 77.0% 超人工 Codex harness；消融定位收益主要来自 tools/middleware/长期记忆 | [arXiv:2604.25850](https://arxiv.org/abs/2604.25850) · `raw/papers/2026-lin-agentic-harness-engineering.pdf` |
+| MCE（2026）                           | 双层优化：进化的不是上下文内容而是**管理上下文的机制**；技能=文件目录，与 Claude Code Skills 同构                                      | [arXiv:2601.21557](https://arxiv.org/abs/2601.21557) · `raw/papers/2026-ye-meta-context-engineering.pdf`     |
+| Misevolution（2025, 上海 AI Lab）       | 首次系统定义自进化风险：四条进化通路条条是攻击面，顶级模型无一幸免                                                                  | [arXiv:2509.26354](https://arxiv.org/abs/2509.26354) · `raw/papers/2025-shao-misevolution.pdf`               |
 
 综述与骨架：Gao et al. what/when/how 三问综述（[arXiv:2507.21046](https://arxiv.org/abs/2507.21046) · `raw/papers/2025-gao-self-evolving-agents-survey.pdf`）、Fang et al. 四组件反馈环综述（[arXiv:2508.07407](https://arxiv.org/abs/2508.07407) · `raw/papers/2025-fang-self-evolving-ai-agents-survey.pdf`）、Lilian Weng《Harness Engineering for Self-Improvement》（2026-07 博客，本主题最重要的单篇综述性文章，提出优化对象递进链与七大挑战）。
 
