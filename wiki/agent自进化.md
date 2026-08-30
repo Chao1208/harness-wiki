@@ -2,7 +2,7 @@
 
 > **一句话结论**：自进化研究的重心已从"设计 agent"（2024 ADAS/AFlow）经"改整个 agent 代码库"（2025 DGM/SICA）移到"把 harness 组件化为显式可编辑面并配回归验证"（2026 Self-Harness/AHE/Meta-Harness）；**富文本反馈全面优于标量奖励**（GEPA 比 RL 高最多 +20% 且 rollout 少 35 倍），而**进化通路即攻击面**（Misevolution：记忆进化致拒绝率降 45–55%）是全领域必须内置的冷水。
 
-← 返回 [wiki 总览](index.md) · 相关页：[harness](harness.md)（可编辑面清单）、[agent持续学习](agent持续学习.md)（经验固化通路）、[agent记忆](agent记忆.md)（记忆作为进化通路之一）
+← 返回 [wiki 总览](index.md) · 相关页：[harness](harness.md)（可编辑面清单）、[agent持续学习](agent持续学习.md)（经验固化通路）、[agent记忆](agent记忆.md)（记忆作为进化通路之一）、[可编辑面](可编辑面.md)（进化对象的谱系与消融证据）、[进化信号构造](进化信号构造.md)（弱评估器下的信号路线）
 
 ## 核心概念与分类法
 
@@ -36,8 +36,8 @@
 
 ## 开放问题
 
-1. **弱评估器下的自进化**：无快速 verifier 的任务（研究品味、repo 长期健康）如何构造进化信号——Weng 七挑战之首，几乎空白（search tree B-3）
-2. **可编辑面的最小充分集**：AHE 7 组件 vs Self-Harness 有界面 vs Meta-Harness 全代码库，缺逐组件消融证据（search tree B-1）
+1. **弱评估器下的自进化（change-002 深挖后修正）**："几乎空白"不成立——权重层五条信号路线已成形且共进化 rubric 子方向已红海，harness 层有首篇 TTHE；剩余真空是 harness 层×真不可验证域、信号可靠性感知治理、延迟结果信号闭环三个交集，详见 [进化信号构造](进化信号构造.md)
+2. **可编辑面的最小充分集（change-002 深挖后修正）**："完全无消融证据"不成立（AHE 换入消融、Yu & Desell 工具面交叉消融等已存在），但证据碎片化且只测收益不测风险；真空白是跨面×收益/风险双轴×固定预算的前瞻性消融，详见 [可编辑面](可编辑面.md)
 3. **进化环安全审计协议**：Misevolution 四通路检测做成标准回归门，无任何开源实现（search tree B-4）
 4. **scaffolding 自改进的天花板之争**：SICA 明言有上限，DGM 认为开放式探索可持续
 5. **harness 进化与权重更新的联合优化**：SIA/Continual Harness 证据尚弱（与[持续学习](agent持续学习.md)交汇）
@@ -45,6 +45,8 @@
 ## 参考
 
 - 分支底稿：`Project/survey/branch_B_agent自进化.md`（含开源项目 star 盘点、工程博客、防御设计汇总）
+- 深挖底稿：`Project/survey/deep_B1_可编辑面消融.md`、`Project/survey/deep_B3_弱评估器自进化.md`
 
 ---
 落款：report-agent · 2026-08-27 12:16
+更新：survey-agent · 2026-08-30 10:15（融入 change-002 B1/B3 深挖结论：开放问题 1、2 由"空白"修正为"部分空白"，链入可编辑面页与进化信号构造页）

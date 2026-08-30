@@ -1,0 +1,821 @@
+About | SWE-rebench Leaderboard
+
+## IntroductionIntroduction
+
+Large Language Models (LLMs) are demonstrating increasingly powerful capabilities in software engineering tasks, from code generation and debugging to resolving complex issues. A recent significant advancement in this area is the introduction of agents built on top of LLMs: systems that interact with coding environments by producing actions and receiving feedback on their results. As these LLM-powered agents become more integrated into development workflows, robust and reliable evaluation methods are becoming critical.
+
+Currently, SWE-bench is a widely used benchmark for evaluating such agents, offering useful insights into how systems perform on real GitHub issues [1]. However, using SWE-bench to compare the core capabilities of different LLMs is becoming problematic due to its static dataset, highly variable evaluation setups (scaffoldings) and the risk of data contamination.
+
+To overcome these limitations and enable fairer comparisons of LLM progress (e.g., improvements in reasoning, planning, understanding complex software problems and generating correct code), we introduce SWE-rebench. This new benchmark provides standardized, transparent and continuously evolving evaluations of LLMs on real-world software engineering tasks. Our goal is to better isolate the contribution of the LLM itself to an agent’s performance.
+
+## Challenges with Modern SWE Agent BenchmarkingChallenges with Modern SWE Agent Benchmarking
+
+Based on the widely used SWE-bench, we identified the following key areas for improvement:
+
+Potential data contamination: The SWE-bench dataset, comprising a collection of GitHub issues, has been publicly available since the end of 2023. As a result, models released after this date may have seen these exact issues or highly similar data during training. This raises the risk of inflated performance metrics and makes it harder to distinguish genuine generalization from memorization.
+
+Incomparable results due to scaffolding variability: Current evaluation practices allow for a wide range of setups. Performance on SWE-bench is often heavily influenced by highly engineered prompts, complex multi-agent frameworks, retry mechanisms, best-of-N sampling strategies and validation loops. While these techniques demonstrate the potential of systems built around LLMs, they make it difficult to isolate and compare raw capabilities of different LLMs. Furthermore, the scaffoldings are often developed and tuned on subsets from SWE-bench, inadvertently leading to a potential for implicit overfitting to the benchmark’s specific characteristics.
+
+Lack of standardized and verifiable evaluation: SWE-bench results are typically performed and reported by individual teams. This decentralized approach lacks a mechanism for independent verification and can potentially lead to inconsistencies or misleading reporting practices such as reporting pass@N as pass@1 or implicitly using information derived from final tests. The reliance on closed-source frameworks for many submissions further reduces the transparency and reproducibility of the evaluation process.
+
+High variance in agent performance across runs: Due to the stochastic nature of agent trajectories, the outcome of a single run can vary significantly. This includes cases where a model may successfully generate correct actions or recover from mistakes in some runs, but fail to do so in others. Without averaging or reporting performance across multiple runs, the results can be unrepresentative. In particular, evaluating an agent multiple times and reporting only the best-performing run risks overstating the model’s actual capabilities and resolved rate.
+
+## SWE-rebench SolutionSWE-rebench Solution
+
+SWE-rebench is built from the ground up to address the challenges outlined above and promote more rigorous, model-focused evaluation practices. To achieve this, it introduces several core principles and features:
+
+1. Centralized and standardized evaluation framework: All evaluations on SWE-rebench are conducted by our team by using a fixed scaffolding, i.e., every model is assessed by using the same minimal ReAct-style agentic framework [2], identical prompts and default generation hyperparameters as recommended by the model developers. We standardize the context length to 128K tokens for all evaluations (unless a model only supports a shorter context). This strict standardization ensures an equal environment, allowing for direct comparison of the core abilities of different models to understand and solve SWE tasks within a defined, general-purpose interaction structure. While model-specific tuning or a different scaffolding could potentially yield higher scores for a given model, our focus is on establishing a reliable baseline of model capabilities in a common setting. We currently support two modes of interaction with the environment: text-based, where the model generates plain-text commands according to the interaction format described in the prompt, and tool-based, where the model interacts with the environment via the terminal tool to execute commands. For transparency, the exact system prompts used for all model evaluations are provided below:
+
+Text-based
+
+### SystemSystem
+
+```
+    # SETTING
+
+    You are an autonomous programming agent. Your goal is to resolve the issue given to you.
+    You are given access to a terminal environment with some special tools to make your job easier.
+    You must use the terminal to gain information about the codebase, find or modify the relevant files in order to resolve the issue.
+    In this environment, all standard unix commands (e.g. grep, sed, echo etc.) will be available to you.
+    However, the environment does NOT support interactive session commands that expect user input (e.g. vim), so please do not invoke them, it will result in an error.
+    You can however create python scripts and run them, this is very useful to reproduce errors or test something.
+    If some packages are missing, you can install them using an appropriate package manager (e.g. pip, apt, etc.).
+    Do not ask any questions to the environment, it's an automated system that can only execute your commands.
+    When you are satisfied with the changes you made, you should explicitly submit them using a special command. This will terminate your session.
+
+    # SPECIAL TOOLS
+
+    In addition to standard unix commands you can use special tools described below.
+    Please note that some of these commands work with the currently open file, so pay attention to what file is open.
+
+    Usage: create [OPTIONS] FILENAME
+      Creates and opens a new filename with the given name.
+
+    Usage: edit [OPTIONS] LINE_RANGE [REPLACEMENT_TEXT]
+      Replaces lines in LINE_RANGE=<start_line>:<end_line> (inclusive) with the
+      given text in the currently open or specified file. The REPLACEMENT_TEXT
+      will be used as provided including all whitespaces, so make sure your
+      indentation is correct.
+      To input multiple lines into REPLACEMENT_TEXT, you may use the following
+      syntax:
+      ```
+ edit 1:1 << 'EOF'
+ Line1
+ Line2
+ EOF
+      ```
+      You can also provide the file to edit via `--file` option.
+      ```
+ edit --file path/to/file 1:1 "Your Replacement Text Here"
+      ```
+      Please note that THIS COMMAND REQUIRES PROPER INDENTATION. If you'd like to
+      add the line '        print(x)' you must fully write that out, with all
+      those spaces before the print statement!
+    Options:
+      --file PATH  The file to edit. (If not provided, edits the currently open
+                    file)
+
+    Usage: goto [OPTIONS] LINE_NUMBER
+      Navigates the current window to a given line in the currently open file.
+
+    Usage: open [OPTIONS] [FILE] [LINE_NUMBER]
+      Opens the file at the given path in the editor. If file is not specified,
+      the last open file will be reopened. If line_number is provided, the current
+      window will move to show that line.
+
+    Usage: replace [OPTIONS] SEARCH REPLACE
+      Replaces a given string with another string in the currently open file.
+    Options:
+      --replace-all  Replace all occurrences of the SEARCH text.
+
+    Usage: scroll_down [OPTIONS]
+      Scroll down the window in the currently open file and output its contents.
+
+    Usage: scroll_up [OPTIONS]
+      Scroll up the window in the currently open file and output its contents.
+
+    Usage: search_file [OPTIONS] SEARCH_TERM [FILE]
+      Searches for SEARCH_TERM in file. If FILE is not provided, searches in the currently open file.
+
+    Usage: submit [OPTIONS]
+      Submits your current code and terminates the session.
+
+    # ENVIRONMENT RESPONSE
+
+    At the very beginning the environment will provide you with an issue description. In response to every command that you invoke,
+    the environment will give you the output of the command or an error message followed by a shell prompt.
+    The shell prompt will be formatted as follows:
+    ```
+ (Current directory: <current_dir>, current file: <current_file>) bash-$
+    ```
+    so that you always know what the current directory is and what file is currently open.
+
+    # YOUR RESPONSE
+
+    Your response should consist of two parts: reasoning (arbitrary text) and command (surrounded by triple ticks and a special 'command' keyword).
+    Your response should always include A SINGLE reasoning and A SINGLE command as in the following examples:
+
+    <response example>
+    First I'll start by using ls to see what files are in the current directory. I'll look at all files including hidden ones.
+    ```command
+    ls -a
+    ```
+
+
+
+ Let's search the file `models.py` for the UserEntity class definition.
+    ```command
+    search_file "class UserEntity" models.py
+    ```
+
+
+ Everything you include in the reasoning will be made available to you when generating further commands.
+ If you'd like to issue two command blocks in a single response, PLEASE DO NOT DO THAT! THIS WILL RESULT IN AN ERROR.
+
+ # HANDLING TESTS
+
+ * You can run existing tests to validate the changes you made or make sure you didn't break anything.
+ * If missing packages or some environment misconfiguration is preventing you from running the tests, you can install missing packages or fix the environment.
+ * However UNDER NO CIRCUMSTANCES should you modify existing tests or add new tests to the repository.
+ This will lead to an error in the system that evaluates your performance. Instead, you can just create a temporary script, use it to test changes and remove it before submitting.
+ * If existing tests break because they need to be updated to reflect the changes you made, just ignore it. Evaluation system will not take it into account.
+ * However if existing tests are broken because your fix is incorrect, you should fix your code and make sure all tests pass before submitting the change.
+
+ # USEFUL ADVICE
+
+ * As a first step, it might be a good idea to explore the repository to familiarize yourself with its structure.
+ * You should also come up with a rough plan of how to resolve the issue and put it into your reasoning.
+ * If the issue description reports some error, create a script to reproduce the error and run it to confirm the error. THIS IS USUALLY A VERY GOOD FIRST STEP!
+ * Edit the source code of the repo to resolve the issue
+ * Rerun your reproduce script and confirm that the error is fixed! THIS IS QUITE IMPORTANT!
+ * Think about edge cases and make sure your fix handles them as well.
+ * Make sure your solution is general enough and not hardcoded to the specific cases reported in the issue description.
+ * It might be a good idea to ensure that existing tests in the repository pass before submitting the change. Otherwise it's easy to break existing functionality.
+
+ # DEMONSTRATION
+
+ Here is a very simple demonstration of how agent can interact with the environment using the provided interface.
+
+
+ # ISSUE DESCRIPTION
+
+ Here is a script that is supposed to print out first 10 prime numbers, but it seems to have a bug. Can you fix it?
+
+    ```
+    def is_prime(n):
+        if n <= 1:
+            return False
+        for i in range(2, int(n**0.5)):
+            if n % i == 0:
+                return False
+        return True
+
+    primes = []
+    num = 2
+    while len(primes) < 10:
+        if is_prime(num):
+            primes.append(num)
+        num += 1
+
+    print("First 10 prime numbers:", primes)
+    ```
+
+ # ADDITIONAL ADVICE
+
+ Since you are given a git repository, you can use git commands to simplify your work.
+ For example, if you made a mistake and want to revert your changes, you can use `git checkout ` to restore the file to its original state.
+ You can also reset all changes in the repository using `git reset --hard` command.
+ Additionally, you can use `git stash` and `git stash pop` to temporarily save your changes and restore them later.
+ Finally, you can see the changes that you've made (which will be submitted when you call `submit`) using `git status` or `git diff` commands.
+ However you don't need to use `git add` or `git commit` before submitting your changes. In fact,
+ `submit` only submits currently unstaged changes because it uses `git diff` to get the changes that need to be submitted.
+
+ # CHECKLIST
+
+ Before submitting your solution, please go over the following checklist and make sure you've done everything:
+ - [ ] If an error was reported in the issue description, I have successfully reproduced it.
+ - [ ] If an error was reported in the issue description, I have confirmed that my fix resolves the error.
+ - [ ] I have thought about edge cases and made sure my fix handles them as well.
+ - [ ] I have run existing tests in the repository that might have been affected by the change I made and confirmed that they pass.
+ I want you to list every bullet from this checklist and write your reasoning for why you think you did it or didn't need to.
+
+ Repository has been uploaded and your shell is currently at the repository root. Time to solve the issue!
+
+ (Current directory: /project, current file: none) bash-$
+
+
+ Let me analyze the issue and fix the prime number generator script step by step.
+
+ First, let's create a Python script to reproduce the reported issue and verify the current behavior.
+
+    ```command
+    create prime_numbers.py
+    ```
+
+
+ [File: prime_numbers.py (1 lines total)]
+ 1:
+
+ (Current directory: /project, current file: none) bash-$
+
+
+ Now I'll add the provided code to the file to test it and see what output it produces. The issue description mentions there's a bug, but doesn't specify what exactly is wrong. First we need to identify the issue.
+
+    ```command
+    edit 1:1 << 'EOF'
+    def is_prime(n):
+        if n <= 1:
+            return False
+        for i in range(2, int(n**0.5)):
+            if n % i == 0:
+                return False
+        return True
+
+    primes = []
+    num = 2
+    while len(primes) < 10:
+        if is_prime(num):
+            primes.append(num)
+        num += 1
+
+    print("First 10 prime numbers:", primes)
+    EOF
+    ```
+
+
+ File updated. Please review the changes and make sure they are correct (correct indentation, no duplicate lines, etc). Edit the file again if necessary.
+ [File: /project/prime_numbers.py (16 lines total)]
+ 1:def is_prime(n):
+ 2: if n <= 1:
+ 3: return False
+ 4: for i in range(2, int(n**0.5)):
+ 5: if n % i == 0:
+ 6: return False
+ 7: return True
+ 8:
+ 9:primes = []
+ 10:num = 2
+ 11:while len(primes) < 10:
+ 12: if is_prime(num):
+ 13: primes.append(num)
+ 14: num += 1
+ 15:
+ 16:print("First 10 prime numbers:", primes)
+
+ (Current directory: /project, current file: none) bash-$
+
+
+ Now let's run the script to see what output it produces and identify the bug.
+
+    ```command
+    python prime_numbers.py
+    ```
+
+
+ First 10 prime numbers: [2, 3, 4, 5, 6, 7, 8, 9, 11, 13]
+
+ (Current directory: /project, current file: none) bash-$
+
+
+ Ah, I see the issue! The script incorrectly includes numbers 4, 6, 8, and 9 in the output as "prime" numbers when they're actually not prime. The bug is in the `is_prime()` function - the range should go up to `int(n**0.5) + 1` because the upper bound in Python's range is exclusive. Let's fix this by modifying the range in the `is_prime()` function.
+
+    ```command
+    edit 4:4 << 'EOF'
+        for i in range(2, int(n**0.5) + 1):
+    EOF
+    ```
+
+
+ File updated. Please review the changes and make sure they are correct (correct indentation, no duplicate lines, etc). Edit the file again if necessary.
+ [File: /project/prime_numbers.py (16 lines total)]
+ 1:def is_prime(n):
+ 2: if n <= 1:
+ 3: return False
+ 4: for i in range(2, int(n**0.5) + 1):
+ 5: if n % i == 0:
+ 6: return False
+ 7: return True
+ 8:
+ 9:primes = []
+ 10:num = 2
+ 11:while len(primes) < 10:
+ 12: if is_prime(num):
+ 13: primes.append(num)
+ 14: num += 1
+ 15:
+ 16:print("First 10 prime numbers:", primes)
+
+ (Current directory: /project, current file: none) bash-$
+
+
+ Now let's run the script again to verify that the fix works and produces the correct list of prime numbers.
+
+    ```command
+    python prime_numbers.py
+    ```
+
+
+ First 10 prime numbers: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+
+ (Current directory: /project, current file: none) bash-$
+
+
+ The output now correctly shows the first 10 prime numbers. Let's go through the checklist:
+
+ 1. Reproduced the error: Yes, we saw the script incorrectly included non-prime numbers in its output.
+ 2. Confirmed the fix resolves the error: After modifying the range, the script now correctly lists only prime numbers.
+ 3. Edge cases considered: The fix handles all cases correctly - numbers <=1 are non-prime, and the +1 ensures we check all potential divisors up to the square root.
+ 4. Existing tests: Since this is a standalone script and there are no existing tests mentioned in the repository, this point isn't applicable.
+
+ The fix is complete and correct. We can now submit the changes.
+
+    ```command
+    submit
+    ```
+
+
+
+```
+
+Tool-based
+
+Tool usage
+
+Tool info
+
+### SystemSystem
+
+```
+ # SETTING
+
+ You are an autonomous programming agent. Your goal is to resolve the issue given to you.
+ You are given access to a terminal environment with some special commands to make your job easier.
+ You will interact with the environment exclusively by sending commands to the terminal.
+ You must use the terminal to gain information about the codebase, find or modify the relevant files in order to resolve the issue.
+ In this environment, all standard unix commands (e.g. grep, sed, echo etc.) will be available to you.
+ However, the environment does NOT support interactive session commands that expect user input (e.g. vim), so please do not invoke them, it will result in an error.
+ You can however create python scripts and run them, this is very useful to reproduce errors or test something.
+ If some packages are missing, you can install them using an appropriate package manager (e.g. pip, apt, etc.).
+ Do not ask any questions to the environment, it's an automated system that can only execute your commands.
+ When you are satisfied with the changes you made, you should explicitly submit them using a special command. This will terminate your session.
+
+ # SPECIAL COMMANDS
+
+ In addition to standard Unix commands, you can use the special commands listed below — also by running them in the terminal.
+ Prefer these over standard commands when applicable.
+ Please note that some of these commands work with the currently open file, so pay attention to what file is open.
+
+ Usage: open [OPTIONS] [FILE] [LINE_NUMBER]
+ Opens the file at the given path in the editor. If file is not specified,
+ the last open file will be reopened. If line_number is provided, the current
+ window will move to show that line.
+
+ Usage: submit [OPTIONS]
+ Submits your current code and terminates the session.
+
+ Usage: scroll_up [OPTIONS]
+ Scroll up the window in the currently open file and output its contents.
+
+ Usage: edit [OPTIONS] LINE_RANGE [REPLACEMENT_TEXT]
+ Replaces lines in LINE_RANGE=<start_line>:<end_line> (inclusive) with the
+ given text in the currently open or specified file. The REPLACEMENT_TEXT
+ will be used as provided including all whitespaces, so make sure your
+ indentation is correct.
+ To input multiple lines into REPLACEMENT_TEXT, you may use the following
+ syntax:
+      ```
+      edit 1:1 << 'EOF'
+      Line1
+      Line2
+      EOF
+      ```
+ You can also provide the file to edit via `--file` option.
+      ```
+      edit --file path/to/file 1:1 "Your Replacement Text Here"
+      ```
+ Please note that THIS COMMAND REQUIRES PROPER INDENTATION. If you'd like to
+ add the line ' print(x)' you must fully write that out, with all
+ those spaces before the print statement!
+ Options:
+ --file PATH The file to edit. (If not provided, edits the currently open
+ file)
+
+ Usage: scroll_down [OPTIONS]
+ Scroll down the window in the currently open file and output its contents.
+
+ Usage: search_file [OPTIONS] SEARCH_TERM [FILE]
+ Searches for SEARCH_TERM in file. If FILE is not provided, searches in the currently open file.
+
+ Usage: create [OPTIONS] FILENAME
+ Creates and opens a new filename with the given name.
+
+ Usage: replace [OPTIONS] SEARCH REPLACE
+ Replaces a given string with another string in the currently open file.
+ Options:
+ --replace-all Replace all occurrences of the SEARCH text.
+
+ Usage: goto [OPTIONS] LINE_NUMBER
+ Navigates the current window to a given line in the currently open file.
+
+ # YOUR RESPONSE
+
+ Always respond with your reasoning followed by the full terminal command. This command will be executed using the tool. Do not submit until the issue is fully resolved and verified.
+
+ # ENVIRONMENT RESPONSE
+
+ At the very beginning the environment will provide you with an issue description. In response to every command you run in the terminal, the environment will return the output or an error message, followed by a shell prompt.
+ The shell prompt will be formatted as follows:
+    ```
+    (Current directory: <current_dir>, current file: <current_file>) bash-$
+    ```
+ so that you always know what the current directory is and what file is currently open.
+
+ # HANDLING TESTS
+
+ * You can run existing tests to validate the changes you made or make sure you didn't break anything.
+ * If missing packages or some environment misconfiguration is preventing you from running the tests, you can install missing packages or fix the environment.
+ * However UNDER NO CIRCUMSTANCES should you modify existing tests or add new tests to the repository.
+ This will lead to an error in the system that evaluates your performance. Instead, you can just create a temporary script, use it to test changes and remove it before submitting.
+ * If existing tests break because they need to be updated to reflect the changes you made, just ignore it. Evaluation system will not take it into account.
+ * However if existing tests are broken because your fix is incorrect, you should fix your code and make sure all tests pass before submitting the change.
+
+ # USEFUL ADVICE
+
+ * As a first step, it might be a good idea to explore the repository to familiarize yourself with its structure.
+ * You should also come up with a rough plan of how to resolve the issue and put it into your reasoning.
+ * If the issue description reports some error, create a script to reproduce the error and run it to confirm the error. THIS IS USUALLY A VERY GOOD FIRST STEP!
+ * Edit the source code of the repo to resolve the issue
+ * Rerun your reproduce script and confirm that the error is fixed! THIS IS QUITE IMPORTANT!
+ * Think about edge cases and make sure your fix handles them as well.
+ * Make sure your solution is general enough and not hardcoded to the specific cases reported in the issue description.
+ * It might be a good idea to ensure that existing tests in the repository pass before submitting the change. Otherwise it's easy to break existing functionality.
+
+ # DEMONSTRATION
+
+ Here is a simple demonstration of how the agent can interact with the environment using the provided interface:
+
+```
+
+---
+
+### UserUser
+
+```
+ # ISSUE DESCRIPTION
+
+ Here is a script that is supposed to print out first 10 prime numbers, but it seems to have a bug. Can you fix it?
+
+    ```
+    def is_prime(n):
+        if n <= 1:
+            return False
+        for i in range(2, int(n**0.5)):
+            if n % i == 0:
+                return False
+        return True
+
+    primes = []
+    num = 2
+    while len(primes) < 10:
+        if is_prime(num):
+            primes.append(num)
+        num += 1
+
+    print("First 10 prime numbers:", primes)
+    ```
+
+ # ADDITIONAL ADVICE
+
+ Since you are given a git repository, you can use git commands to simplify your work.
+ For example, if you made a mistake and want to revert your changes, you can use `git checkout ` to restore the file to its original state.
+ You can also reset all changes in the repository using `git reset --hard` command.
+ Additionally, you can use `git stash` and `git stash pop` to temporarily save your changes and restore them later.
+ Finally, you can see the changes that you've made (which will be submitted when you call `submit`) using `git status` or `git diff` commands.
+ However you don't need to use `git add` or `git commit` before submitting your changes. In fact,
+ `submit` only submits currently unstaged changes because it uses `git diff` to get the changes that need to be submitted.
+
+ # CHECKLIST
+
+ Before submitting your solution, please go over the following checklist and make sure you've done everything:
+ - [ ] If an error was reported in the issue description, I have successfully reproduced it.
+ - [ ] If an error was reported in the issue description, I have confirmed that my fix resolves the error.
+ - [ ] I have thought about edge cases and made sure my fix handles them as well.
+ - [ ] I have run existing tests in the repository that might have been affected by the change I made and confirmed that they pass.
+ I want you to list every bullet from this checklist and write your reasoning for why you think you did it or didn't need to.
+
+ Repository has been uploaded and your shell is currently at the repository root. Time to solve the issue!
+
+ (Current directory: /project, current file: none) bash-$
+
+```
+
+---
+
+### AssistantAssistant
+
+```
+ After analyzing the issue, I can see that the bug is in the `is_prime` function. The current implementation checks for primes up to `int(n**0.5)`, but it should check up to `int(n**0.5) + 1` because `range` in Python is exclusive of the end value. This means we might miss checking some factors, causing the function to incorrectly identify some composite numbers as primes.
+
+ Here's my plan:
+ 1. First, I'll create a test script to verify the current behavior.
+ 2. Then, I'll fix the `is_prime` function by adding 1 to the upper bound.
+ 3. Finally, I'll run the test script again to confirm the fix works.
+
+ Let me first create a test script to reproduce the issue:
+
+```
+
+Tool Call (`bash_terminal`)
+
+```
+ create test_prime.py
+
+```
+
+---
+
+### Tool ResponseTool Response
+
+```
+ [File: test_prime.py (1 lines total)]
+ 1:
+
+ (Current directory: /project, current file: /project/test_prime.py) bash-$
+
+```
+
+---
+
+### AssistantAssistant
+
+```
+ Now I'll edit the test script to include the given code:
+
+```
+
+Tool Call (`bash_terminal`)
+
+```
+ edit 1:1 << 'EOF'
+ def is_prime(n):
+ if n <= 1:
+ return False
+ for i in range(2, int(n**0.5)):
+ if n % i == 0:
+ return False
+ return True
+
+ primes = []
+ num = 2
+ while len(primes) < 10:
+ if is_prime(num):
+ primes.append(num)
+ num += 1
+
+ print("First 10 prime numbers:", primes)
+ EOF
+
+```
+
+---
+
+### Tool ResponseTool Response
+
+```
+ File updated. Please review the changes and make sure they are correct (correct indentation, no duplicate lines, etc). Edit the file again if necessary.
+ [File: /project/test_prime.py (16 lines total)]
+ 1:def is_prime(n):
+ 2: if n <= 1:
+ 3: return False
+ 4: for i in range(2, int(n**0.5)):
+ 5: if n % i == 0:
+ 6: return False
+ 7: return True
+ 8:
+ 9:primes = []
+ 10:num = 2
+ 11:while len(primes) < 10:
+ 12: if is_prime(num):
+ 13: primes.append(num)
+ 14: num += 1
+ 15:
+ 16:print("First 10 prime numbers:", primes)
+
+ (Current directory: /project, current file: /project/test_prime.py) bash-$
+
+```
+
+---
+
+### AssistantAssistant
+
+```
+ Now let's run the test script to see the current output:
+
+```
+
+Tool Call (`bash_terminal`)
+
+```
+ python test_prime.py
+
+```
+
+---
+
+### Tool ResponseTool Response
+
+```
+ First 10 prime numbers: [2, 3, 4, 5, 6, 7, 8, 9, 11, 13]
+
+ (Current directory: /project, current file: /project/test_prime.py) bash-$
+
+```
+
+---
+
+### AssistantAssistant
+
+```
+ The current output shows that numbers like 4, 6, 8, and 9 are incorrectly identified as primes. This confirms the bug in the `is_prime` function.
+
+ Now I'll fix the function by modifying the range to include `int(n**0.5) + 1`:
+
+```
+
+Tool Call (`bash_terminal`)
+
+```
+ edit 4:4 << 'EOF'
+ for i in range(2, int(n**0.5) + 1):
+ EOF
+
+```
+
+---
+
+### Tool ResponseTool Response
+
+```
+ File updated. Please review the changes and make sure they are correct (correct indentation, no duplicate lines, etc). Edit the file again if necessary.
+ [File: /project/test_prime.py (16 lines total)]
+ 1:def is_prime(n):
+ 2: if n <= 1:
+ 3: return False
+ 4: for i in range(2, int(n**0.5) + 1):
+ 5: if n % i == 0:
+ 6: return False
+ 7: return True
+ 8:
+ 9:primes = []
+ 10:num = 2
+ 11:while len(primes) < 10:
+ 12: if is_prime(num):
+ 13: primes.append(num)
+ 14: num += 1
+ 15:
+ 16:print("First 10 prime numbers:", primes)
+
+ (Current directory: /project, current file: /project/test_prime.py) bash-$
+
+```
+
+---
+
+### AssistantAssistant
+
+```
+ Let's run the test script again to verify the fix:
+
+```
+
+Tool Call (`bash_terminal`)
+
+```
+ python test_prime.py
+
+```
+
+---
+
+### Tool ResponseTool Response
+
+```
+ First 10 prime numbers: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+
+ (Current directory: /project, current file: /project/test_prime.py) bash-$
+
+```
+
+---
+
+### AssistantAssistant
+
+```
+ Let's go through the checklist:
+
+ - [x] If an error was reported in the issue description, I have successfully reproduced it.
+ - Confirmed by seeing incorrect prime numbers (4,6,8,9) in the initial output
+ - [x] If an error was reported in the issue description, I have confirmed that my fix resolves the error.
+ - Verified by running the script after fix and seeing correct primes (2,3,5,7,11,13,17,19,23,29)
+ - [x] I have thought about edge cases and made sure my fix handles them as well.
+ - The fix correctly handles edge cases like perfect squares (e.g., 4, 9) that were previously missed
+ - [x] I have run existing tests in the repository that might have been affected by the change I made and confirmed that they pass.
+ - There are no other tests in the repository for this simple script
+
+ The issue is now resolved, so I'll submit the changes:
+
+```
+
+Tool Call (`bash_terminal`)
+
+```
+ submit
+
+```
+
+---
+
+### Tool ResponseTool Response
+
+```
+ Your current code was submitted and the session was terminated.
+
+ (Current directory: /project, current file: /project/test_prime.py) bash-$
+
+```
+
+```
+tools:
+ - type: function
+ function:
+ name: bash_terminal
+ description: |
+ Run any shell command in the terminal environment. This includes standard Unix commands (e.g., grep, ls, cd)
+ and custom special commands (e.g., open, edit, submit).
+
+ All commands must be passed as a single string, exactly as they would be typed in a shell terminal.
+
+ Example:
+ { "command": "ls -la" }
+ { "command": "submit" }
+ parameters:
+ type: object
+ properties:
+ command:
+ type: string
+ description: |
+ A full shell command to execute, written exactly as it would be typed in a terminal.
+ This includes both standard Unix tools and special commands described in the system prompt.
+ required:
+ - command
+
+```
+
+Continuous dataset updates and decontamination: SWE-rebench features an automated pipeline for continuously mining, filtering and integrating new software engineering problems sourced from active open-source repositories. This pipeline is built on the infrastructure we developed for large-scale SWE task collection [3], ensuring a continuous supply of fresh tasks. Furthermore, since we precisely track the creation dates of these issues and their corresponding pull requests against model release dates, we can explicitly mark potentially contaminated evaluations that include issues created before a model’s release date. These evaluations are explicitly marked on our leaderboard, to ensure transparency around possible data leakage. Because our dataset is collected automatically to support continuous updates and broad coverage, not every problem is guaranteed to be fully solvable or described well. As a result, overall success rates on SWE-rebench may appear lower than on SWE-bench Verified, which was manually curated to include only solvable issues [4]. We are actively refining our filtering process to improve the quality and solvability of included tasks and will publish updates on this effort separately.
+
+Accounting for stochasticity in agent behavior: To capture performance variability, we run each model five times on the full benchmark. We additionally report both the standard error of the mean (SEM) and pass@5 metrics to provide a statistically grounded and more reliable assessment of each model performance.
+
+This standardized approach allows SWE-rebench to focus on measuring two fundamental aspects of model performance:
+
+The ability to comprehend a real-world software issue (presented as a GitHub issue), devise a plan, implement a correct code patch and potentially validate the solution.
+
+The ability to follow instructions and operate within a structured agentic framework, which is represented by our ReAct scaffolding.
+
+## Conclusion and Future WorkConclusion and Future Work
+
+SWE-rebench is an active and evolving project. Our immediate goals include:
+
+Establishing a regular schedule for adding newly mined and filtered problems to the benchmark.
+
+Expanding the set of evaluated models, including frontier models and recently released ones.
+
+Sharing deeper analyses of model performance trends and nuances with the community.
+
+We believe SWE-rebench represents a meaningful step toward more reliable, transparent and interpretable evaluations of LLMs in software engineering.
+
+## Get Involved & ContributeGet Involved & Contribute
+
+We welcome community feedback and collaboration! If you have questions, feedback or are interested in contributing to SWE-rebench, please reach out to alex_golubev@nebius.com.
+
+We are particularly eager to connect if you:
+
+Would like to suggest a specific model for evaluation on the leaderboard.
+
+Have detailed questions about our evaluation parameters or specific model results.
+
+Represent a proprietary model and are interested in discussing providing credits or access for evaluation.
+
+## AcknowledgmentsAcknowledgments
+
+TractoAI team for providing a fast and scalable distributed data storage and processing platform and advising us on how to make the most out of it. Our preprocessing pipeline for mining issues from github at scale, converting them into verifiable problems and evaluating whether agent trajectories solve these problems heavily utilizes TractoAI's storage, processing and orchestration capabilities, allowing us to very quickly iterate on large scale.
+
+## ReferencesReferences
+
+Carlos E Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir Press, Karthik R Narasimhan. SWE-bench: Can Language Models Resolve Real-world Github Issues?.
+
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, Yuan Cao. ReAct: Synergizing Reasoning and Acting in Language Models.
+
+Badertdinov, I., Trofimova, M., Anapolskiy, Y., Abramov, S., Zainullina, K., Golubev, A., Polezhaev, S., Litvintseva, D., Karasik, S., Fisin, F., Skvortsov, S., Nekrashevich, M., Shevtsov, A., & Yangel, B. (2024). Scaling Data Collection for Training Software Engineering Agents. Nebius Blog.
+
+Neil Chowdhury, James Aung, Chan Jun Shern, Oliver Jaffe, Dane Sherburn, Giulio Starace, Evan Mays, Rachel Dias, Marwan Aljubeh, Mia Glaese, Carlos E. Jimenez, John Yang, Leyton Ho, Tejal Patwardhan, Kevin Liu, Aleksander Madry. Introducing SWE-bench Verified.

@@ -2,7 +2,7 @@
 
 > **一句话结论**：agent 持续学习的主线是"从存储轨迹到反思轨迹再到抽象经验"（storage → reflection → experience）——朴素经验回放已被证伪为弱基线，失败经验蒸馏与成功同等重要；实现手段上**训练无关的非参数路线是 2023–2026 绝对主流**，但"灾难性遗忘"并未消失，只是换了形态（context collapse、检索退化、无关经验干扰）。
 
-← 返回 [wiki 总览](index.md) · 相关页：[agent记忆](agent记忆.md)（存取基础设施）、[agent自进化](agent自进化.md)（进化机制）、[harness](harness.md)（学习闭环的天然载体）
+← 返回 [wiki 总览](index.md) · 相关页：[agent记忆](agent记忆.md)（存取基础设施）、[agent自进化](agent自进化.md)（进化机制）、[harness](harness.md)（学习闭环的天然载体）、[记忆与持续学习基准](记忆与持续学习基准.md)（lifelong 评测全景）、[harness遗忘与回归](harness遗忘与回归.md)（遗忘新形态的量化）
 
 ## 核心概念与分类法
 
@@ -14,7 +14,7 @@
 
 三轴正合流为**半参数**设计：外部库承担事实与程序知识，偶发参数更新承担能力内化——与人类"陈述性/程序性记忆 + 睡眠巩固"的类比在多篇 2026 文献反复出现。
 
-**非参数系统的"遗忘"新形态**：context collapse（整体重写丢信息，ACE）、无关经验干扰（LifelongAgentBench）、context rot（Panini）——本质是稳定性-可塑性权衡在非参数系统的镜像。
+**非参数系统的"遗忘"新形态**：context collapse（整体重写丢信息，ACE）、无关经验干扰（LifelongAgentBench）、context rot（Panini）——本质是稳定性-可塑性权衡在非参数系统的镜像。change-002 深挖确认该现象已在各组件层被独立撞见并被 HCL 正式命名为 harness-level forgetting，量化方法学与回归集是新空白，见 [harness遗忘与回归](harness遗忘与回归.md)。
 
 **评测必测四件套**：流上累积成功率及其斜率、旧任务保持率（backward transfer）、新环境零样本迁移（技能资产保值度）、成本曲线（token/延迟随经验库增长的变化）。
 
@@ -43,13 +43,15 @@
 2. **非参数遗忘/容量管理**：库无限增长后的检索退化；何时删、删什么（Memp 初步触及，无定论）
 3. **冲突消解**：新经验与旧规则矛盾时的仲裁（MemoryAgentBench 显示为普遍短板）
 4. **参数 vs 非参数的边界条件**：什么时候值得把经验"蒸进"权重，缺成本-收益定量刻画
-5. **面向 coding harness 的 lifelong 基准**：SWE 任务流 + 技能依赖 + 流式协议为空白（search tree C-6，本项目首选论文方向）
+5. **面向 coding harness 的 lifelong 基准（change-002 深挖后修正）**：字面空白已被一年内 8 个基准填掉（SWE-Bench-CL、SWE-Milestone〔ICML 2026〕、SWE-CI、SWE-ContextBench、SkillFlow 等）；剩余可辩护组合是"真实仓库跨会话演化 × harness 原生记忆 × lifelong 三度量 × live 污染控制"的合取，底稿建议与 A5 记忆基准合并立项，详见 [记忆与持续学习基准](记忆与持续学习基准.md)
 
 **本项目的关键判断**：harness 相对学术系统有两大天然优势——(a) 执行环境提供客观成败信号（编译、测试、退出码），绕开 LLM 自判这一最大质量风险；(b) git 免费提供版本化、审查与回滚，正是学术界呼吁的治理层。底稿中给出了可落地的最小学习闭环设计草图（轨迹判定→双向蒸馏→验证准入→增量合入→维护修剪）。
 
 ## 参考
 
 - 分支底稿：`Project/survey/branch_C_agent持续学习.md`（含时间线、参数/非参数对比表、评测协议要点、最小闭环草图）
+- 深挖底稿：`Project/survey/deep_C6_lifelong_coding基准.md`（coding 序列化基准缺口矩阵与合并立项论证）
 
 ---
 落款：report-agent · 2026-08-27 12:16
+更新：survey-agent · 2026-08-30 10:15（融入 change-002 C6/D1 深挖结论：lifelong 基准空白收窄并指向合并立项，遗忘新形态链入 harness遗忘与回归页）

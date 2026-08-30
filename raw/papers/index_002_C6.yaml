@@ -1,0 +1,152 @@
+# 论文索引片段：change-002 · 方向 C6（面向 coding harness 的 lifelong 基准设计）
+# 由 survey-agent-C6 新建；主 agent 稍后合并入 index.yaml（按 arXiv id 去重）。
+# 备注：本机 curl 对 arxiv.org 的 TLS 握手被间歇重置（疑指纹过滤），最终经浏览器通道
+# 抓取补齐；12/12 篇 PDF 均已核实为有效 %PDF 文件（pdf_status: ok）。
+papers:
+- id: 2025-joshi-swe-bench-cl
+  title: 'SWE-Bench-CL: Continual Learning for Coding Agents'
+  authors: Thomas T. Joshi, Shayan Chowdhury, Fatih Uysal
+  year: 2025
+  arxiv: '2507.00014'
+  url: https://arxiv.org/abs/2507.00014
+  pdf: https://arxiv.org/pdf/2507.00014
+  summary: 把 SWE-bench Verified 按 issue 时间重排为 8 个仓库级序列并配全套 CL 指标（AA/遗忘/FWT/BWT/CL-F1），是"lifelong × coding"最早的直接尝试，但建于 2023 前旧数据、偏 proposal（仅 arXiv，12 引）。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-deng-swe-milestone
+  title: 'SWE-Milestone: Evaluating AI Agents on Continuous Software Evolution'
+  authors: Gangda Deng, Zhaoling Chen, ..., Xiangru Tang, Xingyao Wang
+  year: 2026
+  arxiv: '2603.13428'
+  url: https://arxiv.org/abs/2603.13428
+  pdf: https://arxiv.org/pdf/2603.13428
+  venue: ICML 2026
+  summary: DeepCommit 管线从 commit 史重构可执行里程碑 DAG（98 里程碑/7 仓库/5 语言），单一连续会话推进整个演化流；孤立任务 >80% 的模型在连续设定跌到 38.03%。"同仓库长期演化"维度最强已发表竞品，但不测跨会话记忆。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-chen-swe-ci
+  title: 'SWE-CI: Evaluating Agent Capabilities in Maintaining Codebases via Continuous Integration'
+  authors: Jialong Chen, Xander Xu, Hu Wei, Chuan Chen, Bing Zhao
+  year: 2026
+  arxiv: '2603.03823'
+  url: https://arxiv.org/abs/2603.03823
+  pdf: https://arxiv.org/pdf/2603.03823
+  summary: 首个建于 CI 循环的仓库级基准：100 任务（v2 +126），每任务平均跨 233 天/71 个 commit 的真实演化史，Architect-Programmer 双 agent 迭代；EvoScore 度量早期决策对后续演化的助益（技术债惩罚）。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-orlanski-slopcodebench
+  title: 'SlopCodeBench: Benchmarking How Coding Agents Degrade Over Long-Horizon Iterative Tasks'
+  authors: Gabriel Orlanski, Devjeet Roy, et al.
+  year: 2026
+  arxiv: '2603.24755'
+  url: https://arxiv.org/abs/2603.24755
+  pdf: https://arxiv.org/pdf/2603.24755
+  summary: 20 题/93 检查点，agent 在演化需求下反复扩展自己的旧代码；追踪 verbosity 与结构侵蚀两个质量信号——80%/89.8% 的轨迹质量单调恶化，人类代码保持平稳。证明 pass-rate 基准系统性低估扩展鲁棒性。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-zhu-swe-contextbench
+  title: 'SWE Context Bench: A Benchmark for Context Learning in Coding'
+  authors: Jared Zhu, Minhao Hu, Junde Wu
+  year: 2026
+  arxiv: '2602.08316'
+  url: https://arxiv.org/abs/2602.08316
+  pdf: https://arxiv.org/pdf/2602.08316
+  summary: 首个显式评"跨任务经验复用"的 SWE 基准：SWE-bench Lite 300 经验任务 + 99 个由真实 issue/PR 引用关系派生的相关任务；三维指标（准确率/时间/token 成本）。核心发现：oracle 挑选的摘要复用 +8pp 且省 60% 时间，自由检索≈零增益、错误摘要为负。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2025-zhang-swe-bench-live
+  title: 'SWE-bench Goes Live!'
+  authors: Linghao Zhang, Shilin He, Chaoyun Zhang, et al. (Microsoft)
+  year: 2025
+  arxiv: '2505.23419'
+  url: https://arxiv.org/abs/2505.23419
+  pdf: https://arxiv.org/pdf/2505.23419
+  venue: NeurIPS 2025 Datasets & Benchmarks
+  summary: RepoLaunch 全自动策展管线（issue 挖掘→容器环境→测试验证），1,890 任务/223 仓库，每月滚动 +50 题，已扩多语言与 Windows；live 任务序列与污染控制的现成数据底座。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2025-badertdinov-swe-rebench
+  title: 'SWE-rebench: An Automated Pipeline for Task Collection and Decontaminated Evaluation of Software Engineering Agents'
+  authors: Ibragim Badertdinov, Alexander Golubev, et al. (Nebius)
+  year: 2025
+  arxiv: '2505.20411'
+  url: https://arxiv.org/abs/2505.20411
+  pdf: https://arxiv.org/pdf/2505.20411
+  venue: NeurIPS 2025
+  summary: 21,000+ 交互式 SWE 任务的自动采集管线；逐 issue 记录创建日期 vs 模型发布日期并在榜单显式标记潜在污染——lifelong coding 基准做污染控制的参考协议。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2025-chen-swe-exp
+  title: 'SWE-Exp: Experience-Driven Software Issue Resolution'
+  authors: Silin Chen, Shaoxin Lin, Yanan Shi, Heng Lian, Xiaodong Gu, et al.
+  year: 2025
+  arxiv: '2507.23361'
+  url: https://arxiv.org/abs/2507.23361
+  pdf: https://arxiv.org/pdf/2507.23361
+  summary: SWE 场景经验蒸馏与复用方法（非基准）；其"经验检索严格遵守仓库边界与时序（排除同仓库时序后置轨迹）"的防泄漏协议，是 lifelong coding 基准设计复用度量时必须借鉴的规范。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2025-rakotonirina-memorycode
+  title: 'From Tools to Teammates: Evaluating LLMs in Multi-Session Coding Interactions (MemoryCode)'
+  authors: Nathanaël Carraz Rakotonirina, et al. (Cohere Labs)
+  year: 2025
+  arxiv: '2502.13791'
+  url: https://arxiv.org/abs/2502.13791
+  pdf: https://arxiv.org/pdf/2502.13791
+  summary: 合成多会话数据集：在夹杂 filler 的会话流中追踪并执行不断插入/更新的编码指令，模拟长期协作；是"跨会话指令保持"维度的早期锚点，但为合成对话、无真实仓库。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-zhang-skillflow
+  title: 'SkillFlow: Benchmarking Lifelong Skill Discovery and Evolution for Autonomous Agents'
+  authors: Zhang et al.
+  year: 2026
+  arxiv: '2604.17308'
+  url: https://arxiv.org/abs/2604.17308
+  pdf: https://arxiv.org/pdf/2604.17308
+  summary: 166 任务/20 工作流族的 Agentic Lifelong Learning 协议：agent 从零技能起步、顺序解题、以轨迹+rubric 驱动技能补丁并携带技能库前行；直接在 Claude Code/Codex CLI 等真实 harness 上评测（Opus 4.6 +8.43 点，多数模型无法稳定自进化）。lifelong 侧最接近 harness 场景的新基准，但任务为合成族、非真实仓库演化。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-shen-evocode-bench
+  title: 'EvoCode-Bench: Evaluating Coding Agents in Multi-Turn Iterative Interactions'
+  authors: Haiyang Shen, Xuanzhong Chen, Wen Xu, Yun Ma, Liangqiang Chen, Kuan Li
+  year: 2026
+  arxiv: '2605.24110'
+  url: https://arxiv.org/abs/2605.24110
+  pdf: https://arxiv.org/pdf/2605.24110
+  summary: 26 个有状态任务/227 评测轮：同一 workspace 与 agent session 保持 5-15 轮、需求演化、累积测试验证；单轮 SR 比多轮 MT@4 高 22-40 点且重排名次，第 5 轮聚合通过率跌破首轮一半——量化"多轮状态保持"缺口。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-gloaguen-agentbench-contextfiles
+  title: 'Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?'
+  authors: Thibaud Gloaguen, Niels Mündler, et al. (ETH Zurich)
+  year: 2026
+  arxiv: '2602.11988'
+  url: https://arxiv.org/abs/2602.11988
+  pdf: https://arxiv.org/pdf/2602.11988
+  summary: 138 个新/小众仓库任务（AGENTbench）+ SWE-bench Lite，对比无/LLM 生成/开发者手写 context 文件：LLM 生成的 CLAUDE.md/AGENTS.md 使成功率 -0.5~-2% 且成本 +20%，人写最多 +4%——harness 静态记忆资产的基线效应量参考。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6

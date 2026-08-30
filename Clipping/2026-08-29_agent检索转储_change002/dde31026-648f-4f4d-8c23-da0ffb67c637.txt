@@ -1,0 +1,823 @@
+# SWE-Exp: Experience-Driven Software Issue Resolution
+
+arXiv (Cornell University). Published: 2025-07-31. Preprint. 3 citations.
+
+## Authors
+
+- Chen, Silin
+- Shaoxin Lin: h-index 3; 27 citations
+- Yanan Shi: h-index 12; 915 citations
+- Heng Lian: h-index 28; 2,948 citations
+- Xiaodong Gu: h-index 14; 743 citations
+- Longfei Yun: h-index 1; 4 citations
+- Dong Chen: h-index 21; 1,730 citations
+- Lin Cao: h-index 4; 45 citations
+- Liu, Jiyang
+- Xia, Nu
+- Qianxiang Wang: h-index 4; 56 citations
+
+## Topics
+
+- Scientific Computing and Data Management
+- Software System Performance and Reliability
+- Software Engineering Research
+
+---
+
+# SWE-Exp: Experience-Driven Software Issue Resolution
+
+Issue from Django def get_context(self, name, value, attrs): if self.check_test(value): if attrs is None: attrs = {} attrs['checked'] = True return super().get_context(name, value, attrs)
+
+for i in range(max(len(value), self.size)): . . . final_attrs = {**final_attrs, 'id': '%s_%s' %
+
+(id_, i)}
+
+context['widget']['subwidgets'].append( self.widget.get_context(name + '_%s' % i, widget_value, final_attrs)['widget']) return context --- a/django/forms/widgets.py
++++ b/django/forms/widgets.py
+@@ -524,6 +524,8 @@
+if attrs is None:
+attrs = {}
++ else:
++ attrs = attrs.copy()
+attrs['checked'] = True
+--- a/django/contrib/postgres/forms/array.py
++++ b/django/contrib/postgres/forms/array.py
+@@ -144,10 +144,11 @@
+- self.widget.get_context(name +
+'_%s' % i, widget_value, final_attrs)['widget']
++ self.widget.get_context(name +
+'_%s' % i, widget_value,
+final_attrs.copy())['widget’]
+
+Focus on method's parameter handling logic . . .
+
+When preexisting data is provided, once the rendering loop hits the first True, the shared attrs dict gets 'checked': True set. This causes all subsequent checkboxes to appear checked—even if their values are False. The root cause is that CheckboxInput.get_context() mutates the passed-in attrs dict, unlike other widgets.
+
+Patch Generation
+
+Patch Generation w/o Experience Fault Localization w/ Experience
+
+Thought: The issue said the root cause is in CheckboxInput . . .
+
+Action: FindClass ( ‘CheckboxInput’) passed a copy of `final_attrs` to avoid shared state issues, ensuring each checkbox gets its own unmodified attributes.
+
+Fault Localization
+
+Experience from similar issue
+
+Thought: I’ve examined the CheckboxInput, but I still need to view how get_context works . . .
+
+Action: ViewCode(‘get_context’) noticed that get_context() mixed default assignment (attrs['checked'] = True) with external input handling.
+
+Separate validation from default assignment . . .
+
+Experience from solution of similar issue
+
+Fig. 1. A motivating example of experience-guided approach on instance django-11964.
+
+28, 33, 34, 36]. With the introduction of SWE-bench [16]—the standard benchmark for evaluating automated program repair (APR) on real-world GitHub issues—researchers have developed a diverse range of techniques to tackle this challenge [2, 3, 5, 22, 41]. SWE-bench provides a comprehensive evaluation framework by pairing real-world GitHub issues with their full repository-level contexts, enabling rigorous assessment of repair methods in realistic, complex software environments.
+
+Recently, the emergence of LLMs and multi-agent techniques has significantly advanced the task of automated issue resolution. Agent-based approaches equip LLMs with external tools for code navigation, editing, and testing, enabling them to iteratively explore and refine potential solutions [2, 3, 50]. Building on this foundation, MCTS-based systems further enhance agent capabilities by guiding exploration in a more systematic and goal-directed manner [2], improving the efficiency and completeness of the search process.
+
+Despite remarkable progress in the issue-solving rate, current approaches suffer from a funda mental limitation: agents operate as memoryless explorers, treating each issue in isolation and failing to leverage insights from previous repair attempts [6]. This limitation creates three critical inefficiencies: 1) Redundant exploration: agents often retry ineffective trajectories across similar issues, expending computational efforts on issue resolution strategies that have proven unsuccess ful in similar contexts [2, 18]; 2) Inability of knowledge transfer: agents often discard valuable insights from successful resolution trajectories, including effective issue resolution workflows, code patterns, and contextual factors influencing patch quality after each session [47, 50, 59]; and
+
+3) Lack of strategic evolution: without systematic experience accumulation, agents are unable to develop increasingly refined issue resolution strategies or compound expertise over time. As a result, they struggle to adapt to novel or evolving issues, particularly those that are specific to individual repositories [18, 31].
+
+To address these challenges, we propose SWE-Exp, a novel experience-enhanced approach that transforms issue resolution from isolated, stateless problem-solving into a continuous learning process. Unlike previous approaches that only utilize internal knowledge [44, 50], SWE-Exp distills structured experiences from prior resolution attempts, and leverages such accumulated knowledge to guide future repair attempts. SWE-Exp maintains an evolving experience bank that encodes knowledge across three facets: trajectory-guided problem understanding, fault localization patterns,
+
+and modification strategies. When encountering a new issue, the system retrieves relevant experi
+ences and distills them into actionable guidance. To operationalize this knowledge more efficiently,
+we employ a dual-agent architecture, where an Instructor agent formulates high-level strategies and
+an Assistant agent executes low-level operations. By maintaining an evolving multi-facet experience
+bank, our approach avoids redundant exploration and leverages past knowledge more effectively.
+We empirically validate SWE-Exp on SWE-Bench Verified [16], a program repair benchmark of
+500 human-verified GitHub issues. Our experiments demonstrate that SWE-Exp achieves a Pass@1
+resolution rate of 73% using Claude 4 Sonnet, significantly outperforming prior results under
+other agent frameworks. Furthermore, the comprehension and modification capabilities distilled by
+SWE-Exp independently contribute to performance improvements, with their combination yielding
+the most significant gains. These findings highlight the broader potential of structured reasoning
+and iterative refinement within agent frameworks, enabling more effective problem-solving in
+software engineering tasks.
+Our main contributions can be summarized as follows:
+• We present a novel framework that systematically captures and manages experiences from agent trajectories at multiple facets, enabling systematic collection of repair knowledge across different issue contexts.
+• We propose an experience-driven system that uses historical knowledge through dynamic retrieval to improve fault-localization accuracy and patch quality, transforming repository level issue resolution from isolated problem-solving into continuous learning.
+• Experimental validation showing that SWE-Exp achieves state-of-the-art resolution rate on open-source agent frameworks. 2 Motivation Recent advances in MCTS approaches for repository-level issue resolution have shown significant improvements in exploring solution spaces systematically [2]. These methods enable agents to backtrack and explore alternative solutions through strategic search tree expansion, addressing limitations of linear sequential processes. However, even with advanced search strategies, current agents remain fundamentally limited by their inability to learn from accumulated issue resolution experiences across different issues. To illustrate this limitation, let us consider a concrete issue resolution scenario from the Django codebase involving a composite widget composed of multiple checkboxes. The issue manifests as all checkbox widgets appearing checked regardless of their actual values. This is caused by the CheckboxInput widget modifying a shared attrs dictionary in place. Figure 1 demonstrates how agents approach this problem with and without historical experience. When operating without experience, the agent focuses on the surface-level symptoms mentioned in the issue description. This leads to a patch that creates a copy of final_attrs within the context rendering method of the composite widget. While this appears to address the immediate problem, it represents a narrow, symptom-focused solution that fails to address the root cause: the Checkbox Input widget’s fundamental design flaw of modifying its input parameters. This approach has two critical limitations. First, it only addresses the specific context for the particular class, leaving the underlying issue unresolved for other potential widget combinations. Second, it treats the symptom rather than the disease, creating a fragile fix that may not prevent similar issues in future scenarios. In contrast, an agent equipped with relevant experience demonstrates more strategic and in sightful reasoning. Prior experience directs the agent to examine not just the surface behavior but the deeper mechanism—specifically, how method parameters are handled and potentially mutated during execution. This perspective leads the agent to scrutinize the implementation of the Checkbox
+
+Stage 1: Trajectories Collection from Popular Open-Source Repositories (Section 3.2)
+
+Problem Statement: `PolyElement.as_expr()` not accepting symbols The method `PolyElement.as_expr()`. . .
+
+Patch
+
+Stage 2: Experiences Extraction (Section 3.3)
+
+Trajectory
+
+ExpAgent
+
+Error Type: ParameterHandlingError Description: The method ignores provided parameters and uses . . .
+
+Embedding
+
+Modification Experience: When modifying . . . ensure . . .
+
+Stage 3: Experience Retrieval （Section 3.4）
+
+Error Type: AttributeError Description: The error occurs when required . . .
+
+Stage 4: Experience Reuse (Section 3.4)
+
+Experience Bank
+
+Issue
+
+Issue Resolution Agent
+
+,
+
+ExpAgent
+
+Comprehension
+Experience:
+The trajectory
+understood this
+issue as a case ,
+
+Value
+
+Key
+
+Building Issue Resolution Experience Bank Solving New Issue by Experience Reuse
+
+New Issue ExpAgent
+
+Embedding
+
+Comprehension & Modification Experience
+
+Retrieval
+
+RerankerAgent
+
+Instructor Assistant Repository Patch
+
+Search . . .
+
+Modify . . .
+
+I need to find . . .
+
+I should modify. . ., but make sure . . .
+
+Comprehension Experience
+
+Modification Experience
+
+Fig. 2. The framework of SWE-Exp.
+
+Input.get_context() method, where the root cause resides. Drawing on its accumulated repair knowledge, the agent applies a principled fix: modifying the method to create a defensive copy of the attrs dictionary before performing any changes. This strategy reflects a key insight from past experience—that default assignments need to be verified and handled separately to avoid unintended side effects. Compared to symptom-level patches, this solution is significantly more robust, as it eliminates the underlying design flaw and ensures correctness across diverse usage contexts. It exemplifies how experiential knowledge enables agents to fix problems at their source, rather than applying narrow, reactive workarounds.
+
+This example reveals a critical insight: the difference between surface-level symptom fixing and deep root-cause resolution. Without systematic experience accumulation, agents repeatedly engage in reactive issue resolution that addresses immediate symptoms without understanding underlying patterns. Experience-guided agents, however, develop pattern recognition capabilities that enable them to identify and resolve fundamental issues. This leads to more robust and generalizable solutions. This motivates our design of SWE-Exp, which transforms repository-level issue resolution from isolated symptom-focused issue resolution into a systematic, knowledge-driven process that accumulates and uses repair expertise across similar contexts.
+
+3 Methodology 3.1 Conceptual Framework
+
+To formalize our approach, consider a standard agent that resolves an issue by generating a reasoning and action trajectory = ( 0, 0, 1, 1, . . .), where denotes the repository state at time step and is the corresponding action taken. Existing methods typically treat each trajectory in the agent’s history H = { 1, 2, . . .} as independent and do not exploit prior experiences during new problem solving. In contrast, our approach introduces an experience bank B exp which systematically accumulates distilled knowledge from the agent’s past resolution trajectories. When faced with a new issue instance ′, the agent queries the memory to retrieve relevant experiences ′ = ( ′, B exp). The subsequent search for a new trajectory ′ is then conditioned on the retrieved experience set ′. This transforms the agent’s behavior from blind exploration to experience-guided reasoning, allowing it to leverage prior insights and quickly converge toward final solutions.
+
+The framework follows a systematic four-stage pipeline, as illustrated in Figures 2: First, the system collects repair trajectories from both successful and failed issue resolution attempts across diverse repository contexts (Section 3.2). Second, an offline experience extraction process trans forms these raw trajectories into structured, multi-faceted knowledge at different abstraction levels
+
+(Section 3.3). Finally, when facing new issues, the system retrieves and adapts relevant histori
+cal experiences to provide targeted guidance, and experience-informed agents execute the issue
+resolution process through strategic planning and tactical implementation (Section 3.4).
+3.2 Trajectories Collection
+Our approach begins with the systematic collection of repair trajectories as the source for distilling
+experience.
+Structured Trajectory Representation. Each agent repair attempt, successful or not, is rep
+resented as a sequence of tuples ⟨( , , +1, )⟩ =0.. where represents high-level directives,
+denotes specific actions taken, +1 captures the resulting repository state, and denotes en
+vironment feedback. This structural representation ensures that both successful issue resolution
+workflows and failure patterns are preserved for later analysis.
+Success Or Failure Annotation. Each trajectory is annotated with success (i.e., producing
+correct patches validated against ground truth) or failure. For failure trajectories, additional metadata
+is appended to capture the failure cause—whether due to incorrect localization, flawed modification
+strategy, or insufficient problem comprehension. Such a categorization enables targeted experience
+extraction for both positive and negative patterns.
+3.3 Experiences Extraction
+Raw trajectories, while comprehensive, are often too lengthy, noisy, and problem-specific to be
+directly reused. Our next stage aims to transform them into structured, reusable knowledge. An
+Experiencer agent is instructed to extract experiences from both success and failure trajectories.
+3.3.1 Experience Representation. We define experience as the generalized and transferable thinking
+patterns extracted from an agent’s past issue-solving process. It consists of two key components:
+• Perspective: the agent’s abstract understanding of the problem.
+• Modification: the generalized strategy used to address the issue. Formally, each experience is represented as a dictionary, where the key denotes the perspective and the value represents the corresponding modifications. For example, "perspective": "The trajectory understood this issue as a deprecation of legacy behavior that was no longer necessary due to improvements in the system’s handling of structured data. The perspective focused on transitioning users smoothly from an old implementation to a more direct approach.", "modification": [ "When deprecating functionality, it’s important to first add a warning before removing the feature, giving users time to adapt their code.", "Removing automatic type conversions can simplify code and make behavior more predictable, but requires careful consideration of backward compatibility."
+
+]
+
+3.3.2 Offline Embedding and Storage. To facilitate efficient retrieval during issue resolution, all extracted experiences are embedded and stored in a vector database, which we refer to as the Experience Bank. During the offline embedding process, each experience is indexed by two metadata attributes:
+
+• Issue Type: A generalized, descriptive label inferred by the agent based on the issue, such as the AttributeError and the VariableReferenceError.
+• Description: A generalized explanation generated by the agent, describing the typical condi tions and scenarios in which this type of error arises. For instance,
+
+"Issue": sphinx-doc__sphinx-8638, "issue_type": "VariableReferenceError", "description": "Occurs when instance variables are incorrectly linked to other variables of the same name in the project, leading to unintended documentation references."
+
+These attributes are encoded into dense vectors using a pre-trained embedding model. The resulting embeddings are stored in the Experience Bank, enabling semantic similarity search and retrieval during online resolution tasks. 3.3.3 Multi-facet Categorization. To support efficient and context-aware reuse, extracted experi ences are organized into two categories, each reflecting a distinct facet of abstraction: Comprehension Experiences These experiences capture how past issues were interpreted and reasoned about at a conceptual level. They encode general reasoning patterns for issue un derstanding, such as identifying key symptoms, forming diagnostic hypotheses, and leveraging contextual or structural cues to guide early-stage exploration. For instance, "The issue was fundamentally about how Sphinx handles variable linking in documentation, specifically the automatic linking of similarly named variables across different contexts (instance vs global). The golden patch reveals that the solution was to modify the role assignment for variable documentation fields rather than changing the fuzzy matching logic." "The core misunderstanding was focusing on the cross-referencing behavior (find_obj method) rather than examining how variable documentation fields are processed and assigned roles in the Python domain." Comprehensive experiences inform how agents interpret and navigate unfamiliar issues, helping the agent prioritize relevant information and narrow the search space effectively. Modification Experiences These experiences encode generalized strategies for code modifica tion based on prior patches. They include insights into how responsibility was assigned to specific code regions, which behavioral contracts were violated, and how safety, scope, and potential side effects were assessed and managed. For instance, "When modifying a method that accepts optional parameters, ensure the logic properly handles both the presence and absence of these parameters without accidentally overriding valid inputs.", "For methods that validate input parameters, structure the validation logic to clearly separate the validation step from the default value assignment to prevent unintended behavior." Modification experiences guide not only the structure of the fix but also the underlying reasoning and design choices that informed the patch. The multi-faceted Experience Bank serves as an external knowledge base that supports decision making across the agent’s debugging pipeline. During issue resolution, relevant experiences are retrieved and used to guide both high-level diagnostic reasoning and low-level code editing. This enables agents to shift from trial-and-error exploration to strategic, experience-driven behavior. 3.4 Experiences Reuse Equipped with the experience bank, the agent is now ready to execute the core issue resolution task. This process unfolds across a standard three-stage workflow that mirrors real-world software engineering practices: Issue Understanding, Fault Localization, and Patch Generation. Each stage is enhanced by the MCTS framework [2] and informed by the experiences retrieved from the experience bank for the current problem. The MCTS process unfolds as a search through a tree where nodes represent states of the codebase and edges represent actions (Search for code exploration, View for context examination, and Edit for code modification). At each step, the agent selects actions based on a modified Upper , Vol. 1, No. 1, Article . Publication date: February 2026.
+
+Confidence Bound for Trees (UCT) criterion that balances exploiting known high-reward paths with exploring less-visited states. Our experience-enhanced framework augments this standard MCTS exploration by retrieving relevant historical knowledge at critical decision points, providing contextual guidance that informs both action selection and value assessment. When the agent encounters decision nodes during tree expansion, semantically similar experiences from past resolution attempts are dynamically retrieved and integrated into the exploration strategy. This transforms the traditional trial-and-error nature of MCTS into a systematic, knowledge-driven process where each exploration step builds upon accumulated expertise rather than starting from scratch.
+
+3.4.1 Experience Retrieval. The framework implements a context-aware retrieval system that seamlessly integrates with the tree search process. Before each decision, the agent retrieves most relevant experiences from the experience bank based on the vector similarities between the new issue type and attributes with keys in the vector database. To adapt the experiences to the current context, a rerank agent then selects experiences that are deemed helpful for resolving the current issue. During the experience reuse stage, the agent analyzes the similarities and differences between past and present issues, generating contextualized guidance that preserves the essence of successful strategies while adapting to new scenarios. For comprehension experiences, the agent compares problem statements to suggest strategic approaches for problem comprehension. The detailed prompt to reuse comprehension experiences is as follows:
+
+Reuser – Reuse Comprehension Experience Prompt
+
+You are a knowledgeable issue resolution assistant . Your task is to analyze a current issue and generalize the received experiences into a new insight that is applicable to this issue . You will be given : - A `problem_statement ` describing the current issue - A past trajectory with : - `issue_description `: The description of the past issue - `experience `: Either a `perspective ` ( how this successful trajectory understood this issue ) or `reflections ` ( insights gained from an unsuccessful trajectory ) Your job is to : 1. Compare the current `problem_statement ` with each past trajectory 's ` issue_description ` and `experience `.
+
+## 2. Adapt
+
+old experience to the current issue and produce a new applicable experience .
+
+## 3. Identify
+
+most likely entry point in the codebase - based on the problem statement - that is critical to resolving the current issue . You must output a JSON object with exactly one field : - `new_experience `: A new experience statement tailored to the current issue , based on the old experience . ** The more detailed the better ** Your output must strictly follow the JSON format below : {
+
+" new_experience ": " < the new experience >"
+
+}
+
+For modification experiences, it considers the code environment and safety patterns to inform repair decisions. The detailed prompt to reuse modification experiences is as follows:
+
+Reuser – Reuse Modification Experience Prompt
+
+You are a strategic assistant helping an agent improve its next - step
+instruction in a debugging task .
+You are given :
+- A `problem_statement `: a natural language description of the current
+software problem
+- A `current_code_exploration_history `: The recent exploration steps taken
+to understand or debug the current codebase . This may include what has
+been examined , eliminated , or hypothesized so far .
+- An `instruction `: the next step the agent is expected to take
+- A list of `experiences `: each offering past insights about how to better
+approach the corresponding issue .
+Your task is to :
+1. Analyze how the current `instruction ` relates to the given `issue ` and `
+current_code_exploration_history `
+2. Identify useful , transferable , generalized insights from the past
+experiences of ** modification ** type
+3. Based on those insights , rewrite the instruction to make it more robust ,
+strategically informed , and better suited to succeed in this situation
+### Important Notes
+- Focus only on experience of ** modification ** , and ensure the improved
+instruction aligns with the original goal but incorporates better
+reasoning or coverage
+- NEVER add the content that are not related to solving the current
+problem
+Output only the following JSON structure :
+{
+
+" enhanced_instruction ": " < A single improved and robust instruction , rewritten based on relevant experience of modification type >"
+
+}
+
+3.4.2 Agent Role Separation. When integrating multi-facet experiences into MCTS frameworks, we observe that vanilla MCTS tends to overuse find actions and lacks initiative in performing actual code modifications. To address this, we introduce a hierarchical dual-agent architecture that separates high-level planning from low-level execution. The process is managed by an Instructor and an Assistant: the Instructor agent acts as a high-level planner, determining the strategic direction of the next action (search, view, modify, or finish), while the Assistant operates at a low level, executing the specific actions based on the information provided by the Instructor. Such a role separation improves issue resolution by enabling more focused and interpretable repair trajectories. It offers two main advantages: (1) The Instructor’s decision-making is streamlined, as it no longer handles irrelevant tools or arguments. (2) Unlike vanilla MCTS, where thought and action generation are coupled, our framework decouples them, providing instruction-level control over tool usage. This allows prior experience, particularly in code modification, to be better leveraged by shaping the Assistant’s instructions.
+
+4 Experimental Setup 4.1 Research Questions We evaluate SWE-Exp by addressing the following research questions: RQ1: How effective is SWE-Exp in issue resolution compared to other approaches? RQ2: How does each component of SWE-Exp contribute to its overall performance? RQ3: How does the hyperparameters impact the effectiveness of SWE-Exp?
+
+4.2 Datasets
+We evaluate SWE-Exp on the SWE-Bench-Verified dataset [24], which contains 500 verified issues
+from SWE-bench [16]. Software engineering tasks provide a compelling testbed for investigating
+agent behavior, as they inherently involve complex reasoning, strategic decision-making, and
+dynamic interaction with the environment (Jimenez et al., 2024). The SWE-bench-verified bench
+mark exemplifies these challenges by presenting agents with authentic software bugs that require
+multi-step solutions: understanding natural language issue descriptions, navigating and analyzing
+the codebase, proposing plausible modifications, and verifying their fixes through test execution.
+We adopt the SWE-Bench-Verified in particular because it focuses on issues with human-verified
+ground truth patches, thereby reducing label noise and ensuring higher evaluation reliability. This
+allows for more accurate assessment of an agent’s true capability to resolve real-world software
+issues, without confounding effects from noisy or ambiguous labels.
+All baseline methods are evaluated on the same dataset.
+4.3 Baselines
+We compare SWE-Exp with the following baselines:
+• Agentless [47]: A non-agentic pipeline that decomposes the repair process into distinct phases of localization, repair, and patch validation.
+• SWE-Agent [50]: A custom agent-computer interface enabling LM agents to interact with repository environments through defined actions.
+• SWE-Search [2]: A state-of-the-art repository-level issue resolution agent that uses Monte Carlo Tree Search (MCTS) to explore the solution space.
+• OpenHands [39]: An open-source platform for building general-purpose AI agents that solve software and web tasks through code, terminal, and browser interaction.
+• EvoCoder [18]: A multi-agent continuous learning framework that leverages experience-driven reflection to iteratively refine problem-solving strategies from previously resolved cases.
+• SAGE [12]: Another experience-guided framework built on OpenHands, SAGE distills grounded action trajectories into plan abstractions and refines policies through experience. 4.4 Implementation Details We implement SWE-Exp by extending the SWE-Search [2] framework with our components. We employ both DeepSeek-V3-0324 [7] and Claude-4-Sonnet [1] as our agent models. For DeepSeek-V3-0324, the agent is configured with a temperature of 0.7 and a maximum of 20 iterations, while the remaining configurations follow SWE-Search [2]. We further set the maximum number of finished nodes to 2, so that the agent stops early once two patches are successfully gener ated. For Claude-4-Sonnet, we directly follow the SWE-Search [2] setup. Due to space limitations, additional hyperparameters and prompts are provided in the replication package1. During the experience collection phase, we run SWE-Search on the SWE-Bench-Verified bench mark, collect the resulting trajectories, and extract structured experiences from them. During experience retrieval, we first identify the top = 10 issues that are most relevant in terms of error type based on cosine similarity. Subsequently, a dedicated reranking agent evaluates these candidates and selects = 1 most applicable experience to guide the current resolution process. We compute cosine similarity based on embeddings generated by the Multilingual-E5-Large model2. To prevent data leakage, we exclude all experiences originating from the same code repository and generated after the target instance.
+
+1https://anonymous.4open.science/r/SWE-Exp-6FEA
+2https://huggingface.co/intfloat/multilingual-e5-large-instruct
+
+5 Results
+5.1 RQ1: Effectiveness
+
+Table 1. Main effectiveness results on SWE-Bench-Verified dataset.
+
+| Method | Model Pass@1 |
+| --- | --- |
+| Agentless SWE-Agent SWE-Search OpenHands EvoCoder SAGE | DeepSeek-V3-0324 36.6% DeepSeek-V3-0324 38.8% Claude-4 sonnet (20250514) 66.6% DeepSeek-V3-0324 35.4% Claude-4 sonnet (20250514) 70.8% DeepSeek-V3-0324 38.8% Claude-4 sonnet (20250514) 70.4% DeepSeek-V3-0324 38.0% Claude-4 sonnet (20250514) 67.8% Claude-4 sonnet (20250514) 71.6% |
+| SWE-Exp | DeepSeek-V3-0324 42.0% Claude-4 sonnet (20250514) 73.0% |
+
+Table 1 presents the comparative performance of SWE-Exp against established baselines on the SWE-Bench-Verified dataset. We measure the performance based on widely used metric Pass@1 for issue resolution. This metric captures the proportion of issues that are correctly fixed on the first attempt, in line with the evaluation standards proposed by [2, 50]. Overall, SWE-Exp demonstrates strong effectiveness under both open-source and closed-source model settings. Using the open-source DeepSeek-V3-0324 backbone, SWE-Exp achieves a Pass@1 score of 42.0%, outperforming all other reported methods under the same model. In particular, it surpasses a diverse set of agent-based frameworks, including SWE-Agent, OpenHands and SWE Search, which adopt different agentic designs and control strategies. We observe similar advantages under the closed-source setting. When evaluated with Claude-4 Sonnet, SWE-Exp achieves a Pass@1 score of 73.0%, consistently outperforming strong agentic baselines such as SWE-Agent, OpenHands, and SWE-Search under the same model. These gains suggest that the benefits of experience-guided orchestration scale up even when the model already has a strong capability. Compared to SAGE and EvoCoder, two other experience-driven frameworks that also build upon SWE-Bench-verified trajectories, SWE-Exp attains a higher resolution rate under identical model conditions. While SAGE emphasizes stage-wise self-improvement within a single repair process, its experience is primarily localized to the current instance. In contrast, SWE-Exp abstracts and reuses experience across trajectories from different repositories, enabling cross-task generalization and more informed orchestration decisions. This distinction allows SWE-Exp to better capture recurring repair patterns and failure modes, leading to consistently stronger performance. The performance improvement stems from effective experience-driven guidance mechanisms. Trajectory-guided problem comprehension experiences enable the Instructor to develop more accurate issue understanding by leveraging patterns from analogous problems, leading to better strategic planning and fault localization hypotheses. Modification-level experiences provide the Assistant with safety patterns and repair strategies that prevent common pitfalls such as incomplete fixes or introducing regressions. This experience-informed approach transforms the repair process from exploratory trial-and-error into systematic, knowledge-guided issue resolution. Finding 1 Our proposed method provides significant and consistent performance gains over the baselines, highlighting that experience-guided orchestration enhances performance across both open source and closed-source models. 5.2 RQ2: Ablation Study To understand the contribution of each component in SWE-Exp, we conduct ablation studies by sys tematically removing key components. The experiments were conducted within DeepSeek-V3-0324 to save API cost [17].
+
+Table 2. Ablation study results.
+
+Method Pass@1 Δ SWE-Exp 42.0% w/o Comprehension Experience 38.8% -3.2% w/o Modification Experience 39.4% -2.6% w/o Dual-Agent 39.8% -2.2% w/o Experiences Extraction 36.0% -6.0% w/o LLM Reranking 38.2% -3.8%
+
+We test the five main components of SWE-Exp: 1) w/o Comprehension Experience, which removes comprehension-related experiences and prevents the agent from leveraging prior diag nostic knowledge when analyzing problem statements; 2) w/o Modification Experience, which discards modification-related experiences and thus eliminates guidance on how to safely and robustly apply code changes; 3) w/o Dual-Agent, which collapses the dual-agent architecture into a single agent, removing the separation between strategic reasoning and tactical execution; 4) w/o Experiences Extraction, which disables cross-repository experience abstraction and instead directly uses the raw problem statement and golden patch as in-context demonstrations; and 5) w/o LLM Reranking, which replaces LLM-based experience reranking with simple similarity-based selection. As shown in Table 2, the removal of individual components leads to substantial performance drop. The clear impact of removing comprehension experiences (-3.2%) provides empirical support for our core motivation that existing agents operate as memoryless explorers. These experiences fundamentally transform how agents approach new issues by providing strategic guidance extracted from successful problem-solving patterns observed in our motivating example with CheckboxInput widgets. Without comprehension experiences, agents revert to the problematic behavior as observed in prior analysis—focusing on surface-level symptoms rather than understanding the underlying design patterns. Our multi-faceted experience bank design specifically captures these high-level diagnostic insights, enabling the Instructor agent to formulate more accurate hypotheses about root causes from the outset. The smaller but significant impact of modification experiences (-2.6%) demonstrates their complementary role in our dual-agent architecture, where they guide the Assistant agent in applying proven repair strategies while avoiding common pitfalls such as incomplete fixes or introducing regressions. The dual-agent framework’s contribution (-2.2%) validates our architectural choice to separate strategic reasoning from tactical execution, addressing the mitigating reasoning overload problem that causes vanilla MCTS agents to over-rely on find actions while neglecting actual code modifications. Removing the experience extraction process—which replaces experience abstraction with di rectly using the problem statement and golden patch as in-context demonstrations—results in the largest single-component performance drop (-6.0%). This indicates that abstracting experiences across repositories is crucial for effective knowledge transfer and problem-solving. Separately, replacing LLM-based reranking with simple similarity-based selection reduces Pass@1 to 38.2% (-3.8%), demonstrating that intelligent selection of relevant experiences is important for achieving high performance. Together, these results show that while comprehension, modification, and coor dination provide the core capabilities, both experience abstraction and intelligent selection play critical, complementary roles in our approach. These results confirm that both comprehension and modification experiences contribute posi tively to system performance, with trajectory-guided problem comprehension playing a slightly more influential role. Even when only one type of experience is used, the system maintains most of its original performance and still achieves improvements over the baseline. Overall, the incorpora tion of hierarchical experience bank provides consistent and additive gains, validating our design for structured, stage-specific knowledge reuse. Finding 2 The removal of individual components leads to sustantial performance drop, indicating the importance of the experience-driven issue resolution mechanism. 5.3 RQ3: Impact of Hyperparameters In this section, we analyze the impact of two hyperparameters, namely, the number of experiences and the size of the experience bank, on the performance of SWE-Exp. Here, the number of ex periences refers to how many past experiences the agent leverages in attempting to solve each individual instance, while the size of the experience bank denotes the total number of candidate experiences available for retrieval. To save API costs while obtaining reliable results, we conduct experiments on DeepSeek-V3-0324, one of the most popular open-sourced LLMs.
+
+10 54
+
+4 3 1 2
+
+12
+
+6 8
+
+10
+2 01
+8
+0
+
+0
+
+2 2
+
+11 2 38
+
+2 0 0 3 5 6
+
+11
+
+131
+Exp Num 0
+Exp Num 1
+Exp Num 2
+Exp Num 3
+Exp Num 4
+
+Fig.
+
+## 3. Unique Issues
+
+Resolved under Varying Expe rience Settings.
+
+We vary the number of experiences from 0 to 4, where 0 means no experience is used. As the results in Figure 4a show, the rela tionship between experience number and per formance demonstrates an increase-then-stable trend. Without any experience, the system achieves 37.8% Pass@1. The performance peaks at 42.0% when exactly 1 experience is used, while dropping as the number continues to increase. This pattern demonstrates that while relevant ex periences can significantly enhance performance, excessive guidance can introduce cognitive bur den or conflicting information to the agent. This finding underscores the importance of selective experience retrieval and highlights the need for quality over quantity in experience-driven agent systems.
+
+When comparing the resolved instances across different numbers of retrieved experiences (from 0 to 4), we observe substantial variability in the subsets of issues successfully solved. As illustrated in Figure 3, a large number of issues (131) are consistently resolved across all settings. When utilizing past experiences, each experience demonstrates the ability to uniquely resolve specific instances. This suggests that mitigating the misleading influences within individual experiences, while allowing the accumulation of experience to contribute positively, may further enhance the agent’s ability to resolve issues. We further investigate how the size of the experience bank influences the performance of SWE-Exp. To reduce computational and API costs while allowing for controlled evaluation of hyperparameter effects, experiments are conducted on a representative subset [17, 38, 48, 54] of 75 instances, with DeepSeek-V3-0324, consisting of 25 issues each from Django, SymPy, and Sphinx. As illustrated in Figure 4b, we evaluate the impact of experience bank growth by progressively expanding the bank in increments of 100 experiences, following their chronological order of acquisition. The results show a clear positive trend in performance as the experience bank expands. Specifi cally, Pass@1 improves steadily as the number of experiences increases, with the most notable gains observed up to approximately 300 experiences. Beyond this point, performance enters a saturation regime, where additional experiences yield diminishing returns, and Pass@1 exhibits only minor fluctuations of 1–2 points. This behavior suggests that once sufficient coverage of common bug patterns and repair strategies is achieved, further accumulation of experiences provides limited incremental benefit.
+
+0 1 2 3 4 Number of Experiences
+
+0.36 0.37 0.38 0.39 0.40 0.41 0.42
+
+1 37.8% 41.6% 40.4% 40.2% 39.6% (a) Impact of the number of experiences 0 100 200 300 400 500 Size of Experiences Bank 0.46 0.48 0.50 0.52 0.54 0.56 0.58 0.60 0.62
+
+1 46.7% 49.3% 53.3% 57.3% 56.0% 57.3% (b) Impact of the size of the experience bank
+
+Fig.
+
+## 4. Analysis of Experience Bank Parameters on Issue Resolution Performance
+
+Finding 3
+
+The hyperparameters have a strong correlation to the performance. Retrieving one single ex perience is sufficient to achieve optimal performance. Incorporating a richer set of experiences consistently improves performance.
+
+5.4 Case Study To further verify the effectiveness of SWE-Exp in real-world scenarios, We compare two agent trajectories on the same SWE-bench instance—with and without experience reuse—to demonstrate how retrieved experiences influence the agent’s decision-making and contribute to successful repair. The results are shown in Figure 5.
+
+## 1. Understand
+
+core issue: . . .
+
+## 2. Identify
+
+key components involved … 3. Also consider whether the enum's str method needs modification to return the value property . . . The value of a TextChoices/IntegerChoices field has a differing type Description. If we create an instance of a model having a CharField or IntegerField with the keyword choices pointing to IntegerChoices or TextChoices, . . . We notice when invoking __str__(...) we don't actually get the value property of the enum value which can lead to some unexpected issues,
+
+Issue (Problem Statement)
+
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -792,6 +792,8 @@
+"""Perform preliminary non-db specific value checks and
+conversions."""
+if isinstance(value, Promise):
+value = value._proxy____cast()
++ if hasattr(value, 'value') and isinstance(value, enum.Enum):
++ return value.value
+return value
+def get_db_prep_value(self, value, connection, prepared=False):
+
+SWE-Search --- a/django/db/models/enums.py +++ b/django/db/models/enums.py @@ -31,6 +31,10 @@ # that is passed in as "self" as the value to use when looking up the
+
+# label in the choices.
+cls.label = property(lambda self:
+cls._value2label_map_.get(self.value))
++ # Override __str__ to return the value property for consistent
+string representation
++ def __str__(self):
++ return str(self.value)
++ cls.__str__ = __str__
+return enum.unique(cls) SWE-Exp
+
+Experience
+
+Fig. 5. Case study of SWE-Exp on instance django-11964
+
+This case examines a fault related to TextChoices and IntegerChoices, which constitute the core focus of the problem statement. Although the context briefly mentions CharField and IntegerField, the key concern lies in how enum class behaves when converted to string. Specifically, invoking str function on such enum values doesn’t yield expected value attribute. An initial attempt to address this issue by agent specialization involved modifying the get_db_prep_value method within Django’s model field handing code. This patch introduced a conditional check to manually extract the value attribute from enum class. Although this solution fixed the immediate problem, it did so in the wrong place. The agent produced a patch that attempts to handle enum conversion within the get_prep_value method; however, this modification fails to resolve the actual issue. The root causes of this failure is that: misleading surface-level correlations — the agent incorrectly associated the need for enum conversion with the get_prep_value method based on its docstring, without accounting for its actual invocation context and the emphasis in the problem statement. In contrast, the subsequent fix - developed after incorporating comprehension experience — identified the enum’s __str__ method as the appropriate point of intervention. The patch defined the __str__ method within the enum definition to return self.value, thereby ensuring consistent and intuitive string representations throughout the framework. This case demonstrates the practical value of transferring knowledge across repositories. Without exposure to prior examples, especially those involving similar symptoms but differing root causes, the model might have repeated the same architectural mistake. However, by leveraging cross repository experience, it was able to identify the correct point of intervention and propose a solution that was both technically sound and idiomatic to Django’s codebase.
+
+6 Discussion 6.1 Data Leakage
+
+One critical concern about our experience-driven framework is the threat of knowledge leakage [56]. Specifically, in datasets such as SWE-bench, multiple instances from the same repository may correspond to closely related or even identical buggy code segments. If experiences are retrieved from the same repository as the target instance, especially via similarity-based matching, there is a high risk that the agent leverages repository-specific signals or implicitly accesses ground-truth relevant information. This can lead to artificially inflated performance and fails to demonstrate the true generalizability of the extracted experiences. To avoid data leakage, experience retrieval strictly respects both repository boundaries and temporal order: for each instance, we exclude all trajectories from the same repository that are temporally posterior to the current issue. This setup simulates a realistic setting in which agents can only leverage past experiences, and enables a fair assessment of the generalization capability of our experience-driven framework. Our experimental results further support the generalizability of our extracted experiences across repositories, as shown in Table 1. 6.2 Quality of Extracted Experience We manually verified the correctness of LLM-extracted experiences on a subset of 75 instances, ensuring that the extracted experiences faithfully reflect the underlying trajectories and problem contexts. We then conducted targeted experiments to study different strategies for incorporating these experiences. We also found that, although experiences have been shown to enhance the ability of agent, they could introduce misleading thoughts—particularly at the problem comprehen sion stage. In early implementations, we allowed the Instructor to explicitly cite comprehension experiences as part of its thinking and instructions. While this made the decision process inter pretable, it led to too much dependence: the Instructor continued using experience even after enough environment exploration, sometimes applying inappropriate strategies. Therefore adding experience as message context—without forcing instructor to use experiences—was the most effec tive, avoiding inflexible or misleading in the late issue resolution. This illustrates the misleading nature of experience during the comprehension stage: even when the environment has already been sufficiently explored, the agent may continue relying on past experience, leading to inappropriate strategies. This tendency also aligns with a broader trend observed in our quantitative evaluation in Figure 4a: increasing the number of experiences beyond one led to a steady decline in performance. While a single experience boosted Pass@1 from 37.2% to 42.0%, adding more examples degraded performance, dropping to 39.8% with two experiences and further declining to 39.0% with four experiences. These results suggest that excessive experience may impair the agent’s ability to focus and generalize effectively to the current issue. Moreover, increasing the number of past trajectories used for experience generalization tended to introduce irrelevant or conflicting information, which negatively impacted the agent’s effectiveness on the current issue, as the model found it harder to focus on the most relevant information and was more likely to rely on irrelevant or confusing information. In contrast, modification experience showed higher robustness: since the specific direction of the modification instruction is already decided by the Instructor, the Assistant can better assess whether a given experience makes sense or not. Overall, providing one single relevant experience alongside the interaction history yields the best performance for the Instructor. 6.3 Cost Analysis Table 3 compares the efficiency of SWE-Exp against SWE-Search under the DeepSeek-V3-0324 setting. Despite extending with more modules such as the dual-agent architecture and the experience mechanism, the overall overhead introduced by SWE-Exp remains modest. Concretely, the average token consumption increases only slightly (203.3K vs. 189.1K), while the average API usage cost remains nearly unchanged ($0.13 vs. $0.12), indicating that the additional reasoning and coordination steps do not substantially inflate token-level expenses.
+
+In terms of runtime, the experience mechanism introduces an additional overhead of approx imately 37 seconds per instance. Nevertheless, the total wall-clock time increases marginally (15min49s vs. 12min37s), suggesting that the retrieval component constitutes a relatively small fraction of the end-to-end execution time. Overall, these results demonstrate that the substantial performance gains of SWE-Exp are achieved with minimal additional computational and monetary cost.
+
+Table 3. Comparison of Time and Token Costs between SWE-Search and SWE-Exp.
+
+Metrics SWE-Search SWE-Exp Average Token Costs 189.1K 203.3K Average API Costs $0.12 $0.13 Average Wall Time 12min37s 15min49s Average Retrieval and Rerank time 0s 37.5s
+
+6.4 Limitations and Future Directions While these results are promising, SWE-Exp still faces several limitations. Its effectiveness depends on the quality of extracted experiences and their relevance to the target issue; if the retrieved knowledge fails to align with the current problem’s semantics, performance may degrade. Moreover, the agent currently lacks a robust mechanism to assess the applicability of prior experiences in novel contexts, which may lead to inappropriate reuse or misleading to irrelevant patterns. Future work may address these challenges by developing more robust experience extraction methods that better filter noise and identify transferable knowledge patterns. In addition, explor ing more accurate retrieval and alignment techniques, incorporating confidence estimation or applicability scoring, and integrating formal verification can further enhance the reliability and adaptability of experience-driven agents in dynamic and unfamiliar code environment. 7 Threats to Validity Internal. The first internal threat comes from our reliance on a single underlying language model for all agent interactions. This choice may introduce model-specific biases and limit the generalizability of our findings across different LLM architectures. To address this concern, we follow prior work in automated program repair [47, 50] that demonstrates effectiveness on single model evaluations, and our dual-agent architecture with experience bank can be readily adapted to other state-of-the-art models. Another internal threat stems from potential data leakage, where SWE-bench instances may have been included in the training data of our underlying language model. While DeepSeek-V3-0324 is open-source, its training data composition is not publicly disclosed, making it impossible to verify potential overlap with our evaluation dataset. In the experiments, our approach shows consistent improvements over strong baselines that use the same underlying models, indicating that gains arise from our architectural innovations rather than training data advantages. External. The primary external threat concerns the generalizability of our approach beyond Python repositories and the specific issue types present in SWE-bench. Our evaluation focuses exclusively on Python-based open-source projects, limiting our ability to demonstrate cross-language effec tiveness. However, our approach is fundamentally language-agnostic, as it captures high-level issue resolution patterns like problem comprehension and modification experiences rather than language-specific syntax or semantics. The SWE-Exp framework should theoretically transfer to other programming languages, making cross-language evaluation a promising direction for future work. 8 Related Work 8.1 Repository-Level Issue Resolution Repository-level issue resolution automatically identifies and resolves issues across multiple files within a software project, requiring understanding of complex dependencies and maintaining code consistency [16]. Recent approaches leverage large language models to develop solution frameworks that can be categorized into agentic and non-agentic paradigms. Agentic frameworks treat language models as autonomous agents that step-by-step interact with code environments, with SWE-Agent [50] introducing a foundational agent-computer interface for repository-level interactions. Building on this foundation, several systems have enhanced specific capabilities: Au toCodeRover [58] and SpecRover [32] focus on improved localization and agent support mechanisms, while OpenHands CodeAct [20] provides comprehensive tooling frameworks. SWE-Search [2] uses Monte Carlo Tree Search for systematic solution space exploration, LocAgent [5] is a graph guided LLM agent that performs multi-hop reasoning over a codebase graph to accurately localize relevant code elements for a given issue. Building upon this work, SWE-Debate [17] employs multiple reasoning chains combined with a competitive debate mechanism among specialized agents. This design allows SWE-Debate to explore multiple fault propagation traces simultaneously, leading to more accurate issue localization and more informed repair planning. SAGE [12] enables self-improving behavior by inducing high-level plan abstractions from the execution trajectories of the current instance and using these abstractions as contextual guidance to refine subsequent agent policies. Non-agentic pipelines focus on specialized execution workflows, with Agentless [47] decompos ing repair into distinct phases of localization, repair, and validation. CodeMonkeys [9] explores scaling test-time compute through iterative codebase editing with concurrent testing, while recent work [14] demonstrates that long-context language models with proper prompting can compete with complex agent systems. Training-based approaches have emerged to create SWE-bench like instances for specialized fine-tuning [27, 29, 51], with MCTS-Refined CoT [40] using Monte Carlo Tree Search and reflection mechanisms to generate high-quality training data for substantial performance improvements. Despite remarkable progress in performance results, existing approaches face several critical limitations that hinder their practical effectiveness. Current evaluations rely mainly on static offline datasets, raising concerns about solution memorization and configuration-specific optimizations rather than genuine algorithmic advances [56]. While graph-based methods demonstrate effective fault localization and Monte Carlo Tree Search-based exploration shows potential for higher-quality fixes, these methods often provide limited improvements in patch quality due to substantial com putational costs and frequent failure to identify correct solutions after extensive search [2, 15]. Analysis of agent behavior reveals common failure patterns including overthinking and premature disengagement that further limit effectiveness [6]. Most critically, existing approaches lack system atic methods to learn from repair experiences, resulting in repeated exploration of failed strategies and missed opportunities to leverage successful patterns from previous attempts [10, 37, 59]. EvoCoder [18] introduces a promising multi-agent continuous learning framework for issue code reproduction that uses reflection mechanisms allowing LLMs to continuously learn from previously resolved problems and dynamically improve strategies for new challenges. SAGE [12] proposes a test-time adaptation framework that enables language-model-powered agents to improve their planning and execution over time by inducing concise plan abstractions from their own task experience and conditioning subsequent policy decisions on these abstractions to refine behavior and performance. Building on this valuable insight of leveraging historical experiences, our SWE-Exp further extends the experience-driven paradigm to the complete repository-level issue resolution workflow. SWE-Exp introduces a comprehensive experience-enhanced framework that captures and leverages structured experiences across multiple stages of the issue resolution process—from initial problem comprehension to final code modification. Crucially, these experiences are not limited to a single repository; SWE-Exp enables the aggregation and reuse of trajectories collected from heterogeneous external codebases, allowing agents to transfer problem-solving knowledge across repositories with differing architectures and domains. Through systematic distillation of multi-faceted experiences (problem comprehension and modification patterns) and their application via a dual-agent architecture, SWE-Exp transforms the entire repair workflow from isolated problem-solving into strategic, experience-guided issue resolution.
+
+8.2 Experience Enhanced AI Agents AI agents have fundamentally transformed how we approach complex computational tasks by providing autonomous reasoning and decision-making capabilities that can adapt to diverse problem contexts [8, 13, 35, 42, 46, 53, 55]. In order to enhance their ability to accumulate and leverage knowledge from past experiences, experience-enhanced agent architectures are proposed [21, 23, 26, 30, 49]. Early foundational work in experience-enhanced AI agents focused on developing human-like memory systems for better long-term interactions [37, 57]. OlaGPT [49] introduced cognitive simulation by adding memory and learning from mistakes to copy human-like thought processes. Think-in-Memory (TiM) [19] introduced a two-stage framework for recalling thoughts before generation and post-thinking for memory updates. This enables LLMs to maintain evolved memory without repeated reasoning. MemoryBank [60] separated long-term and short-term memory types to create more natural human-machine interactions, while MemGPT [26] used hierarchical storage levels with context priority strategies for extended information management. OpenAI’s ChatGPT also added memory functionality through external memory layers to store user-specific information across sessions [25]. These foundational approaches showed the importance of persistent memory systems but mainly focused on conversational contexts rather than task-specific problem-solving. Modern experience-based learning frameworks have evolved to capture and use procedural knowledge from agent interactions [23, 43, 57]. ExpeL [59] introduced autonomous experience gathering through natural language insights with weighted management systems (ADD, EDIT, UPVOTE, DOWNVOTE) for non-parametric learning. Building on this, AgentRR [10] introduced comprehensive record-and-replay systems that capture both environmental interactions and in ternal decision processes. AutoGuide [11] automatically generates context-aware guidelines from offline experiences using contrastive learning techniques. Advanced frameworks like CAIM [45] im plement advanced cognitive AI-inspired architectures with specialized Memory Controller, Memory Retrieval, and Post-Thinking modules. Recent approaches emphasize learned routine development, with ExACT [52] combining Reflective Monte Carlo Tree Search with vector database storage for dynamic search efficiency improvement. Self-improving coding systems [31] achieve autonomous code editing through LLM-driven reflection mechanisms. However, existing frameworks mainly target general-purpose tasks and lack domain-specific optimizations for software engineering scenarios [47, 58]. SWE-Exp addresses this limitation by developing specialized experience archi tectures designed for repository-level issue resolution, capturing both strategic repair workflows and detailed code-level patterns.
+
+9 Conclusion We presented SWE-Exp, an experience-enhanced framework that transforms repository-level issue resolution from isolated exploration into experience-driven processes. By capturing and distilling knowledge from both successful and failed repair trajectories at multiple levels including comprehension and modification experiences, our dual-agent architecture leverages historical insights to guide strategic planning and tactical execution. Experimental evaluation on SWE-bench demonstrates significant effectiveness, achieving a Pass@1 score of 73.0%, establishing a new paradigm where automated agents systematically accumulate and leverage knowledge rather than relying on trial-and-error exploration. Future work can explore more advanced experience extraction mechanisms and integration with formal verification techniques to further enhance automated software engineering capabilities.
+
+Data Availability Our code and data are available at https://anonymous.4open.science/r/SWE-Exp-6FEA.
+
+## References
+
+[1] Anthropic. 2025. Introducing Claude 4. https://www.anthropic.com/news/claude-4
+
+[2] Antonis Antoniades, Albert Örwall, Kexun Zhang, Yuxi Xie, Anirudh Goyal, and William Wang. 2024. SWE-Search: Enhancing Software Agents with Monte Carlo Tree Search and Iterative Refinement. arXiv:2410.20285
+
+[3] Dong Chen, Shaoxin Lin, Muhan Zeng, Daoguang Zan, Jian-Gang Wang, Anton Cheshkov, Jun Sun, Hao Yu, Guoliang Dong, Artem Aliev, Jie Wang, Xiao Cheng, Guangtai Liang, Yuchi Ma, Pan Bian, Tao Xie, and Qianxiang Wang. 2024. CodeR: Issue Resolving with Multi-Agent and Task Graphs. arXiv:2406.01304 [cs]
+
+[4] Zhi Chen, Wei Ma, and Lingxiao Jiang. 2025. Unveiling Pitfalls: Understanding Why AI-driven Code Agents Fail at GitHub Issue Resolution. arXiv:2503.12374 [cs]
+
+[5] Zhaoling Chen, Xiangru Tang, Gangda Deng, Fang Wu, Jialong Wu, Zhiwei Jiang, Viktor Prasanna, Arman Cohan, and Xingyao Wang. 2025. LocAgent: Graph-Guided LLM Agents for Code Localization. arXiv:2503.09089 [cs]
+
+[6] Alejandro Cuadron, Dacheng Li, Wenjie Ma, Xingyao Wang, Yichuan Wang, Siyuan Zhuang, Shu Liu, Luis Gaspar Schroeder, Tian Xia, Huanzhi Mao, Nicholas Thumiger, Aditya Desai, Ion Stoica, Ana Klimovic, Graham Neubig, and Joseph E. Gonzalez. 2025. The Danger of Overthinking: Examining the Reasoning-Action Dilemma in Agentic Tasks.
+
+[7] DeepSeek-AI. 2025. DeepSeek-V3 Technical Report. arXiv:2412.19437 [cs]
+
+[8] Yilun Du, Shuang Li, Antonio Torralba, Joshua B. Tenenbaum, and Igor Mordatch. 2024. Improving Factuality and Reasoning in Language Models through Multiagent Debate. In Proceedings of the 41st International Conference on Machine Learning (ICML’24, Vol. 235). JMLR.org, Vienna, Austria, 11733–11763.
+
+[9] Ryan Ehrlich, Bradley Brown, Jordan Juravsky, Ronald Clark, Christopher Ré, and Azalia Mirhoseini. 2025. CodeMon keys: Scaling Test-Time Compute for Software Engineering.
+
+[10] Erhu Feng, Wenbo Zhou, Zibin Liu, Le Chen, Yunpeng Dong, Cheng Zhang, Yisheng Zhao, Dong Du, Zhichao Hua, Yubin Xia, and Haibo Chen. 2025. Get Experience from Practice: LLM Agents with Record & Replay. arXiv:2505.17716 [cs]
+
+[11] Yao Fu, Dong-Ki Kim, Jaekyeom Kim, Sungryull Sohn, Lajanugen Logeswaran, Kyunghoon Bae, and Honglak Lee. 2024. AutoGuide: Automated Generation and Selection of Context-Aware Guidelines for Large Language Model Agents. arXiv:2403.08978 [cs]
+
+[12] Hiroaki Hayashi, Bo Pang, Wenting Zhao, Ye Liu, Akash Gokul, Srijan Bansal, Caiming Xiong, Semih Yavuz, and Yingbo Zhou. 2025. Self-Abstraction from Grounded Experience for Plan-Guided Policy Refinement. arXiv preprint arXiv:2511.05931 (2025).
+
+[13] Dong Huang, Qingwen Bu, Jie M. Zhang, Michael Luck, and Heming Cui. 2023. AgentCoder: Multi-Agent-based Code Generation with Iterative Testing and Optimisation. arXiv:2312.13010
+
+[14] Mingjian Jiang, Yangjun Ruan, Luis Lastras, Pavan Kapanipathi, and Tatsunori Hashimoto. 2025. Putting It All into Context: Simplifying Agents with LCLMs. arXiv:2505.08120 [cs]
+
+[15] Zhonghao Jiang, Xiaoxue Ren, Meng Yan, Wei Jiang, Yong Li, and Zhongxin Liu. 2025. CoSIL: Software Issue Localization via LLM-Driven Code Repository Graph Searching. arXiv:2503.22424 [cs]
+
+[16] Carlos E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir Press, and Karthik R. Narasimhan. 2024. SWE-bench: Can Language Models Resolve Real-world Github Issues?. In ICLR.
+
+[17] Han Li, Yuling Shi, Shaoxin Lin, Xiaodong Gu, Heng Lian, Xin Wang, Yantao Jia, Tao Huang, and Qianxiang Wang. 2025. Swe-debate: Competitive multi-agent debate for software issue resolution. arXiv preprint arXiv:2507.23348 (2025).
+
+[18] Yalan Lin, Yingwei Ma, Rongyu Cao, Binhua Li, Fei Huang, Xiaodong Gu, and Yongbin Li. 2024. LLMs as Continuous Learners: Improving the Reproduction of Defective Code in Software Issues. arXiv:2411.13941 [cs]
+
+[19] Lei Liu, Xiaoyan Yang, Yue Shen, Binbin Hu, Zhiqiang Zhang, Jinjie Gu, and Guannan Zhang. 2023. Think-in-Memory: Recalling and Post-thinking Enable LLMs with Long-Term Memory. arXiv:2311.08719 [cs]
+
+[20] Weijie Lv, Xuan Xia, and Sheng-Jun Huang. 2024. CodeACT: Code Adaptive Compute-efficient Tuning Framework for Code LLMs. arXiv:2408.02193 [cs]
+
+[21] Yingwei Ma, Binhua Li, Yihong Dong, Xue Jiang, Rongyu Cao, Jue Chen, Fei Huang, and Yongbin Li. 2025. Thinking Longer, Not Larger: Enhancing Software Engineering Agents via Scaling Test-Time Compute. arXiv:2503.23803 [cs]
+
+[22] Yingwei Ma and Yue Liu. 2025. Improving Automated Issue Resolution via Comprehensive Repository Exploration. In ICLR 2025 Third Workshop on Deep Learning for Code.
+
+[23] Zexiong Ma, Chao Peng, Pengfei Gao, Xiangxin Meng, Yanzhen Zou, and Bing Xie. 2025. SoRFT: Issue Resolving with Subtask-oriented Reinforced Fine-Tuning. arXiv:2502.20127 [cs]
+
+[24] OpenAI. 2024. Introducing SWE-bench Verified. https://openai.com/index/introducing-swe-bench-verified/.
+
+[25] OpenAI. 2024. Memory and New Controls for ChatGPT. https://openai.com/index/memory-and-new-controls-for chatgpt/.
+
+[26] Charles Packer, Sarah Wooders, Kevin Lin, Vivian Fang, Shishir G. Patil, Ion Stoica, and Joseph E. Gonzalez. 2024. MemGPT: Towards LLMs as Operating Systems. arXiv:2310.08560 [cs]
+
+[27] Jiayi Pan, Xingyao Wang, Graham Neubig, Navdeep Jaitly, Heng Ji, Alane Suhr, and Yizhe Zhang. 2024. Training Software Engineering Agents and Verifiers with SWE-Gym.
+
+[28] Weihan Peng, Yuling Shi, Yuhang Wang, Xinyun Zhang, Beijun Shen, and Xiaodong Gu. 2025. SWE-QA: Can Language Models Answer Repository-level Code Questions? arXiv preprint arXiv:2509.14635 (2025).
+
+[29] Minh V. T. Pham, Huy N. Phan, Hoang N. Phan, Cuong Le Chi, Tien N. Nguyen, and Nghi D. Q. Bui. 2025. SWE Synth: Synthesizing Verifiable Bug-Fix Data to Enable Large Language Models in Resolving Real-World Bugs. arXiv:2504.14757 [cs]
+
+[30] Chen Qian, Yufan Dang, Jiahao Li, Wei Liu, Zihao Xie, Yifei Wang, Weize Chen, Cheng Yang, Xin Cong, Xiaoyin Che, et al. 2023. Experiential co-learning of software-developing agents. arXiv preprint arXiv:2312.17025 (2023).
+
+[31] Maxime Robeyns, Martin Szummer, and Laurence Aitchison. 2025. A Self-Improving Coding Agent. arXiv:2504.15228 [cs]
+
+[32] Haifeng Ruan, Yuntong Zhang, and Abhik Roychoudhury. 2024. SpecRover: Code Intent Extraction via LLMs. arXiv:2408.02232 [cs]
+
+[33] Yuchen Shao, Yuheng Huang, Jiawei Shen, Lei Ma, Ting Su, and Chengcheng Wan. 2025. Are LLMs Correctly Integrated into Software Systems?. In 2025 IEEE/ACM 47th International Conference on Software Engineering (ICSE). IEEE, 1178–1190.
+
+[34] Yuling Shi, Yichun Qian, Hongyu Zhang, Beijun Shen, and Xiaodong Gu. 2025. LongCodeZip: Compress Long Context for Code Language Models. arXiv preprint arXiv:2510.00446 (2025).
+
+[35] Yuling Shi, Songsong Wang, Chengcheng Wan, and Xiaodong Gu. 2024. From Code to Correctness: Closing the Last Mile of Code Generation with Hierarchical Debugging. arXiv:2410.01215 [cs]
+
+[36] Yuling Shi, Hongyu Zhang, Chengcheng Wan, and Xiaodong Gu. 2024. Between Lines of Code: Unraveling the Distinct Patterns of Machine and Human Programmers. In 2025 IEEE/ACM 47th International Conference on Software Engineering (ICSE). IEEE Computer Society, 51–62.
+
+[37] Xiangru Tang, Tianrui Qin, Tianhao Peng, Ziyang Zhou, Daniel Shao, Tingting Du, Xinming Wei, Peng Xia, Fang Wu, He Zhu, et al. 2025. Agent KB: Leveraging Cross-Domain Experience for Agentic Problem Solving. arXiv preprint arXiv:2507.06229 (2025).
+
+[38] Wenyi Wang, Piotr Piękos, Li Nanbo, Firas Laakom, Yimeng Chen, Mateusz Ostaszewski, Mingchen Zhuge, and Jürgen Schmidhuber. 2025. Huxley-Gödel Machine: Human-Level Coding Agent Development by an Approximation of the Optimal Self-Improving Machine. arXiv:2510.21614 [cs.AI] https://arxiv.org/abs/2510.21614
+
+[39] Xingyao Wang, Boxuan Li, Yufan Song, Frank F. Xu, Xiangru Tang, Mingchen Zhuge, Jiayi Pan, Yueqi Song, Bowen Li, Jaskirat Singh, Hoang H. Tran, Fuqiang Li, Ren Ma, Mingzhang Zheng, Bill Qian, Yanjun Shao, Niklas Muennighoff, Yizhe Zhang, Binyuan Hui, Junyang Lin, Robert Brennan, Hao Peng, Heng Ji, and Graham Neubig. 2024. OpenHands: An Open Platform for AI Software Developers as Generalist Agents. arXiv:2407.16741
+
+[40] Yibo Wang, Zhihao Peng, Ying Wang, Zhao Wei, Hai Yu, and Zhiliang Zhu. 2025. MCTS-Refined CoT: High-Quality Fine-Tuning Data for LLM-Based Repository Issue Resolution. arXiv:2506.12728 [cs]
+
+[41] Yuhang Wang, Yuling Shi, Mo Yang, Rongrui Zhang, Shilin He, Heng Lian, Yuting Chen, Siyu Ye, Kai Cai, and Xiaodong Gu. 2026. SWE-Pruner: Self-Adaptive Context Pruning for Coding Agents. arXiv preprint arXiv:2601.16746 (2026).
+
+[42] Yifei Wang, Feng Xiong, Yong Wang, Linjing Li, Xiangxiang Chu, and Daniel Dajun Zeng. 2025. Position bias mitigates position bias: Mitigate position bias through inter-position knowledge distillation. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing. 1495–1512.
+
+[43] Zora Zhiruo Wang, Jiayuan Mao, Daniel Fried, and Graham Neubig. 2024. Agent workflow memory. arXiv preprint arXiv:2409.07429 (2024).
+
+[44] Yuxiang Wei, Olivier Duchenne, Jade Copet, Quentin Carbonneaux, Lingming Zhang, Daniel Fried, Gabriel Synnaeve, Rishabh Singh, and Sida I. Wang. 2025. SWE-RL: Advancing LLM Reasoning via Reinforcement Learning on Open Software Evolution. arXiv:2502.18449 [cs]
+
+[45] Rebecca Westhäußer, Frederik Berenz, Wolfgang Minker, and Sebastian Zepf. 2025. CAIM: Development and Evaluation of a Cognitive AI Memory Framework for Long-Term Interaction with Intelligent Agents. arXiv:2505.13044 [cs]
+
+[46] Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu, Beibin Li, Erkang Zhu, Li Jiang, Xiaoyun Zhang, Shaokun Zhang, Jiale Liu, Ahmed Hassan Awadallah, Ryen W. White, Doug Burger, and Chi Wang. 2023. AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation. arXiv:2308.08155 [cs]
+
+[47] Chunqiu Steven Xia, Yinlin Deng, Soren Dunn, and Lingming Zhang. 2024. Agentless: Demystifying LLM-based Software Engineering Agents. arXiv:2407.01489
+
+[48] Chunqiu Steven Xia, Zhe Wang, Yan Yang, Yuxiang Wei, and Lingming Zhang. 2025. Live-SWE-agent: Can Software Engineering Agents Self-Evolve on the Fly? arXiv preprint arXiv:2511.13646 (2025).
+
+[49] Yuanzhen Xie, Tao Xie, Mingxiong Lin, WenTao Wei, Chenglin Li, Beibei Kong, Lei Chen, Chengxiang Zhuo, Bo Hu, and Zang Li. 2023. OlaGPT: Empowering LLMs With Human-like Problem-Solving Abilities. arXiv:2305.16334 [cs]
+
+[50] John Yang, Carlos E. Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao, Karthik R. Narasimhan, and Ofir Press. 2024. SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering. In The Thirty-eighth Annual Conference on Neural Information Processing Systems.
+
+[51] John Yang, Kilian Leret, Carlos E. Jimenez, Alexander Wettig, Kabir Khandpur, Yanzhe Zhang, Binyuan Hui, Ofir Press, Ludwig Schmidt, and Diyi Yang. 2025. SWE-smith: Scaling Data for Software Engineering Agents.
+
+[52] Xiao Yu, Baolin Peng, Vineeth Vajipey, Hao Cheng, Michel Galley, Jianfeng Gao, and Zhou Yu. 2025. ExACT: Teaching AI Agents to Explore with Reflective-MCTS and Exploratory Learning. arXiv:2410.02052 [cs]
+
+[53] Jusheng Zhang, Yijia Fan, Wenjun Lin, Ruiqi Chen, Haoyi Jiang, Wenhao Chai, Jian Wang, and Keze Wang. 2025. GAM-Agent: Game-Theoretic and Uncertainty-Aware Collaboration for Complex Visual Reasoning. arXiv preprint arXiv:2505.23399 (2025).
+
+[54] Jenny Zhang, Shengran Hu, Cong Lu, Robert Lange, and Jeff Clune. 2025. Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents. arXiv preprint arXiv:2505.22954 (2025).
+
+[55] Jusheng Zhang, Zimeng Huang, Yijia Fan, Ningyuan Liu, Mingyan Li, Zhuojie Yang, Jiawei Yao, Jian Wang, and Keze Wang. 2025. KABB: Knowledge-Aware Bayesian Bandits for Dynamic Expert Coordination in Multi-Agent Systems. In Forty-second International Conference on Machine Learning. https://openreview.net/forum?id=AKvy9a4jho
+
+[56] Linghao Zhang, Shilin He, Chaoyun Zhang, Yu Kang, Bowen Li, Chengxing Xie, Junhao Wang, Maoquan Wang, Yufan Huang, Shengyu Fu, Elsie Nallipogu, Qingwei Lin, Yingnong Dang, Saravan Rajmohan, and Dongmei Zhang. 2025. SWE-bench Goes Live! arXiv:2505.23419 [cs]
+
+[57] Wenqi Zhang, Ke Tang, Hai Wu, Mengna Wang, Yongliang Shen, Guiyang Hou, Zeqi Tan, Peng Li, Yueting Zhuang, and Weiming Lu. 2024. Agent-pro: Learning to evolve via policy-level reflection and optimization. arXiv preprint arXiv:2402.17574 (2024).
+
+[58] Yuntong Zhang, Haifeng Ruan, Zhiyu Fan, and Abhik Roychoudhury. 2024. AutoCodeRover: Autonomous Program Improvement. In Proceedings of the 33rd ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA 2024). Association for Computing Machinery, New York, NY, USA, 1592–1604.
+
+[59] Andrew Zhao, Daniel Huang, Quentin Xu, Matthieu Lin, Yong-Jin Liu, and Gao Huang. 2024. ExpeL: LLM Agents Are Experiential Learners. Proceedings of the AAAI Conference on Artificial Intelligence 38, 17 (March 2024), 19632–19642.
+
+[60] Wanjun Zhong, Lianghong Guo, Qiqi Gao, He Ye, and Yanlin Wang. 2024. MemoryBank: Enhancing Large Language Models with Long-Term Memory. In Proceedings of the Thirty-Eighth AAAI Conference on Artificial Intelligence and Thirty-Sixth Conference on Innovative Applications of Artificial Intelligence and Fourteenth Symposium on Educational Advances in Artificial Intelligence (AAAI’24/IAAI’24/EAAI’24, Vol. 38). AAAI Press, 19724–19731.
+
+A Hyperparameters of MCTS The Monte Carlo Tree Search (MCTS) algorithm [16] used in this study employs hyperparameters in Table 4.
+
+Table 4. MCTS Hyperparameters
+
+Hyperparameter Description Default Main Search Parameters c_param UCT exploration parameter 1.41 max_expansions Max children per node 3 max_iterations Max MCTS iterations 20 provide_feedback Enable feedback True best_first Use best-first strategy True value_function_temperature Value function temperature 0.2 max_depth Max tree depth 20 UCT Score Calculation Parameters exploration_weight UCT exploration weight 1.0 depth_weight Depth penalty weight 0.8 depth_bonus_factor Depth bonus factor 200 high_value_threshold High-value node threshold 55 low_value_threshold Low-value node threshold 50 very_high_value_threshold Very high-value threshold 75 high_value_leaf_bonus_constant High-value leaf bonus 20 high_value_bad_children_bonus_constant High-value bad children bonus 20 high_value_child_penalty_constant High-value child penalty 5 Action Model Parameters action_model_temperature Action model temperature 0.7 Discriminator Parameters number_of_agents Number of Discriminator Agents 5 number_of_round Number of debate rounds 3 discriminator_temperature Discriminator temperature 1 B Prompt Templates In the following section, we provide a comprehensive enumeration of all prompts employed throughout our workflow, including the system prompts used by the dual-agent architecture, the prompts designed for extracting successful and failed experiences, and those used for reusing past experiences. This detailed documentation aims to ensure reproducibility and to highlight the role of prompt engineering in the effectiveness of our method.
+
+### Instructor Prompt 1: Instructor Prompt
+
+You are an autonomous AI instructor with deep analytical capabilities . Operating independently , you cannot communicate with the user but must analyze the past history of interactions with the code repository to generate the next instruction that guides the assistant toward completing the task .
+
+# Workflow to guide assistants in modifying code
+
+Follow these structured steps to understand the task and instruct the assistant to locate context , and perform code modifications .
+
+### 4. Iterate as Needed - If the task has already been resolved by the existing code modifications , finish the process without making additional changes . - If the task is not fully resolved , analyze what remains and focus only on the unresolved parts . - Avoid making unnecessary changes to previously correct code modifications . Subsequent edits should strictly target the remaining issues . - When modifying the input parameters or return values of a function or class , make sure to update all relevant code snippets that invoke them accordingly . - But do not take test into account , just focus on how to resolve the task . - Repeat until the task are resolved
+
+SWE-Exp : Experience-Driven Software Issue Resolution 25 ### 5. Complete Task - Once the implementation satisfies all task constraints and maintains system integrity : - Do not add additional test cases . - Stop the task .
+
+# Additional Notes
+
+* ** Think Step by Step ** - Always document your reasoning and thought process in the Thought section . - Only one kind of instruction is generated each step .
+
+* ** Efficient Operation ** - Use previous observations to inform your next actions . - Avoid instructing assistant to execute similar actions as before . - Focus on minimal viable steps : Prioritize actions that maximize progress with minimal code exploration or modification .
+
+* ** Never Guess ** - Do not guess line numbers or code content . - All code environment information must come from the real environment feedback .
+
+# Instructor Output Format
+For each input , you must output a JSON object with exactly three fields :
+1. thoughts : A natural language description that summarizes the current
+code environment , previous steps taken , and relevant contextual
+reasoning .
+2. instructions :
+- One specific and actionable objective for the assistant to
+complete next . This should be phrased as a goal rather than an
+implementation detail , guiding what should be achieved based on
+the current context .
+- Instruction related to modifying the code must strictly refer to
+the task at the beginning , and you shouldn 't guess how to modify
+.
+- Do not include any instructions related to test cases .
+- The more detailed the better .
+3. context :
+- If the next step involves retrieving additional context according
+to the previous observations , ensure the context includes the
+following specific details from the code environment ( as
+applicable ) :
+-- Exact file path or vague file pattern ( e . g . , **/ dictionary /*.
+py )
+-- Exact Class names from environment feedback
+-- Exact Function names from environment feedback
+-- Exact Code block identifiers from environment feedback ( e . g . ,
+method headers , class declarations )
+-- Exact Corresponding line ranges from environment feedback (
+start_line and end_line )
+-- The span ids of the code you hope to view
+
+- If the code environment is uncertain or specific classes and functions cannot be retrieved multiple times , -- Only output a natural language query describing the functionality of the code that needs to be retrieved , without exact file , class , function , or code snippets . - If the next step needs to modify the code , the context must contain specific file path . - If the task is complete , this could return `None `. - Don 't guess the context , the context must come from the interaction with the code environment . 4. type : A string indicating the kind of next action required . Must be one of : - " search ": when more information is needed , - " view ": when additional context not returned by searches , or specific line ranges you discovered from search results - " modify ": when you have identified the specific code to be modified or generated from the code environment feedback . - " finish ": when the task has been solved .
+
+The instructor 's output must follow a structured JSON format : {
+
+" thoughts ": " < analysis and summary of the current code environment and interaction history >" , " instructions ": " < next objective for the assistant and some insights from the previous actions >" , " context ": " < the description or query that summarizes the code environment that needs to be known in the next step >" , " type ": " < search | view | modify | finish >"
+
+}
+
+## 1. Analysis First
+
+: - Read the problem statement in < task > to understand the global goal . - Read the instructor ’ s instruction in < instruction > to understand the next action .
+
+## 2. Analyze Environment
+
+, Interaction History and Code Snippet : - If the next action requires retrieving more context , carefully extract precise targets from the < environment >. These may include relevant file names , class names , function names , code block identifiers , or corresponding line ranges , depending on what is available in the context . - Actions and their arguments from the past interactions are recorded in < history >. Your next action should retrieve content that is not redundant with those previous actions .
+
+SWE-Exp : Experience-Driven Software Issue Resolution 27 - If the next action involves modifying code , use the < environment > to get the target path and identify the exact code snippet that needs to be changed in < code > , along with its surrounding logic and dependencies . This ensures the modification is accurate , consistent , and context - aware .
+
+## 2. EVERY
+
+response must follow EXACTLY this format : Thought : Your reasoning and analysis Action : ONE specific action to take
+
+## 3. Your
+
+Thought section MUST include : - What you learned from previous Observations - Why you 're choosing this specific action - What you expect to learn / achieve - Any risks to watch for
+
+# Action Description
+1. ** Locate Code **
+* ** Primary Method - Search Functions :** Use these to find relevant code :
+* FindClass - Search for class definitions by class name
+* FindFunction - Search for function definitions by function name
+* FindCodeSnippet - Search for specific code patterns or text
+* SemanticSearch - Search code by semantic meaning and natural
+language description
+* ** Secondary Method - ViewCode :** Only use when you need to see :
+* Additional context not returned by searches but in the same file
+* Specific line ranges you discovered from search results
+* Code referenced in error messages or test failures
+
+2. ** Modify Code ** * ** Fix Task :** Make necessary code changes to resolve the task requirements * ** Primary Method - StringReplace :** Use this to apply code modifications - Replace exact text strings in files with new content - The old_str argument cannot be empty . * ** Secondary Method - CreateFile :** Only use when you need to need to implement new functionality : - Create new files with specified content
+
+3. ** Complete Task ** * Use Finish when confident all applied patch are correct and complete .
+
+# Important Guidelines
+
+* ** Focus on the Specific Instruction ** - Implement requirements exactly as specified , without additional changes . - Do not modify code unrelated to the task .
+
+* ** Code Context and Changes ** - Limit code changes to files in the code you can see . - If you need to examine more code , use ViewCode to see it .
+
+* ** Task Completion ** , Vol. 1, No. 1, Article . Publication date: February 2026.
+
+- Finish the task only when the task is fully resolved .
+- Do not suggest code reviews or additional changes beyond the scope .
+
+# Additional Notes
+
+* ** Think Step by Step ** - Always document your reasoning and thought process in the Thought section . - Build upon previous steps without unnecessary repetition .
+
+* ** Never Guess ** - Do not guess line numbers or code content . Use ViewCode to examine code when needed .
+
+### Issue Agent
+
+Prompt 3: Issue Agent Prompt
+
+You are an expert error classification assistant . Your task is to analyze
+string - formatted issue reports and identify the type of error they
+contain .
+For each input , you must output a JSON object with exactly two fields :
+1. `issue_type `: The generalized error category in the format " < generalized_descriptive_name > Error " ( e . g . , " SyntaxError " , " NullReferenceError ")
+2. `description `: A brief description (1 -2 sentences ) of the characteristics of the identified error category
+
+Your output should strictly follow JSON format with the following structure : {
+
+" issue_type ": " < generalized_descriptive_name > Error " , " description ": " < the brief description >" ,
+
+}
+
+### Issue Comprehension ExpAgent
+#### Successful Experience Extraction Prompt. Prompt 4: Issue Comprehension ExpAgent (Success)
+
+You are a bug resolution expert . You will be given a software issue , the corresponding golden patch and a trajectory that represents how an agent successfully resolved this issue .
+
+## Guidelines You need to extract two key aspects from this successful trajectory : 1. ** perspective ** - how this trajectory thought about this issue - that is , how the problem was understood in a way that ** led to its successful resolution **. This should be abstract and not name specific code entities
+
+SWE-Exp : Experience-Driven Software Issue Resolution 29 ## Important Notes : - Perspective should be at the level of thinking , not specific implementation details . - Perspective and reasoning should be expressed in as generalized and abstract terms as possible . - Do not include specific object names in perspective .
+
+Your output must strictly follow the JSON format shown below : {
+
+" perspective ": " <1 -2 sentences to describe how this trajectory understood this issue >" ,
+
+}
+
+### Failed Experience Extraction Prompt. Prompt 5: Issue Comprehension ExpAgent (Failure)
+
+You are a bug resolution expert . You will be given a software issue , the corresponding golden patch and a trajectory that represents how an agent attempted to resolve this issue but failed .
+
+## Important Notes : - Reflections should be at the level of thinking , not specific implementation details . - Reflections should be expressed in as generalized and abstract terms as possible . - Be comprehensive and detailed as possible . - Do not include specific object names in the output
+
+Your output must strictly follow the JSON format shown below : {
+
+" perspective ": [ " < one key reflection >" , ... ] , " modification ": [ " < one key reflection >" , ... ]
+
+}
+
+### Modification ExpAgent
+
+Prompt 6: Modification ExpAgent Prompt
+
+You are a software patch refinement expert . You will be given a software issue , a successful trajectory that shows how the agent modified the code to fix the bug , and the agent - generated patch which successfully resolved this issue .
+
+Your job is to : 1. Compare the generated patch with the issue , determine why this patch could resolve this issue and how to resolve this kind of issue .
+
+## 2. Analyze
+
+successful trajectory and decide which code modification is vital to resolve this issue . ## Guidelines Your need to extract and summarize one key insight based on the agent 's successful patch : 1. ** experience ** - abstract the reasoning behind this code change . What principle , pattern , or insight can be generalized from this fix and applied to future debugging cases ?
+
+## Output Format Your output must strictly follow the JSON format shown below : {
+
+" modification ": { " experience ": [ " <1 - 2 sentences summarizing the abstract insights learned from making this fix . >" ,
+
+... ] } }
+
+### RerankAgent
+
+Prompt 7: RerankAgent Prompt
+
+You are a knowledgeable issue resolution assistant . Your task is to analyze a current issue and identify the most relevant past experience that can help resolve it .
+
+You will be given :
+- A `problem_statement ` describing the current issue
+- A set of past trajectories , each with :
+- `issue_id `: A unique identifier
+
+- `issue_description `: The description of the past issue - `experience `: Either a `perspective ` ( how this successful trajectory understood this issue ) or `reflections ` ( insights gained from an unsuccessful trajectory ) Your job is to : 1. Compare the current `problem_statement ` with each past trajectory 's ` issue_description ` and `experience `.
+
+## 2. Select
+
+up to **{ k }** past experiences - choose only those that are clearly relevant and potentially helpful for resolving the current issue .
+
+## 3. You
+
+must select ** at least one ** experience , even if fewer than { k } are strongly relevant .
+
+You should ** prioritize trajectories whose problem - solving approach ( as described in the perspective ) aligns closely with the current issue **.
+
+You must output a JSON object with exactly two fields for each selection :
+- `issue_id `: ID of the past issue
+- `reason `: A short explanation of why this issue and experience was
+selected
+
+Your output must strictly follow the JSON format below : {{
+
+" issue_id ": {{ " reason ": " < why you select this issue and corresponding experience >"
+
+}} , ... }}
+
+### Reuser
+#### Reuse Comprehension Experience Prompt. Prompt 8: Reuser – Reuse Comprehension Experience Prompt
+
+You are a knowledgeable issue resolution assistant . Your task is to analyze a current issue and generalize the received experiences into a new insight that is applicable to this issue .
+
+You will be given : - A `problem_statement ` describing the current issue - A past trajectory with : - `issue_description `: The description of the past issue - `experience `: Either a `perspective ` ( how this successful trajectory understood this issue ) or `reflections ` ( insights gained from an unsuccessful trajectory ) Your job is to : 1. Compare the current `problem_statement ` with each past trajectory 's ` issue_description ` and `experience `.
+
+## 2. Adapt
+
+old experience to the current issue and produce a new applicable experience .
+
+## 3. Identify
+
+most likely entry point in the codebase - based on the problem statement - that is critical to resolving the current issue .
+
+You must output a JSON object with exactly one field : - `new_experience `: A new experience statement tailored to the current issue , based on the old experience . ** The more detailed the better **
+
+Your output must strictly follow the JSON format below : {
+
+" new_experience ": " < the new experience >"
+
+}
+
+### Reuse Modification Experience Prompt. Prompt 9: Reuser – Reuse Modification Experience Prompt
+
+You are a strategic assistant helping an agent improve its next - step instruction in a debugging task .
+
+You are given :
+- A `problem_statement `: a natural language description of the current
+software problem
+- A `current_code_exploration_history `: The recent exploration steps taken
+to understand or debug the current codebase . This may include what has
+been examined , eliminated , or hypothesized so far .
+- An `instruction `: the next step the agent is expected to take
+- A list of `experiences `: each offering past insights about how to better
+approach the corresponding issue .
+Your task is to :
+1. Analyze how the current `instruction ` relates to the given `issue ` and ` current_code_exploration_history `
+2. Identify useful , transferable , generalized insights from the past experiences of ** modification ** type
+3. Based on those insights , rewrite the instruction to make it more robust , strategically informed , and better suited to succeed in this situation
+
+### Important Notes - Focus only on experience of ** modification ** , and ensure the improved instruction aligns with the original goal but incorporates better reasoning or coverage - NEVER add the content that are not related to solving the current problem
+
+Output only the following JSON structure : {
+
+" enhanced_instruction ": " < A single improved and robust instruction , rewritten based on relevant experience of modification type >"
+
+}

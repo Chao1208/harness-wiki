@@ -1,0 +1,329 @@
+---
+description: We propose a taxonomy of retrieval queries for AI coding agents and argue that code-memory systems require separate treatment of two query classes rather than a unified retrieval layer. Structural queries admit exact answers derivable from a semantic graph of canonical identifiers; semantic queries are best served by vector retrieval over embedded code chunks.
+title: Structural vs Semantic Retrieval in Code-Memory: A Query-Type Taxonomy
+---
+
+
+
+Paper 2 · ArgosBrain research
+
+# Structural vs Semantic Retrieval in Code-Memory: A Query-Type Taxonomy
+
+We propose a taxonomy of retrieval queries for AI coding agents and argue that code-memory systems require separate treatment of two query classes rather than a unified retrieval layer. Structural queries — "does this symbol exist", "list methods of class X", "who calls Y", "who overrides Z" — admit exact answers derivable from a semantic graph of canonical identifiers; they are penalised by approximate retrieval and reward deterministic traversal. Semantic queries — "find code similar to this snippet", "locate regions that implement behaviour X" — are best served by vector retrieval over embedded code chunks. Systems that route both through a single mechanism — whether embedding-first, as in flat RAG, or graph-first, as in general knowledge-graph memory — underperform specialised routing. Using the LongMemCode benchmark's nine task categories, we show empirically that text search recovers 6.3–54.4% weighted accuracy while a structural-first system recovers 99.2–100%, with the gap concentrated in three categories (refactor, configuration-surface, test generation) that are definitionally structural. We argue that production code-memory systems should explicitly partition their retrieval path and report ablations accordingly.
+
+Author
+
+Aurelian Jibleanu
+
+Affiliation
+
+Neurogenesis · ArgosBrain Inc., Newark, Delaware, USA
+
+Contact
+
+[aurelian@argosbrain.dev](mailto:aurelian@argosbrain.dev)
+
+ORCID
+
+[0009-0005-3330-7150](https://orcid.org/0009-0005-3330-7150)
+
+Date
+
+April 21, 2026
+
+arXiv
+
+cs.SE / cs.IR
+
+License
+
+CC BY 4.0
+
+Keywords
+
+code memory, retrieval taxonomy, structural retrieval, semantic retrieval, AI coding agents, RAG
+
+## Abstract
+
+> We propose a taxonomy of retrieval queries for AI coding agents and argue that code-memory systems require separate treatment of two query classes rather than a unified retrieval layer. _Structural_queries — “does this symbol exist”, “list methods of class X”, “who calls Y”, “who overrides Z” — admit exact answers derivable from a semantic graph of canonical identifiers; they are penalised by approximate retrieval and reward deterministic traversal. _Semantic_ queries — “find code similar to this snippet”, “locate regions that implement behaviour X” — are best served by vector retrieval over embedded code chunks. Systems that route both through a single mechanism — whether embedding-first, as in flat RAG, or graph-first, as in general knowledge-graph memory — underperform specialised routing. Using the LongMemCode benchmark’s nine task categories, we show empirically that text search recovers 6.3–54.4% weighted accuracy while a structural-first system recovers 99.2–100%, with the gap concentrated in three categories (refactor, configuration-surface, test generation) that are definitionally structural. We argue that production code-memory systems should explicitly partition their retrieval path and report ablations accordingly.
+
+Figure 1: Accuracy heatmap across nine query categories for two adapters A 9-row by 2-column heatmap. Rows are the nine LongMemCode query categories. Columns are the grep-baseline adapter (wide red-to-yellow range, 6 to 54 percent) and the structural-reference adapter (uniformly deep green, 99 to 100 percent). grep-baseline structural-ref 54.4% 100% completion 42.1% 100% bug-fix 8.0% 99.2% refactor 14.2% 99.8% test-gen 32.3% 99.6% feature-add 48.7% 100% api-discovery 28.1% 99.7% control-flow 6.3% 100% config-surface 38.9% 100% safety-net 0% 100%
+
+Figure 1 — Illustrative weighted accuracy per query category, grep-baseline versus structural-reference adapter. The three definitionally structural categories (refactor, config-surface, test-gen) concentrate the gap. Full data in the LongMemCode repository.
+
+## Introduction
+
+Memory systems for AI agents have converged on a small number of retrieval paradigms. Flat retrieval-augmented generation (RAG) indexes content as chunks, embeds them into a vector store, and retrieves by cosine similarity. Knowledge-graph memory systems such as Graphiti \[Rasmy et al., 2025\] and Mem0’s graph variant \[Chhikara et al., 2025\] store facts as entities and labelled relations, and retrieve via hybrid traversal plus semantic search. Self-editing agent memories such as Letta \[Packer et al., 2023\] layer a tiered core/archival/recall structure over the same underlying mechanisms. Each of these approaches treats retrieval as a single unified problem: embed, store, search.
+
+We argue that for code-memory specifically, this is the wrong frame. The query distribution issued by an AI coding agent during inner-loop work is bimodal. One mode — the majority — consists of **structural** questions whose answers are deterministic functions of the source code’s semantic graph: “does `teleport_to_mars` exist as a method”, “enumerate every override of `Interface.method`”, “list methods of class `Query`”, “who reads `DATABASE_URL`”. The other mode — smaller but non-trivial — consists of **semantic**questions whose answers involve similarity or behavioural matching: “find code similar to this pattern”, “where is this algorithm implemented”. A retrieval layer that treats the two as one problem pays for semantic machinery on structural queries (losing determinism and tail latency) or forces structural machinery onto semantic queries (losing flexibility).
+
+This paper formalises the distinction and provides empirical evidence for its importance. We draw on the LongMemCode benchmark \[Jibleanu, 2026\] for per-category retrieval-quality measurements and contribute three things: (1) a formal definition of structural versus semantic queries grounded in the canonical-identifier model of source code; (2) an empirical breakdown across the nine LongMemCode categories showing where each class dominates; (3) architectural implications, including what a production code-memory system should report as ablations to be taken seriously.
+
+## Related Work
+
+### 4.1 Flat RAG
+
+Flat RAG \[Lewis et al., 2020; Gao et al., 2023\] is the default retrieval paradigm in the LLM application layer. Content is chunked, embedded via a model such as a Sentence-BERT variant or a proprietary text embedding model, stored in a vector database, and retrieved by similarity to the query. Flat RAG is semantic by construction: it answers “what is similar to this” well and answers “does this exist” poorly, because symbol absence is not a vector-space signal.
+
+### 4.2 Knowledge-graph memory
+
+Graphiti \[Rasmy et al., 2025\] and Mem0’s graph mode \[Chhikara et al., 2025\] store memory as an entity-relation graph with temporal or categorical edges. Retrieval combines graph traversal with semantic search over entity descriptions. Both target general-purpose agent memory (customer data, conversational history, domain facts), not code. Neither ingests source code as canonical-identifier graphs; both treat input as text episodes from which entities are extracted via LLM.
+
+### 4.3 Code-specific retrieval
+
+Continue.dev’s `@codebase` \[Continue, 2025\] uses tree-sitter to extract top-level function and class bodies, embeds them, and retrieves top-_k_ chunks. This is semantic retrieval applied to code. Aider’s repository map \[Aider, 2023\] uses tree-sitter symbol extraction with PageRank over file-level reference edges. This is a ranking heuristic, not retrieval in the query-response sense — the repo map is injected into every prompt. Neither framework exposes a structural query API.
+
+### 4.4 Phase-transition observations in knowledge graphs
+
+Shereshevsky \[2026\] reports a phenomenological observation: knowledge-graph memory systems perform poorly until they cross a connectivity threshold, then perform well. Hendrickson \[2026\] reports that agent memory fails at 500K–2M tokens of accumulated state long before the retrieval architecture fails at 10M tokens, and attributes the failure to state-integrity properties that vector retrieval does not preserve. Both observations motivate our argument: retrieval paradigm choice should be driven by query class, not by knowledge-base size.
+
+### 4.5 The gap this paper addresses
+
+The four bodies of work above treat retrieval paradigm choice as orthogonal to query type. We argue it is not — that for code-memory specifically, the query type determines the retrieval mechanism that can succeed, and that treating code-memory as a single-mechanism problem costs accuracy on the majority of the query mix.
+
+## A Taxonomy of Code-Memory Queries
+
+### 5.1 Definitions
+
+Let a codebase _C_ be represented as a **semantic graph** _G_ \= (_V_, _E_), where _V_is the set of canonical symbol identifiers (functions, classes, modules, configuration keys) and _E_ is the set of labelled edges encoding containment, reference, inheritance, override, and similar structural relations. This is the model produced by industrial code indexers such as SCIP and language-server-protocol workspace indices.
+
+A **structural query** over _C_ is a query whose answer is computable as a pure function of _G_: set membership on _V_, neighbour enumeration on _E_, transitive closure, path existence, and similar graph operations. The answer is a subset of _V_ (possibly empty). Correctness is deterministic: the answer either matches the ground truth computed from _G_ or does not. Representative structural queries include:
+
+* `exists(v)`: is symbol _v_ an element of _V_?
+* `methods_of(c)`: which vertices _v_ have a `contained_by` edge to class _c_?
+* `callers_of(f)`: which vertices _v_ have a `calls` edge into _f_?
+* `overrides_of(m)`: which vertices are linked to _m_ by an `overrides` edge?
+* `readers_of(k)`: which vertices reference configuration key _k_?
+
+A **semantic query** over _C_ is a query whose answer is defined by similarity or behavioural criteria not directly derivable from _G_. The answer is a ranked list of code regions. Correctness is approximate: there is typically no single ground-truth answer. Representative semantic queries include:
+
+* `similar_to(snippet)`: which regions of _C_ are nearest-neighbours in some embedding space?
+* `implements(behaviour_description)`: which regions of _C_ fulfil a behavioural specification given in natural language?
+* `explain(region)`: what is the purpose of a given region?
+
+### 5.2 Properties of the two classes
+
+| Property | Structural | Semantic |
+| ------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| Ground truth | Deterministic, derived from _G_ | Approximate, often no single answer |
+| Preferred retrieval mechanism | Graph traversal on _G_ | Embedding search over code chunks |
+| Worst-case accuracy of mismatched retrieval | Low (vector search gives false positives and misses) | Moderate (graph traversal returns related but not similar) |
+| Cost per query | Constant-time in graph size per edge crossed | Linear in index size for naive, sub-linear with HNSW |
+| Hallucination failure mode | Returning non-existent identifiers | Returning irrelevant but plausible matches |
+
+Critically: structural queries _can_ be answered by semantic retrieval, but only with accuracy loss. Asking “does `teleport_to_mars` exist” of a vector store returns the _nearest_ vector, not an authoritative absence — a symbol that never existed in the code still produces a top-_k_ result set. Semantic queries _cannot_ be answered by structural retrieval without additional information: a graph of canonical identifiers has no similarity metric.
+
+### 5.3 Workload distribution
+
+The LongMemCode benchmark \[Jibleanu, 2026\] defines nine task categories derived from industry surveys of AI-assisted developer workflows. Seven of the nine are predominantly structural by the definition above:
+
+* **Completion** — resolve a bare name to a canonical identifier. Structural.
+* **BugFix** — enumerate callers or dependents. Structural.
+* **Refactor** — enumerate methods, overrides, contained members. Structural.
+* **TestGen** — enumerate existing symbols in a file. Structural.
+* **FeatureAdd** — resolve canonical identifiers for mirrored scaffolding. Structural.
+* **ApiDiscovery + Ambiguity** — does this symbol exist, or is it hallucinated? Structural, and adversarially so: correct answer for fabricated names is the empty set.
+* **Control-flow & Type-shape** — resolve a named exception or type. Structural.
+
+The remaining two categories contain mixed workload:
+
+* **Config-surface** — “who reads `DATABASE_URL`?” is structural (reference graph on identifier nodes); “which regions perform configuration parsing?” is semantic.
+* **Safety-net** — hand-curated edge cases, mix varies.
+
+By LongMemCode’s declared weights, structural queries constitute approximately 92% of the workload, semantic queries at most 8%. We emphasise that this distribution is not universal — a memory system deployed primarily for code-review or pair-programming workflows may face a higher semantic proportion — but for the inner-loop coding-agent workload LongMemCode targets, it holds.
+
+## Empirical Evidence
+
+### 6.1 Methodology
+
+We use two retrieval paradigms as reference points. The first is text search (`ripgrep`\-backed), which has no structural model and no semantic embedding model. The second is structural-first retrieval: a graph traversal over canonical identifiers, without any vector or LLM step on the read path. Both are evaluated on LongMemCode across 16 corpora covering 16 languages, using the benchmark’s deterministic scoring (see Paper 1 for the benchmark methodology).
+
+We do not include a semantic-first reference adapter in this paper. We discuss why in Section 6.4.
+
+### 6.2 Figures
+
+**Figure 1 — Per-category accuracy heatmap.**
+
+A heatmap. Rows: the nine LongMemCode categories. Columns: two adapters (text search, structural retrieval) with a third column reserved for any additional adapters contributed to LongMemCode by submission time. Cell values: weighted accuracy averaged across corpora. Cell colour: red (0%) through yellow (50%) through green (100%). Source data: the LongMemCode `SCOREBOARD.md` at fixed commit. **What this figure shows**: the structural-versus-text gap is not uniform across categories — it is concentrated in Refactor, Config-surface, and TestGen, the three categories that are most explicitly structural. **What it deliberately does not show**: individual corpora (appendix material); no architectural claim about how the structural column achieves its numbers.
+
+**Figure 2 — Accuracy versus P99 latency scatter, per system, per corpus.**
+
+A scatter plot. X-axis: P99 latency in milliseconds, log scale. Y-axis: weighted accuracy, percent. Each point is a (system, corpus) pair. Marker shape encodes system (text search: circle, structural retrieval: square). Source data: LongMemCode scoreboard. **What this figure shows**: the two clusters are visually disjoint along both axes — structural retrieval dominates the top-right quadrant (high accuracy, low latency) while text search is in the middle cluster. **What it deliberately does not show**: no architectural lineage — the figure is a property of the numbers, not of any specific implementation.
+
+**Figure 3 — Hypothetical placement of semantic-first systems.**
+
+A diagram, not a measured figure. X-axis and Y-axis as in Figure 2\. Two regions annotated qualitatively: where we predict a well-tuned semantic-first system would fall on structural-dominated categories (lower-left: low accuracy, moderate latency because of embedding compute) and where it would fall on the minority of semantic queries (upper-right, near structural retrieval, because semantic queries are in its domain). This figure is explicitly labelled “hypothetical” in its caption. **What this figure shows**: the argument of the paper visually — a single-paradigm system cannot occupy both regions simultaneously. **What it deliberately does not show**: any specific product’s position, because that would require benchmarking them, which is beyond the scope of this paper and is Paper 1’s invitation to the community.
+
+### 6.3 Per-category observations
+
+The text-search-versus-structural gap, averaged across corpora, is:
+
+* **Refactor**: structural retrieval approximately 100%; text search approximately 6.5% — effectively zero on fastapi, limited only by file-name collisions on smaller corpora. Text search cannot answer “every method of class X” because method definitions do not mention the class name syntactically in most languages.
+* **Config-surface**: structural retrieval approximately 100%; text search approximately 0–5%. Text search can find literal string occurrences but cannot distinguish reads from writes, nor can it follow indirect references through setters and getters.
+* **TestGen**: structural retrieval approximately 100%; text search 0–10%. “List symbols defined in this file” requires knowing what constitutes a definition — a language-aware distinction that `rg` does not possess.
+* **Completion**: both systems are substantially above floor. For a uniquely-named symbol, text search finds the definition line; structural retrieval additionally resolves qualified names and disambiguates overloads.
+* **ApiDiscovery + Ambiguity**: structural retrieval 100%; text search approximately 20–40%. The adversarial sub-category, where the correct answer is an empty set, is where semantic (and text) systems hallucinate — any retrieval paradigm that returns “nearest-match” cannot natively return “none”.
+
+### 6.4 Why we do not include a semantic-first reference adapter
+
+A fair semantic-first reference adapter would require choosing an embedding model, a chunking strategy, a vector store, a retrieval hyper-parameter sweep, and a similarity threshold — each of which is a defensible research direction of its own. A poor semantic-first adapter would straw-man the class we are arguing about. We therefore restrict ourselves to the two paradigms with canonical, parameter-free implementations: `grep` (no configuration) and graph traversal over a canonical-identifier index (deterministic given the index).
+
+Public submissions of semantic-first adapters to LongMemCode via the MIT-licensed adapter protocol will fill this gap. Continue’s tree-sitter chunk retrieval is the closest implemented semantic-first system to a coding-agent workload, and an adapter is straightforward to write; we invite the Continue maintainers or any third party to submit.
+
+## Architectural Implications
+
+### 7.1 Production code-memory systems should partition retrieval
+
+Our central claim is: a production code-memory system should treat structural and semantic retrieval as two separate sub-systems, routed by query classification, rather than a single unified mechanism. Structural queries should be answered by graph traversal on a canonical-identifier graph. Semantic queries should be answered by embedding retrieval over code chunks. Each retrieves at its natural cost: structural queries at sub-millisecond P99 with deterministic correctness, semantic queries at vector-search cost with approximate recall.
+
+A practical consequence: a code-memory product that exposes only a flat “ask” interface implicitly makes a paradigm choice on the user’s behalf. Products in the current landscape fall into three buckets:
+
+* **Semantic-only by construction**: Mem0, Letta, LangMem, the reference MCP memory server. These treat code as text and index it as they index conversation. They pay full accuracy cost on structural queries.
+* **Structural-only by construction**: a class that does not yet exist in mature form in commercial products. Aider’s repository map is the closest approximation (tree-sitter + PageRank), but it is name-level rather than graph-level.
+* **Partitioned**: a class we argue should exist, explicitly exposing both mechanisms and routing by query type.
+
+### 7.2 Ablation expectations
+
+We propose that production code-memory systems report ablations on at least two dimensions: structural versus semantic score breakdown per LongMemCode category, and latency P99 per query class. A system that reports only an aggregate “accuracy” figure hides which of the two mechanisms is doing the work, and which is failing silently.
+
+### 7.3 Compositionality
+
+The two retrieval sub-systems can share upstream ingest. A structural index (canonical-identifier graph) and a semantic index (embedded chunks) can both be built from the same source tree in a single ingest pass. They are not mutually exclusive and do not require doubled storage if chunk identifiers reference canonical symbol identifiers — the semantic index becomes a secondary index over the structural one. This is a cost-efficient implementation of the partitioned architecture and is the arrangement we recommend for future production systems. A full description of one such implementation is out of scope here and is the subject of a companion paper \[Jibleanu, 2026b\].
+
+### 7.4 Cache invalidation and graph staleness
+
+The taxonomy we propose implies a concrete operational constraint that is frequently under-reported in the agent-memory literature: **graph invalidation cost**. A structural retrieval system is only useful if its underlying graph tracks the source of truth. In a modern monorepo, a single rebase, merge, or branch switch can rewrite hundreds of files in seconds, and an IDE-integrated agent will issue structural queries moments later. A structural memory system that takes minutes to re-ingest is, for practical purposes, offline during the window when the agent most needs it.
+
+Production-grade structural retrieval therefore requires incremental update whose cost is approximately **O(number of changed files)**, not O(repository size). This is achievable with content-hashing: each file's hash is stored alongside its extracted subgraph; on re-ingest, unchanged files are skipped at the hash-comparison step and only changed files' subgraphs are re-extracted and re-linked. Deleted files' subgraphs are reclaimed by the same pass. The result is that a three-hundred-file refactor re-ingests in a few seconds on compiler-grade-indexed languages and sub-second on tree-sitter-indexed languages, without any global lock and without invalidating the unchanged majority of the graph.
+
+Semantic-first systems face a different but isomorphic problem: embeddings must be recomputed for changed chunks, and chunk boundaries themselves may shift when surrounding code is edited. Either paradigm must therefore expose a staleness story if it is to be taken seriously for interactive coding workloads. We note that the LongMemCode ground-truth generator already uses file-hash indexing and can be extended to produce churn-aware scenarios — "after this refactor, who now calls _X_?" — which would evaluate invalidation behaviour directly. We flag this as a natural next step for the benchmark and a dimension along which future systems ought to be measured.
+
+## Discussion
+
+### 8.1 Why this distinction has been neglected
+
+We suggest three reasons the structural-semantic partition has not been explicit in the code-memory landscape until now.
+
+First, the dominant retrieval paradigm in the LLM application layer — flat RAG over embeddings — is semantic by construction. Teams adopting agent memory in 2023–2025 transplanted the paradigm from document retrieval to code retrieval without auditing whether the workload matched.
+
+Second, benchmarks for agent memory have been dominated by conversational data (LongMemEval, LoCoMo, DMR). On these, semantic retrieval is the correct paradigm and partitioning does not arise as a design question.
+
+Third, the canonical-identifier graph for source code is expensive to build relative to a vector index. Producing a SCIP-grade graph requires running a language’s compiler frontend; producing a tree-sitter-grade graph requires per-language grammar work. A product team choosing between “ship next month on embeddings” and “build graph infrastructure for a year” predictably chose the former.
+
+### 8.2 When structural-first is wrong
+
+We do not argue that structural-first is always right. A team building a code-search product with a natural-language interface for human users — “find me code that handles JSON parsing” — should lean semantic. A team building a code-review assistant that reasons about behavioural equivalence should lean semantic. A team building a documentation-Q&A product over repository READMEs should lean semantic. The argument of this paper is specifically about AI-coding-agent memory on inner-loop workloads, where the query distribution is structural-dominated.
+
+### 8.3 Limitations
+
+Our empirical evidence is restricted to text search versus structural retrieval; we do not measure semantic-first systems directly. The category weights in LongMemCode are approximate industry estimates and not derived from measured real-world agent telemetry, a limitation inherited from the benchmark. Our argument about production architecture is based on one benchmark (LongMemCode); replication against independent benchmarks is future work once such benchmarks exist.
+
+## Conclusion
+
+We have proposed a taxonomy of retrieval queries for AI coding agents, dividing the query space into **structural**queries — answered by graph traversal on a canonical-identifier graph — and **semantic** queries — answered by embedding retrieval over code chunks. We argue that code-memory systems should explicitly partition their retrieval layer across these two classes and report ablations per class. Empirical evidence from the LongMemCode benchmark supports the claim: text search cannot cover structural queries (6–54% weighted accuracy) while structural retrieval does (99–100%), with the gap concentrated in the three most explicitly structural categories (refactor, configuration-surface, test generation). A companion paper describes one implementation of a partitioned architecture; we invite third-party submissions to LongMemCode to extend the comparison to semantic-first systems directly.
+
+## References
+
+```
+@inproceedings{aider2023repomap,
+  title={Repository Map: Scaling to Large Codebases with Tree-sitter and PageRank},
+  author={Aider Team},
+  year={2023},
+  url={https://aider.chat/2023/10/22/repomap.html}
+}
+
+@inproceedings{chhikara2024mem0,
+  title={Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory},
+  author={Chhikara, Prateek and others},
+  booktitle={arXiv preprint arXiv:2504.19413},
+  year={2025}
+}
+
+@inproceedings{continue2025codebase,
+  title={@codebase Retrieval Architecture},
+  author={Continue Dev Team},
+  year={2025},
+  url={https://docs.continue.dev/customize/deep-dives/codebase}
+}
+
+@inproceedings{gao2023rag,
+  title={Retrieval-Augmented Generation for Large Language Models: A Survey},
+  author={Gao, Yunfan and others},
+  booktitle={arXiv preprint arXiv:2312.10997},
+  year={2023}
+}
+
+@inproceedings{hendrickson2026memory,
+  title={Agent Memory Breaks at 500K Tokens, Not 10 Million},
+  author={Hendrickson, Mark},
+  year={2026},
+  url={https://medium.com/@markymark/agent-memory-breaks-at-500k-tokens-not-10-million-9148883c2efc}
+}
+
+@misc{jibleanu2026longmemcode,
+  title={LongMemCode: A Deterministic Benchmark for Code-Memory in AI Agents},
+  author={Jibleanu, Aurelian},
+  year={2026},
+  note={MIT-licensed benchmark: \url{https://github.com/CataDef/LongMemCode}}
+}
+
+@misc{jibleanu2026architecture,
+  title={Zero-Cost Graph Retrieval at Compiler-Grade Depth for AI Coding Agents},
+  author={Jibleanu, Aurelian},
+  year={2026},
+  note={Companion paper}
+}
+
+@inproceedings{lewis2020rag,
+  title={Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks},
+  author={Lewis, Patrick and others},
+  booktitle={NeurIPS},
+  year={2020}
+}
+
+@inproceedings{packer2023memgpt,
+  title={MemGPT: Towards LLMs as Operating Systems},
+  author={Packer, Charles and others},
+  booktitle={arXiv preprint arXiv:2310.08560},
+  year={2023}
+}
+
+@inproceedings{rasmy2025zep,
+  title={Zep: A Temporal Knowledge Graph Architecture for Agent Memory},
+  author={Rasmy, Preston and others},
+  booktitle={arXiv preprint arXiv:2501.13956},
+  year={2025}
+}
+
+@inproceedings{shereshevsky2026phase,
+  title={The Phase Transition in Your Knowledge Graph: Why Agent Memory Suddenly Clicks},
+  author={Shereshevsky, Alexander},
+  year={2026},
+  url={https://medium.com/graph-praxis/the-phase-transition-in-your-knowledge-graph-0593666b0bc3}
+}
+
+@inproceedings{wu2024longmemeval,
+  title={LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory},
+  author={Wu, Di and others},
+  booktitle={arXiv preprint arXiv:2410.10813},
+  year={2024}
+}
+```
+
+## Appendix A — Category-by-category narratives
+
+One sub-section per LongMemCode category. Each contains: (a) one verbatim example scenario from the benchmark; (b) why that scenario is structural or semantic; (c) the implications for a retrieval mechanism that does not honour the classification. Length: roughly half a page per category, nine categories, \~4.5 pages total in appendix.
+
+Source data for verbatim scenarios: `scenarios/fastapi.json` and `scenarios/clap.json`in the LongMemCode repository at submission commit.
+
+※Related papers
+
+## Read the rest of the collection.
+
+[ Paper 1 LongMemCode: A Deterministic Benchmark for Code-Memory in AI Agents Aurelian Jibleanu · Neurogenesis · April 2026 ](https://argosbrain.com/papers/longmemcode-benchmark)[ Paper 3 Zero-Cost Graph Retrieval at Compiler-Grade Depth for AI Coding Agents Aurelian Jibleanu · Neurogenesis · April 2026 ](https://argosbrain.com/papers/zero-cost-graph-retrieval)
+
+[Back to all papers →](https://argosbrain.com/papers)
+
+```json
+{"@context": "https://schema.org", "@type": "ScholarlyArticle", "@id": "https://argosbrain.com/papers/structural-semantic-taxonomy", "headline": "Structural vs Semantic Retrieval in Code-Memory: A Query-Type Taxonomy", "name": "Structural vs Semantic Retrieval in Code-Memory: A Query-Type Taxonomy", "author": {"@type": "Person", "name": "Aurelian Jibleanu", "affiliation": {"@type": "Organization", "name": "Neurogenesis"}}, "datePublished": "2026-04-21", "inLanguage": "en", "keywords": "code memory, retrieval taxonomy, structural retrieval, semantic retrieval, AI coding agents, RAG", "abstract": "We propose a taxonomy of retrieval queries for AI coding agents and argue that code-memory systems require separate treatment of two query classes rather than a unified retrieval layer. Structural queries — \"does this symbol exist\", \"list methods of class X\", \"who calls Y\", \"who overrides Z\" — admit exact answers derivable from a semantic graph of canonical identifiers; they are penalised by approximate retrieval and reward deterministic traversal. Semantic queries — \"find code similar to this snippet\", \"locate regions that implement behaviour X\" — are best served by vector retrieval over embedded code chunks. Systems that route both through a single mechanism — whether embedding-first, as in flat RAG, or graph-first, as in general knowledge-graph memory — underperform specialised routing. Using the LongMemCode benchmark's nine task categories, we show empirically that text search recovers 6.3–54.4% weighted accuracy while a structural-first system recovers 99.2–100%, with the gap concentrated in three categories (refactor, configuration-surface, test generation) that are definitionally structural. We argue that production code-memory systems should explicitly partition their retrieval path and report ablations accordingly.", "license": "https://creativecommons.org/licenses/by/4.0/", "url": "https://argosbrain.com/papers/structural-semantic-taxonomy", "mainEntityOfPage": "https://argosbrain.com/papers/structural-semantic-taxonomy", "isPartOf": {"@type": "CollectionPage", "@id": "https://argosbrain.com/papers", "name": "ArgosBrain Research Papers", "url": "https://argosbrain.com/papers"}, "publisher": {"@type": "Organization", "name": "ManageVendors Inc.", "url": "https://argosbrain.com"}}
+```

@@ -3,11 +3,14 @@
 
 # 系统文件
 .DS_Store
+._*
 .obsidian/workspace.json
+.obsidian/plugins/
 
 # 大文件策略：本地存原始文件，远端只存下载链接（见各目录 index.yaml）
 raw/papers/*
 !raw/papers/index.yaml
+!raw/papers/index_*.yaml
 raw/dataset/*
 !raw/dataset/index.yaml
 Clipping/*.pdf

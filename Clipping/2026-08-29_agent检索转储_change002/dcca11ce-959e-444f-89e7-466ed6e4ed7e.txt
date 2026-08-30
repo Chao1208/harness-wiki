@@ -1,0 +1,1521 @@
+# GitChameleon 2.0: Evaluating AI Code Generation Against Python Library Version Incompatibilities
+
+Published: 2026-01-01. 0 citations.
+
+## Authors
+
+- Diganta Misra: h-index 9; 2,638 citations
+- Nizar Islah: h-index 2; 10 citations
+- Victor May: h-index 1; 1 citation
+- Brice Rauby: h-index 5; 89 citations
+- Zihan Wang: h-index 4; 405 citations
+- Justine Gehring: h-index 1; 2 citations
+- Antonio Orvieto: h-index 9; 327 citations
+- Muawiz Chaudhary: h-index 5; 65 citations
+- Eilif Müller: h-index 27; 4,876 citations
+- Irina Rish: h-index 35; 7,832 citations
+- Samira Ebrahimi Kahou: h-index 20; 6,025 citations
+- M. Caccia: h-index 56; 22,158 citations
+
+## Topics
+
+- Software Engineering Research
+- Scientific Computing and Data Management
+
+---
+
+# GitChameleon 2.0: Evaluating AI Code Generation Against Python Library Version Incompatibilities
+
+Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 46792–46831 July 2-7, 2026 ©2026 Association for Computational Linguistics
+
+1ELLIS Institute Tübingen, 2MPI-IS Tübingen, 3Mila Quebec AI Institute, 4Google, 5Polytechnique Montréal, 6McGill University, Montréal, 7Moderne, 8Gologic, 9Tübingen AI Center, 10Université de Montréal, 11ServiceNow Research Correspondence: diganta.misra@tue.ellis.eu, nizar.islah@mila.quebec
+
+## Abstract
+
+The rapid evolution of software libraries poses a considerable hurdle for code generation, ne cessitating continuous adaptation to frequent version updates while preserving backward compatibility. While existing code evolution benchmarks provide valuable insights, they typically lack execution-based evaluation for generating code compliant with specific li brary versions. To address this, we introduce GitChameleon 2.0, a novel, meticulously cu rated dataset comprising 328 Python code com pletion problems, each conditioned on spe cific library versions and accompanied by ex ecutable unit tests. GitChameleon 2.0 rig orously evaluates the capacity of contempo rary large language models (LLMs), LLM powered agents, code assistants, and RAG sys tems to perform version-conditioned code gen eration that demonstrates functional accuracy through execution. Our extensive evaluations indicate that state-of-the-art systems encounter significant challenges with this task; enterprise models achieving baseline success rates in the 48-51% range, underscoring the intricacy of the problem. By offering an execution-based benchmark emphasizing the dynamic nature of code libraries, GitChameleon 2.0 enables a clearer understanding of this challenge and helps guide the development of more adaptable and dependable AI code generation methods. 1
+
+## 1. Introduction
+
+Large language models (LLMs) are increasingly integral to software development, being adopted for tasks like code generation and review (Council, 2024; Lambiase et al., 2025). Despite LLM advancements like larger context windows (Su et al., 2023), faster inference (Dao
+
+* *Equal contribution. Roles: Team Leads, Data and Core Contributors, Senior Advisors 1GitChameleon 2.0 is the expanded successor to the origi nal GitChameleon benchmark, increasing coverage from 116 to 328 Python code completion problems while preserving the same version-conditioned generation setting.
+
+Problem Statement Instruction: Write a custom_violinplot function that visualizes x and y from a Pandas DataFrame; scales the bandwidth to 1.5. Use the library Seaborn version 0.13.0. import seaborn as sns from matplotlib.axes import axes def custom_violinpolot(data: pd.DataFrame) -> Axes: return
+
+Attempted Solution
+
+Model: gpt-4o-mini
+
+Solution:
+sns.violinplot(x='x', y='y', data=data,
+bw=1.5)
+Validation Result:
+AssertionError: bw parameter should not be
+used. Use bw_method and bw_adjust instead.
+
+Figure 1: In this GitChameleon 2.0 problem, the gpt-4o-mini model produced an incorrect solution due for seaborn.violinplot by using the deprecated bw parameter, instead of the appropriate bw_method and bw_adjust required by the specified library version.
+
+et al., 2022), and high performance on general coding benchmarks (Hendrycks et al., 2021; Chen et al., 2021), a critical capability remains under evaluated: generating code that is compliant with a specific library version. This task of version switching, which is essential for robust develop ment in environments with fixed or legacy de pendencies, is not well-verified in contemporary LLMs. Existing benchmarks, while valuable, often fo cus on migrating codebases to newer versions (i.e., code evolution) or use non-executable eval uation methods. They do not fully address the challenge of generating new, functionally cor rect code for a static version constraint. For in stance, PyMigBench (Islam et al., 2023) provides comprehensive datasets of real-world, inter-library migrations, rather than focusing on executable, 46792
+
+Training
+
+Versioned data
+
+1.6, 1.7,
+1.8, 1.9
+4.19,....,
+4.27
+0.0.240,...,
+0.0.283
+
+Code Evolution
+
+OOD versions/ libraries
+
+2.0, 2.1, 2.2 New
+
+VCG
+
+ID versions/ libraries
+
+1.7, 1.8
+4.25
+
+Inference
+
+GitChameleon 2.0 RustEvo2, CodeUpdateEval
+
+Figure 2: An illustration of two evaluation paradigms for code generation models. Code Evolution (right) as sesses model capabilities on out-of-distribution (OOD) data, using library versions or new libraries not encoun tered during training. In contrast, Version-Conditioned Generation (VCG) (left) focuses on the practical ability to generate code for specific, in-distribution (ID) library versions that the model has seen before.
+
+intra-library tasks conditioned on specific versions. CodeUpdateArena (Liu et al., 2025) valuably as sesses LLM knowledge editing using synthetically generated API updates for functions in popular libraries, a different approach from using docu mented historical breaking changes. Other relevant studies, such as Wang et al. (2024b), investigate the propensity of LLMs to generate code with dep recated APIs, which does not entirely cover the broader capability of generating software that ad heres to precise, user-specified library versions in volving various types of API changes. Code Evolution vs. Version Conditioned Gener ation (VCG). Existing code evaluation bench marks often focus on assessing the code evolu tion or migration capabilities of LLMs, where changes occur only in the forward direction and typically involve unseen library versions or entirely new libraries. This framing inherently makes the task out-of-distribution (OOD), as illustrated in Figure 2. In contrast, version-conditioned gen eration (VCG)—the ability of LLMs to produce code aligned with specific, previously seen library versions—is critical for practical deployment. It enables models to function reliably in real-world production environments or constrained settings where the libraries in use may not be the latest sta ble versions. To better evaluate this capability, a benchmark must pose problems that are strictly in distribution (ID) with respect to the relevant library version(s) required to solve them. To bridge this gap, our work introduces
+
+GitChameleon 2.0, an executable benchmark de signed to assess the capability of LLMs and AI agents in generating version-aware Python code. GitChameleon 2.0 features problems centered on documented breaking changes from popular libraries, requiring models to produce solutions for explicitly specified versions (an illustrative ex ample is shown in Figure 1). The development of such a benchmark faces challenges in meticu lously curating version-specific breaking changes from library changelogs and crafting corresponding testable scenarios. Our comprehensive evaluation of diverse LLM-based tools on GitChameleon 2.0 reveals critical limitations in existing systems’ abil ity to handle library versioning. In summary, our contributions are highlighted as follows:
+
+• We introduce a novel code completion bench mark GitChameleon 2.0 consisting of 328 Python-based version-conditioned problems, including visible tests for self-debugging and documentation references for Retrieval Augmented Generation (RAG).
+• We present a comprehensive empirical study on GitChameleon 2.0, evaluating the capabil ities of a diverse range of contemporary AI code generation systems, including AI agents, IDE-integrated and CLI-based coding assis tants, and RAG-based LLM pipelines.
+• We reveal critical limitations in the ability of current AI systems to adhere to specific versioning constraints and highlight factors impacting their performance, thereby provid ing insights to steer the development of more adaptable and dependable AI code generation methods.
+
+We introduce GitChameleon 2.0, a manually au thored benchmark that comprises 328 Python based version-conditioned problems focused on popular code libraries. To evaluate performance on GitChameleon 2.0, each problem is accompanied by a suite of assertion-based unit tests, enabling a thorough execution-based assessment of poten tial solutions. The dataset was constructed through careful manual effort, with over 350 hours invested in identifying historical breaking changes, crafting problem statements, and validating unit tests. In the following sections, we detail the dataset structure, 46793 dataset statistics, evaluation metrics, and sample verification process.
+
+)
+
+| a breaking | change in a Python library. |  |  | i G 40 |  |  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| To validate | a candidate solution, | we provide |  |  |  |  | 20 | 40 60 | 40 60 | 80 |  |
+|  |  |  |  |  |  |  | SWE-Bench ( | ) | LiveCodeBench ( | ) |  |
+| a suite | of tests, consisting of | a comprehensive |  |  |  |  |  |  |  |  |  |
+| suite of | to be used Hidden Tests | for model per |  |  |  |  |  | Models |  |  |  |
+
+| formance | evaluation and ranking | and a concise |  |  |  | GPT-4o |  | Models GPT-4.5 | Claude 3.7 Sonnet |  |  |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Visible | to provide execution Test | feedback for Self |  |  |  | GPT-4o-Mini |  | Gemini 1.5-Pro | Claude 3.5 Sonnet |  |  |
+|  |  |  |  |  |  | GPT-4.1 |  | Gemini 2.5-Pro | LLama 3.1 |  |  |
+| Debugging | (Chen et al., 2023) experiments. |  |  |  |  | GPT-4.1 Mini |  | Gemini 2.5-Flash | LLama 3.3 |  |  |
+
+2.1 Dataset Structure Each dataset sample includes a problem related to a breaking change in a Python library. To validate a candidate solution, we provide a suite of tests, consisting of a comprehensive suite of Hidden Tests to be used for model per The detailed structure of dataset samples is pre sented in Table 5. For a schematic of the work flow for evaluating a method against a sample from GitChameleon 2.0, see Figure 5.
+
+Figure 3: Can you predict GitChameleon 2.0 per formance from other code generation benchmarks? Here we present the Spearman (ρ) and Pearson (r) correlations between GitChameleon 2.0, SWE Bench (Jimenez et al., 2024), and LiveCodeBench (Jain et al., 2024). GitChameleon exhibits a moderate corre lation with SWE-Bench, with ρ of 0.550 and r of 0.675; and a weak correlation with LiveCodeBench, with ρ of 0.214 and r of 0.130.
+
+## 3. Empirical Study
+
+2.2 Evaluation Metrics The benchmark metric is the success rate on hidden tests, which directly penalizes version mismatches that cause runtime errors during our execution based validation. As a secondary metric, we use the API Hit Rate (Wang et al., 2024a): the percentage of generated solutions that correctly call all APIs specified in the ground-truth solution. Note that this hit rate can be lower than the success rate, as functionally correct alternative solutions may use different APIs.
+
+We evaluate GitChameleon 2.0 in a comprehen sive selection of settings, including Greedy De coding, Chain-of-Thought (Wei et al., 2023), Self Debugging (Chen et al., 2023), RAG (Lewis et al., 2020), Multi-Step Agents (Yao et al., 2023) and enterprise Coding Assistant software products, to assess their ability to generate version-specific exe cutable code. This section first presents the experimental setup, then reports the experiment results in each setting, and finally shows a breakdown of the observed results along a few key dimensions. 3.1 Experimental Setup In this section, we present the experimental setup used for each of our settings. To ensure version compliance, we use a dual control mechanism: the target version is explicitly included in the model’s prompt, and the validation environment is config ured with that exact library version. All prompts are shown in Appendix I. For prompt optimiza tion, we used the Anthropic Prompt Improver 2. Further automated prompt optimization efforts did not make a significant change, as described in Ta ble 11. We evaluate models across four settings: 2.3 Statistics GitChameleon 2.0 consists of 328 Python-based version conditioned problems based on 26 libraries spanning scientific computing, data science and web development. The samples were collected from version releases over a period from the year 2014 to 2023 and exclude legacy and yanked ver sion releases. As demonstrated in Fig. 4(a), most of the sam ples in GitChameleon 2.0 are from versions of libraries released in the years 2021-2023. We in tentionally use versions that fall within the training window of most evaluated models. The challenge is therefore not one of data contamination, but of control and disambiguation: when a model has been exposed to multiple library versions, can it correctly generate code for the specific version re quired by the prompt. Further details about the benchmark and its con struction process are presented in Appendix A.
+
+2https://docs.anthropic.com/en/docs/build-wit h-claude/prompt-engineering/prompt-improver 46794
+
+0 10 20 30 40 50 60 70 80
+
+2014
+
+2015
+
+2016
+
+2017
+
+2018
+
+2019
+
+2020
+
+2021 (a) Number of samples by version release year 0 20 40 60 80 100
+
+Argument
+
+Function Name
+
+Semantics
+
+New Feature
+
+Other (b) Number of samples by change category
+
+Figure 4: (a) Most versions in GitChameleon 2.0 were released between 2021–2023, with a few in earlier years. (b) The most common type of change between versions was an argument or attribute change, while semantic or functional changes were least common.
+
+Zero-shot Greedy, Zero-shot CoT, RAG, and Multi step Agents. Full implementation details, prompts, and hyperparameter configurations are provided in Appendix A. 3.2 Qualitative Case Study: API Deprecation Failures To illustrate the difficulty of GitChameleon 2.0, we highlight an example involving a breaking change in Flask 3.0.0. The task requires cus tomizing JSON encoding for matrices. Gemini 2.5 Pro (Success): Correctly subclasses flask.json.provider.DefaultJSONProvider and assigns it to app.json, fully adhering to the new Flask 3.0 API requirements. Claude 3.7 (Failure): Attempts to use the outdated app.json.encoder API, which was deprecated in Flask 2.2 and removed in Flask 3.0.0, causing an immediate AttributeError. 3.3 Experiment Results This section presents the benchmark results in each setting, as described in the Experimental Setup section (3.1). Table 1 contains the results for Greedy Decoding, Self-Debug and Zero-Shot CoT. 3.3.1 Greedy Decoding We observe that the largest Enterprise-grade mod els, including Claude 3.7 Sonnet, Gemini 2.5
+
+Problem Statement Starter Code Dependency Info
+
+Candidate Solution
+
+Hidden Tests
+
+Visible Tests
+
+Inputs Validation
+
+Benchmark Success
+
+Self-Debug
+
+Figure 5: An illustration of the workflow for a single example within GitChameleon 2.0. The inputs, com prising the Problem Statement, Starter Code, and De pendency Info, are processed by an LLM or an AI agent to generate a Candidate Solution. This candidate solu tion then undergoes validation using the Hidden Tests to determine success on the benchmark. Results from the Visible Tests can be fed back into the solution method for self-debugging.
+
+Pro, GPT-4.1, GPT-4o, and o1, exhibit compara ble hidden success rates, generally falling within the 48–51% range. We newly benchmarked Gemini-3-Flash and found the highest perfor mance to date (55.2%). The open-weight Llama models are notably be hind, even the recently released Llama 4 Maverick FP8 (40.8% hidden success rate). Deepseek-V3.2 achieved (43.6%). Model size clearly impacts performance: for instance, Gemini 2.5 Flash trails its Pro coun terpart by nearly 12% on hidden tests (38.1% vs. 50.0%). Similarly, the mini and nano se ries within the GPT family (e.g., GPT-4.1-mini, GPT-4.1-nano, GPT-4o-mini) consistently show lower performance than their larger full-size sib lings, with differences on hidden tests ranging from approximately 4 to 15 points. 3.3.2 Zero-Shot Chain-Of-Thought This approach does not uniformly improve LLM performance across all models. While some mod els demonstrate significant gains in hidden suc cess rates, a substantial number of enterprise-grade models and their smaller variants experience per formance degradation. For instance, notable improvements in hidden success rates are observed in models such as Llama 3.1 Instruct Turbo (from 30.2% to 36.6%, a +6.4 point increase) and o3-mini (from 45.1% to 50.9%, a +5.8 point increase). Conversely, several models exhibit a decrease in performance with CoT. Prominent examples in clude Gemini 2.0 Flash (from 44.2% to 36.0%) 46795 Claude 3.7 (Failure)
+
+def app_set_up(app: flask.Flask) -> None: def set_encoder(obj): if isinstance(obj, set): return sorted(list(obj)) raise TypeError(f"Object of type {type(obj)} is ,→ not JSON serializable") app.json.encoder = lambda: ,→ json.JSONEncoder(default=set_encoder)
+
+Gemini 2.5 Pro (Success)
+
+class
+,→ MyCustomJSONHandler(flask.json.provider.DefaultJSONProvider):
+def default(self, obj):
+if isinstance(obj, np.ndarray) and
+len(obj.shape)==3 and
+obj.shape[-1]==obj.shape[-2] : ,→
+,→ # Calculate determinants for each matrix in
+,→ the batch
+determinants = linalg.det(obj)
+# Convert the resulting 1D array of
+,→ determinants to a list
+return determinants.tolist()
+# Fallback to the default serialization for other
+,→ types
+return super().default(obj)
+# Apply the custom JSON provider to the app
+app.json = MyCustomJSONHandler(app)
+
+Figure 6: Case Study (Flask 3.0.0): Claude halluci nates the removed app.json.encoder property, while Gemini successfully adapts to the new API by subclass ing DefaultJSONProvider, demonstrating the chal lenge of version-conditioned code generation.
+
+and even the top-performing o1 (from 51.2% to 41.2%).
+
+### 3.3.3. LLM Self-Debugging
+
+Hidden Success Rate: Across models, Self Debugging significantly improves the hidden suc cess rates. Observed gains range from approxi mately 10% to 20%. For instance, Llama 3.1’s hidden success rate increases from 30% to 52.1%, and GPT-4.1-mini shows an improvement from 44% to 68%. This demonstrates the strong capa bility of modern LLMs to diagnose failures and generate corrected code. Visible Success Rate: As expected, the im provement is even more pronounced on visible tests, ranging from 13 to 37 points. For instance, GPT-4.1’s success rate improves from 49% to 69%, Claude 3.7 Sonnet’s success rate improves from 56% to 83% and Gemini 2.0 Flash improves from 50% to 75%. Visible-Hidden Gap Analysis: In Figure 7, we present the effect of self-debugging on the size of the gap between the success rate on visible tests and the success rate on hidden tests.
+
+0 10 20 Success Rate Gap With Self-Debug (%) 0 5
+
+Models
+Claude 3.7 Sonnet
+Gemini 1.5 Pro
+Gemini 2.0 Flash
+Gemini 2.5 Pro
+Gemini 2.5 Flash
+GPT-4.1
+GPT-4.1-mini
+GPT-4.1-nano
+GPT-4o
+GPT-4o-mini
+GPT-4.5
+Grok 3
+Mistral Medium 3
+
+Figure 7: Analysis of the Visible-Hidden Gap Be fore and After Self-Debugging. We analyze how self debugging affects the gap between the success rate on visible and hidden tests. We can see that for all models, the gap increases after self-debugging. This shows that self-debugging on visible tests has a limited ability to improve on the hidden tests.
+
+### 3.3.4. Multi-Step Agent
+
+We report the performance of Multi-Step Agents on GitChameleon 2.0 in Table 2. A clear and signifi cant trend is the substantial increase in success rates for all models and grounding methods when giving the agent a sandbox tool. Overall, Claude Sonnet 3.5 demonstrated the highest success rates with a sandbox, across all grounding methods, while Gemini 1.5 Pro demonstrated the best results without a sandbox. To further evaluate open-source agents, we tested the Mini-SWE Agent framework. Evalu ated headless, Gemini 2.5 Pro achieved a 54.0% hidden success rate (64.3% visible), while GPT 5 Mini achieved 36.3% (45.1% visible). These results align with our smolagents evaluation, rein forcing that state-of-the-art models in advanced open-source frameworks struggle with Version Conditioned Generation. Full details are in Ap pendix C.1.
+
+### 3.3.5. AI Coding Assistants
+
+Table 3 presents the success rates of various CLI and IDE assistants on the visible and hidden tests in GitChameleon 2.0. When the problem statement is not given, Cline with GPT-4.1 achieves the best result, with a success rate of 38.4%. All assistants besides for Goose on GPT-4o demonstrate signif icant gains, ranging from 12 to 35 points, from including the problem statement. 46796
+
+Model
+
+Greedy Decoding Greedy with Self-Debug Zero-shot CoT
+Success
+Rate (%) API
+Hit
+Rate (%)
+Success
+Rate (%) API
+Hit
+Rate (%)
+
+Success Rate (%) API Hit Rate (%) Hidden Visible Hidden Visible Hidden
+
+Open-Weights Models Llama 3.3 Instruct Turbo 70B 36.3± 2.7 43.3± 2.7 36.4± 2.7 53.0± 2.8 70.1± 2.5 37.4± 2.7 37.5± 2.7 37.2± 2.7 DeepSeek-V3.2 43.6± 2.7 – – – – – – – Llama 4 Maverick 400B 40.8± 2.7 46.6± 2.8 49.5± 2.8 58.5± 2.7 72.3± 2.5 46.8± 2.8 46.6± 2.8 41.3± 2.7 Qwen 2.5-VL Instruct 72B 48.2± 2.8 55.5± 2.7 43.8± 2.7 64.6± 2.6 77.4± 2.3 45.3± 2.7 45.1± 2.7 43.0± 2.7
+
+Enterprise Models
+
+Claude 3.7 Sonnet 48.8± 2.8 55.8± 2.7 46.0± 2.8 65.9± 2.6 75.9± 2.4 47.6± 2.8 45.1± 2.7 43.4± 2.7 Gemini 1.5 Pro 45.1± 2.7 51.5± 2.8 46.8± 2.7 62.5± 2.8 72.6± 2.4 48.6± 2.7 43.3± 2.7 44.6± 2.8 Gemini 2.0 Flash 44.2± 2.7 50.6± 2.8 43.8± 2.7 70.4± 2.7 79.0± 2.4 49.4± 2.7 36.0± 2.6 41.8± 2.7 Gemini 2.5 Pro 50.0± 2.8 61.0± 2.8 47.7± 2.7 61.3± 2.8 73.8± 2.2 49.2± 2.7 49.4± 2.8 49.1± 2.8 Gemini 2.5 Flash 38.1± 2.6 41.8± 2.7 45.4± 2.7 65.9± 2.8 73.2± 2.4 45.8± 2.7 30.8± 2.5 49.8± 2.8
+
+Gemini 3 Flash 55.2± 2.8 – – – – – – – GPT-4.1 48.5± 2.8 49.1± 2.8 46.8± 2.7 63.4± 2.8 76.8± 2.1 48.3± 2.7 47.9± 2.8 44.5± 2.7 GPT-4.1-mini 44.2± 2.7 50.0± 2.8 44.5± 2.7 68.0± 2.8 79.3± 2.3 46.3± 2.7 24.1± 1.8 41.3± 2.7 GPT-4.1-nano 33.8± 2.6 35.1± 2.6 43.1± 2.7 67.7± 2.7 74.4± 2.6 45.8± 2.7 11.9± 1.8 32.1± 2.5 GPT-4o 49.1± 2.8 54.0± 2.8 46.5± 2.7 64.9± 2.8 72.3± 2.5 48.0± 2.7 50.3± 2.8 42.5± 2.7 GPT-4o-mini 37.2± 2.6 46.3± 2.7 38.4± 2.6 60.4± 2.7 71.6± 2.6 40.6± 2.7 36.0± 2.6 37.3± 2.6 GPT-4.5 40.8± 2.7 46.0± 2.7 52.8± 2.8 66.2± 2.8 74.4± 2.4 54.4± 2.7 39.9± 2.6 48.8± 2.8 Grok 3 48.2± 2.8 53.7± 2.8 44.8± 2.7 67.1± 2.8 77.1± 2.3 46.3± 2.8 49.4± 2.8 44.2± 2.7
+
+Table 1: Success rate on visible and hidden tests and API hit rate under the Greedy, Self-Debug, and Zero-shot CoT settings, grouped by OSS vs. Enterprise models. Model ranking on the benchmark is determined by Hidden Success Rate. Visible Success Rate figures are for context on Self-Debugging. The best result in each column is in bold. For full model details and citations, please refer to Appendix J.
+
+Model Grounding Method
+
+Success Rate (%)
+
+API Hit Rate (%) No Sandbox Sandbox No Sandbox Sandbox
+
+Claude Sonnet 3.5
+
+DuckDuckGo 41.7± 2.7 55.3± 2.7 42.2± 2.7 48.9± 2.8 Perplexity 44.1± 2.7 51.4± 2.8 41.8± 2.7 46.0± 2.8 Grounded Gemini 40.0± 2.7 53.7± 2.8 41.0± 2.7 45.2± 2.7
+
+Gemini 1.5 Pro
+
+DuckDuckGo 46.0± 2.8 49.8± 2.8 47.4± 2.8 50.3± 2.8 Perplexity 46.5± 2.8 44.4± 2.7 47.2± 2.8 46.6± 2.8 Grounded Gemini 44.1± 2.7 49.2± 2.8 49.7± 2.8 51.2± 2.8
+
+GPT-4o
+
+DuckDuckGo 23.9± 2.4 33.2± 2.6 44.2± 2.7 48.1± 2.8 Perplexity 33.5± 2.6 41.5± 2.7 43.2± 2.7 44.7± 2.7 Grounded Gemini 25.4± 2.4 50.0± 2.8 46.5± 2.8 44.2± 2.7
+
+Table 2: Multi-Step Agent performance with different models, grounding methods, and sandbox states. The best result in each column is in bold.
+
+3.3.6 Retrieval-Augmented Generation Table 4 presents the performance of various models with RAG. Many models exhibit a significant (up to 10%) boost in success rate with RAG compared to greedy decoding alone. Notably, GPT-4.1, the best performing model achieves a success rate of 58.5%, up from 48.5% with greedy decoding. These results demonstrate that the benchmark is still challenging even with access to the library documentation, with over 40% of the problems remaining unsolved in the best case.
+
+3This version of the model is not FP8-quantized, unlike the one presented in Table 1
+
+Name Model
+
+Success Rate (%)
+
+API Hit Rate (%) No-prob Prob No-prob Prob
+
+CLI Assistants
+Claude Code Claude 3.7 Sonnet 32.0± 2.6 48.8± 2.8 44.2± 2.7 45.5± 2.7
+Goose
+
+GPT-4o 36.3± 2.7 36.9± 2.7 43.9± 2.7 54.5± 2.7 GPT-4.1 19.2± 2.2 55.5± 2.7 41.7± 2.7 53.0± 2.8
+
+IDE Assistants
+
+Cline
+
+Claude 3.7 Sonnet 32.9± 2.6 44.8± 2.7 40.5± 2.7 50.2± 2.8 GPT-4.1 38.4± 2.7 54.6± 2.7 42.4± 2.7 48.8± 2.8 GPT-4.1-mini 27.1± 2.5 42.1± 2.7 32.9± 2.6 52.4± 2.8 GPT-4.1-nano 38.1± 2.7 54.6± 2.7 42.4± 2.7 48.8± 2.8 GPT-4o 41.5± 2.7 – 42.7± 2.7 –
+
+Kilocode Claude 3.7 Sonnet 30.2± 2.5 – 43.3± 2.7 – Roocode Claude 3.5 Sonnet 12.5± 1.8 – 41.2± 2.7 –
+
+Table 3: Success and API-hit rates for CLI and IDE coding assistants, under the setting where the problem statement is given (Prob) and where it is not (No-prob), in which case we evaluate a scenario akin to tab code completion. The results show that including the problem statement improves success rate by double-digit margins for 4 out of 5 cases evaluated.
+
+Model
+
+Success Rate (%) API Hit Rate (%) Precision (%) Recall (%) MRR
+
+Open-Weights Models Deepseek V3 48.9± 2.8 48.5± 2.8 41.6± 2.2 50.4± 2.8 0.62± 0.03 Llama 4 Maverick3 45.1± 2.7 50.5± 2.8 41.2± 2.2 49.8± 2.8 0.61± 0.03 Qwen3 41.8± 2.7 39.6± 2.7 36.3± 2.0 46.9± 2.8 0.56± 0.03 Jamba 1.6 Large 41.8± 2.7 47.1± 2.8 41.9± 2.2 50.7± 2.8 0.62± 0.03
+
+Enterprise Models Claude 3.7 Sonnet 56.1± 2.7 53.0± 2.8 41.9± 2.2 50.7± 2.8 0.62± 0.03 Claude 4 Sonnet 59.4± 2.8 55.8± 2.8 41.9± 2.2 50.7± 2.8 0.62± 0.03 Gemini 2.5 Pro 56.7± 2.7 51.1± 2.8 41.9± 2.2 50.7± 2.8 0.62± 0.03 GPT-4.1 58.5± 2.7 51.8± 2.8 41.2± 2.2 50.1± 2.8 0.61± 0.03 Grok3 54.3± 2.7 55.2± 2.8 41.6± 2.2 50.4± 2.8 0.62± 0.03 Mistral Medium 3 52.4± 2.7 51.2± 2.8 41.6± 2.2 50.4± 2.8 0.62± 0.03 Devstral Small 43.3± 2.7 45.1± 2.8 41.6± 2.2 50.4± 2.8 0.62± 0.03 Nova Pro 44.2± 2.7 42.4± 2.7 40.7± 2.2 49.6± 2.8 0.60± 0.03
+
+Table 4: RAG performance for a subset of models when retrieving k = 3 most relevant documents. The best success rate and API hit rate results for each model group are in bold. An extended version of the RAG experiment results is presented in Section C.
+
+3.4 In-Depth Analysis of Findings This section provides a detailed analysis of the ex perimental results, focusing on model performance across several key dimensions. These dimensions include the impact of different API change types, a comparison between success rate and API hit rate, and the effectiveness of self-debugging across various error types. Comparison of Success Rate and API Hit Rate API hit rate shows a moderate positive Pearson correlation with hidden-test success under Greedy Decoding with the Pearson correlation coefficient (r = 0.392, p = 0.097, N = 19), indicating that models which invoke the ground truth APIs more often tend to perform better on hidden tests in the Greedy setting, but falls just short of statis tical significance at 5% level. Under Zero-Shot CoT, the correlation remains similar in magni tude (r = 0.483) and is statistically significant (p = 0.036, N = 19). In the Self-Debug regime, however, the association becomes both stronger and highly significant (r = 0.615, p = 0.011, N = 16), demonstrating that when models can iteratively refine their outputs, invoking ground truth APIs becomes an especially reliable predictor of hidden-test performance. Analysis of Performance by Type of API Change Figure 8 illustrates the performance of mod els across various API change types within the GitChameleon 2.0 benchmark, revealing notable variations in success rates. Semantic changes were the most tractable, with success rates ranging from 60–80% with Self-Debug and 55–65% without.
+
+New-feature additions proved to be the most chal lenging, with success rates between 25–50% for Greedy Decoding and 50–65% for Self-Debug. No tably, the Code Assistant Goose exhibited a sub stantial discrepancy in its performance on semantic and function-name changes compared to argument changes and new features. This suggests a height ened sensitivity to change category for Goose, a characteristic not observed in the enterprise models or the Claude-powered tool-calling agent. Self-Debug Error Categorization Figure 9 shows that self-debugging consistently lowers the rate of every class of traceback error, both in abso lute numbers and relative terms: (a) Raw Counts: We observe that for all error categories—from the most common (AssertionError and TypeError) down to the rarest (RuntimeError)—applying Self-Debugging significantly lowers the total number of failures. (b) Percentage Reduction: When nor malized by the Greedy Decoding baseline, reductions span roughly 50% up to about 90%. The biggest relative improvements ap pear in the infrequent categories—such as RuntimeError and SyntaxError—while the com mon AssertionError and TypeError still see de crease in the range of 60-70%.
+
+## 4. Related Work
+
+The continuous evolution of software libraries presents significant challenges for AI-driven code generation. This section reviews existing bench marks designed to evaluate model performance in this context. Specialized frameworks developed to address the challenge are presented in section D.2 The challenge of evaluating large language mod els (LLMs) in the context of evolving software libraries and their versions has been approached by several benchmarks. These benchmarks, while valuable, often differ in scope, methodology, or evaluation techniques compared to GitChameleon 2.0. PyMigBench Focusing on Python library mi gration, this benchmark uses 321 real-world in stances, evaluating both individual code transfor mations and the functional correctness of entire mi grated segments via unit tests (Islam et al., 2023). PyMigBench revealed that LLMs often handle in dividual changes well but struggle with achieving full functional correctness, especially for complex argument transformations. 46798 0.2 0.4 0.6 0.8 Success Rate
+
+Claude 3.7
+Sonnet
+Gemini 1.5
+Pro
+Gemini 2.5
+Pro
+GPT-4.1
+O-1
+DDG SB
+Claude 3.5
+Goose
+
+Argument Change 0.2 0.4 0.6 0.8 Success Rate
+
+Function Name 0.2 0.4 0.6 0.8 Success Rate
+
+Semantics 0.2 0.4 0.6 0.8 Success Rate
+
+New Feature
+
+Vanilla Self-Debug
+
+Figure 8: Success Rate Breakdown by Type of Change: We analyze success rates with and without self-debugging, grouped by the type of change. Light shaded bars represent values obtained from self-debugging. Standard error is drawn as a black line. We include DDG-SB, a Multi-Step Agent variant where DuckDuckGo is used for grounding and access to a sandbox is enabled. and the Coding Assistant Goose. Self-Debug results for these are omitted.
+
+AssertionError TypeError AttributeError ValueError IndexError RuntimeError KeyError NameError SyntaxError HTTPError
+
+Error Categories
+
+0
+
+2000
+
+4000
+
+6000
+
+8000
+
+Greedy Decoding Self-Debug
+
+Figure 9: Total error count for each category un der Greedy decoding versus Self-Debug. Self-Debug yields substantial decreases all types of errors.
+
+VersiCode (Wu et al., 2024) and the dataset by Wang et al. (Wang et al., 2024b) address library evolution but primarily depend on string matching for evaluation. CodeUpdateArena (Liu et al., 2025) investi gates model adaptation to synthetically generated API updates for functions in popular libraries. GitChameleon 2.0 distinguishes itself by focus ing on the real-world scenario where developers are often constrained to specific library versions due to technical debt. Unlike CodeUpdateArena’s synthetic changes, GitChameleon 2.0 evaluates LLMs on their ability to generate code for actual, documented historical breaking changes within li brary versions they were likely exposed to during training. Furthermore, diverging from the string matching evaluations of VersiCode and Wang et al. (Wang et al., 2024b), GitChameleon 2.0 is based on executable tests. This provides a more practical and rigorous assessment of functional ac curacy in version-specific code generation. For an extended discussion of how GitChameleon 2.0 is differentiated from existing work, please see Ap pendix D.2.
+
+## 5. Conclusion
+
+The rapid evolution of software libraries presents a critical challenge for LLM-powered AI sys tems in generating functionally correct, version conditioned code. To address this, we intro duce GitChameleon 2.0, a novel Python-based benchmark meticulously curated with version conditioned problems and executable tests. Our extensive evaluation reveals that state-of-the-art LLMs, agents and code assistants currently strug gle significantly with this task, achieving modest success rates. By shedding light on current limitations and facilitating execution-based evaluation, GitChameleon 2.0 aims to foster the development of more robust and adaptable code generation models for evolving software environments.
+
+While we aim to provide a comprehensive and holistic evaluation of LLMs on the task of version conditioned generation, our benchmark is currently limited to Python and a small set of libraries. Auto mated sample construction could help facilitate an update to the benchmark in the future. Moreover, we focus solely on code generation from natural language instructions, and do not evaluate version to-version translation—i.e., converting code from one library version to another—even when both versions are in-distribution relative to the model’s training. For instance, if a model has been trained on PyTorch versions 1.7, 1.8, and 1.9, it would be valuable to assess whether it performs better when given a solution in 1.8 and asked to upgrade to 1.9 or downgrade to 1.7. Finally, we do not include human evaluations, which could provide a baseline for estimating average human performance on this task.
+
+## References
+
+Abubakar Abid, Ali Abdalla, Ali Abid, Dawood Khan, Abdulrahman Alfozan, and James Zou. 2019. Gradio: Hassle-free sharing and testing of ML models in the wild. Preprint, arXiv:1906.02569. Meta AI. 2025. Everything we announced at our first ever LlamaCon. https://ai.meta.com/blog/lla macon-llama-news/. Discusses Llama 3.3 Instruct Turbo and Llama 4 Maverick. Mohannad Alhanahnah, Yazan Boshmaf, and Benoit Baudry. 2024. DepsRAG: Towards managing soft ware dependencies using large language models. arXiv preprint arXiv:2405.20455v2. Anthropic. 2025. Claude 3.7 Sonnet and Claude Code. https://www.anthropic.com/news/claude-3-7 -sonnet. Arcee. Model Selection | Arcee AI Documentation — docs.arcee.ai. https://docs.arcee.ai/arcee-c onductor/arcee-small-language-models/mode l-selection#caller-large-tool-use-and-fun ction-call. [Accessed 15-07-2025]. Farnaz Behrang, Zhizhou Zhang, Georgian-Vlad Saioc, Peng Liu, and Milind Chabbi. 2025. Dr.fix: Auto matically fixing data races at industry scale. Preprint, arXiv:2504.15637. Lars Buitinck, Gilles Louppe, Mathieu Blondel, Fabian Pedregosa, Andreas Mueller, Olivier Grisel, Vlad Niculae, Peter Prettenhofer, Alexandre Gramfort, Jaques Grobler, Robert Layton, Jake VanderPlas, An dreas Joly, Bertrand Druillette, Gael Varoquaux, and Marion Gramfort. 2013. API design for machine learning software: experiences from the scikit-learn project. arXiv preprint arXiv:1309.0238. Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de Oliveira Pinto, Jared Kaplan, Harri Edwards, Yuri Burda, Nicholas Joseph, Greg Brockman, Alex Ray, Raul Puri, Gretchen Krueger, Michael Petrov, Heidy Khlaaf, Girish Sastry, Pamela Mishkin, Brooke Chan, Scott Gray, and 39 others. 2021. Evaluating large language models trained on code. ArXiv. Xinyun Chen, Maxwell Lin, Nathanael Schärli, and Denny Zhou. 2023. Teaching large language models to self-debug. Preprint, arXiv:2304.05128.
+
+Keyuan Cheng, Xudong Shen, Yihao Yang, Tengyue Wang, Yang Cao, Muhammad Asif Ali, Hanbin Wang, Lijie Hu, and Di Wang. 2025. Codemenv: Benchmarking large language models on code migra tion. Preprint, arXiv:2506.00894. Matteo Ciniselli, Alberto Martin-Lopez, and Gabriele Bavota. 2024. On the generalizability of deep learning-based code completion across programming language versions. Preprint, arXiv:2403.15149. Google Cloud. 2025. Gemini 2.5 on Vertex AI: Pro, Flash & Model Optimizer Live. https://cloud. google.com/blog/products/ai-machine-lea rning/gemini-2-5-pro-flash-on-vertex-ai. Discusses Gemini 2.5 Pro and Gemini 2.5 Flash. Team Cohere, :, Aakanksha, Arash Ahmadian, Marwan Ahmed, Jay Alammar, Milad Alizadeh, Yazeed Al numay, Sophia Althammer, Arkady Arkhangorodsky, Viraat Aryabumi, Dennis Aumiller, Raphaël Avalos, Zahara Aviv, Sammie Bae, Saurabh Baji, Alexandre Barbet, Max Bartolo, Björn Bebensee, and 211 oth ers. 2025. Command a: An enterprise-ready large language model. Preprint, arXiv:2504.00698. Forbes Technology Council. 2024. Revolutionizing software development with large language models. https://www.forbes.com/councils/forbeste chcouncil/2024/03/20/revolutionizing-sof tware-development-with-large-language-mod els/. Tri Dao, Daniel Y. Fu, Stefano Ermon, Atri Rudra, and Christopher Ré. 2022. FlashAttention: Fast and memory-efficient exact attention with IO-awareness. In Advances in Neural Information Processing Sys tems (NeurIPS). DeepSeek-AI. 2025. Deepseek-r1: Incentivizing rea soning capability in llms via reinforcement learning. Preprint, arXiv:2501.12948. DeepSeek-AI, Aixin Liu, Bei Feng, Bing Xue, Bingx uan Wang, Bochao Wu, Chengda Lu, Chenggang Zhao, Chengqi Deng, Chenyu Zhang, Chong Ruan, Damai Dai, Daya Guo, Dejian Yang, Deli Chen, Dongjie Ji, Erhang Li, Fangyun Lin, Fucong Dai, and 181 others. 2025. Deepseek-v3 technical report. Preprint, arXiv:2412.19437. DuckDuckGo. 2025. DuckDuckGo: Privacy, simplified. https://duckduckgo.com/. Lishui Fan, Mouxiang Chen, and Zhongxin Liu. 2024. Self-explained keywords empower large language models for code generation. Preprint, arXiv:2410.15966. Google. 2025. Grounding with Google Search | Gemini API. https://ai.google.dev/gemini-api/doc s/grounding. Aric A Hagberg, Daniel A Schult, and Pieter J Swart. 2008. Exploring network structure, dynamics, and function using NetworkX. In Proceedings of the 7th Python in Science Conference, pages 11–15.
+
+Charles R Harris, K Jarrod Millman, Stéfan J van der Walt, Ralf Gommers, Pauli Virtanen, David Cour napeau, Eric Wieser, Julian Taylor, Sebastian Berg, Nathaniel J Smith, Robert Kern, Matti Picus, Changqing Hoyer, Marten H van Kerkwijk, Alex Brett, Andrew Wen, Pete Zhang, Joe Igoe, Keith Featherstone, and Travis E Oliphant. 2020. Array programming with NumPy. Nature, 585(7825):357– 362. Dan Hendrycks, Steven Basart, Saurav Kadavath, Man tas Mazeika, Akul Arora, Ethan Guo, Collin Burns, Samir Puranik, Horace He, Dawn Song, and Jacob Steinhardt. 2021. Measuring coding challenge com petence with apps. NeurIPS. J. D. Hunter. 2007. Matplotlib: A 2D graphics en vironment. Computing in Science & Engineering, 9(3):90–95. Amazon Artificial General Intelligence. 2024. The ama zon nova family of models: Technical report and model card. Amazon Technical Reports. Mohayeminul Islam, Ajay Kumar Jha, Sarah Nadi, and Ildar Akhmetov. 2023. Pymigbench: A benchmark for python library migration. In 2023 IEEE/ACM 20th International Conference on Mining Software Repositories (MSR), pages 511–515. Naman Jain, King Han, Alex Gu, Wen-Ding Li, Fanjia Yan, Tianjun Zhang, Sida Wang, Armando Solar Lezama, Koushik Sen, and Ion Stoica. 2024. Live codebench: Holistic and contamination free eval uation of large language models for code. arXiv preprint arXiv:2403.07974. Carlos E Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir Press, and Karthik R Narasimhan. 2024. SWE-bench: Can language mod els resolve real-world github issues? In The Twelfth International Conference on Learning Representa tions. Haolin Jin, Zechao Sun, and Huaming Chen. 2024. Rgd: Multi-llm based agent debugger via refinement and generation guidance. Preprint, arXiv:2410.01242. Kelsey Jordahl, Joris Van den Bossche, Martin Fleis chmann, Jacob Wasserman, James McBride, Jeffrey Gerard, Jeff Tratner, Matthew Perry, Adrian Garcia Badaracco, Carson Farmer, Geir Arne Hjelle, Alan D. Snow, Micah Cochran, Sean Gillies, Lucas Culbert son, Matt Bartos, Nick Eubank, maxalbert, Aleksey Bilogur, and 11 others. 2020. geopandas/geopandas: v0.8.1. Kat Kampf. 2025. Create and edit images with Gemini 2.0 in preview. https://developers.googleblo g.com/en/generate-images-gemini-2-0-flash -preview/. Discusses Gemini 2.0 Flash. Paul Kassianik, Baturay Saglam, Alexander Chen, Blaine Nelson, Anu Vellore, Massimo Aufiero, Fraser Burch, Dhruv Kedia, Avi Zohary, Sajana Weer awardhena, Aman Priyanshu, Adam Swanda, Amy
+
+Chang, Hyrum Anderson, Kojin Oshiba, Omar San tos, Yaron Singer, and Amin Karbasi. 2025. Llama 3.1-FoundationAI-SecurityLLM-Base-8B Technical Report. arXiv preprint arXiv:2504.21039. Cited for Llama 3.1 Instruct Turbo. Sachit Kuhar, Wasi Uddin Ahmad, Zijian Wang, Ni hal Jain, Haifeng Qian, Baishakhi Ray, Murali Kr ishna Ramanathan, Xiaofei Ma, and Anoop Deo ras. 2024. Libevolutioneval: A benchmark and study for version-specific code generation. Preprint, arXiv:2412.04478. Stefano Lambiase, Gemma Catolino, Fabio Palomba, Filomena Ferrucci, and Daniel Russo. 2025. Ex ploring individual factors in the adoption of llms for specific software engineering tasks. Preprint, arXiv:2504.02553. Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin, Naman Goyal, Hein rich Küttler, Mike Lewis, Wen-tau Yih, Tim Rock täschel, Sebastian Riedel, and Douwe Kiela. 2020. Retrieval-augmented Generation for Knowledge Intensive NLP Tasks. In Advances in Neural Infor mation Processing Systems, volume 33. James Li. 2024. ReAct vs Plan-and-Execute: A Prac tical Comparison of LLM Agent Patterns. https: //dev.to/jamesli. Linxi Liang, Jing Gong, Mingwei Liu, Chong Wang, Guangsheng Ou, Yanlin Wang, Xin Peng, and Zibin Zheng. 2025. Rustevo: An evolving benchmark for api evolution in llm-based rust code generation. Preprint, arXiv:2503.16922. Opher Lieber, Barak Lenz, Hofit Bata, Gal Cohen, Jhonathan Osin, Itay Dalmedigos, Erez Safahi, Shaked Meirom, Yonatan Belinkov, Shai Shalev Shwartz, Omri Abend, Raz Alon, Tomer Asida, Amir Bergman, Roman Glozman, Michael Gokhman, Avashalom Manevich, Nir Ratner, Noam Rozen, and 3 others. 2024. Jamba: A hybrid transformer-mamba language model. Preprint, arXiv:2403.19887. Yue Liu, Chakkrit Tantithamthavorn, Yonghui Liu, Patanamon Thongtanunam, and Li Li. 2024. Au tomatically recommend code updates: Are we there yet? Preprint, arXiv:2209.07048. Zeyu Leo Liu, Shrey Pandit, Xi Ye, Eunsol Choi, and Greg Durrett. 2025. Codeupdatearena: Benchmark ing knowledge editing on API updates. Edward Loper and Steven Bird. 2002. NLTK: The natu ral language toolkit. In Proceedings of the ACL-02 Workshop on Effective Tools and Methodologies for Teaching Natural Language Processing and Com putational Linguistics, pages 63–70, Philadelphia, Pennsylvania, USA. Association for Computational Linguistics. Stephan Lukasczyk and Gordon Fraser. 2022. Pyn guin: Automated unit test generation for python. In Proceedings of the ACM/IEEE 44th International
+
+Conference on Software Engineering: Companion Proceedings, pages 168–172. Ziyang Luo, Can Xu, Pu Zhao, Qingfeng Sun, Xi ubo Geng, Wenxiang Hu, Chongyang Tao, Jing Ma, Qingwei Lin, and Daxin Jiang. 2023. WizardCoder: Empowering code large language models with Evol Instruct. Wes McKinney. 2010. Data Structures for Statistical Computing in Python. In Proceedings of the 9th Python in Science Conference, pages 51–56. Mistral AI. 2025. Medium is the new large: Introducing mistral medium 3. https://mistral.ai/news/mi stral-medium-3. Accessed: 2025-05-17. OpenAI. 2024. GPT-4o System Card. arXiv preprint arXiv:2410.21276. Cited for GPT-4o. OpenAI. 2024. New embedding models and api updates. https://openai.com/index/new-embedding-m odels-and-api-updates/. Accessed: 2025-07-28. OpenAI. 2024. OpenAI o1 System Card. https: //openai.com/index/openai-o1-system-card/. Discusses the o1 model series, including o1 and men tioning o3-mini. OpenAI. 2025a. Introducing GPT-4.1 in the API. ht tps://openai.com/index/gpt-4-1/. Discusses GPT-4.1, GPT-4.1 mini, and GPT-4.1 nano. OpenAI. 2025b. Introducing GPT-4.5. https://open ai.com/index/introducing-gpt-4-5/. Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, Alban Desmaison, Andreas Köpf, Edward Yang, Zach DeVito, Martin Raison, Alykhan Te jani, Sasank Chilamkurthy, Benoit Steiner, Lu Fang, and 2 others. 2019. PyTorch: An imperative style, high-performance deep learning library. Preprint, arXiv:1912.01703. Perplexity AI. 2024. Getting started with Perplexity. https://www.perplexity.ai/hub/blog/getti ng-started-with-perplexity. Qwen, :, An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chengyuan Li, Dayiheng Liu, Fei Huang, Haoran Wei, Huan Lin, Jian Yang, Jianhong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang, Jingren Zhou, and 25 oth ers. 2025. Qwen2.5 technical report. Preprint, arXiv:2412.15115. Rafiqul Rabin, Jesse Hostetler, Sean McGregor, Brett Weir, and Nick Judd. 2025. Sandboxeval: To wards securing test environment for untrusted code. Preprint, arXiv:2504.00018. Reka. RekaAI/reka-flash-3 · Hugging Face — hugging face.co. https://huggingface.co/RekaAI/reka -flash-3. [Accessed 15-07-2025].
+
+Aymeric Roucher, Albert Villanova del Moral, Thomas Wolf, Leandro von Werra, and Erik Kaunismäki. 2025. ‘smolagents‘: a smol library to build great agentic systems. https://github.com/huggingfa ce/smolagents. Aditi Singh, Abul Ehtesham, Saket Kumar, and Tala Ta laei Khoei. 2025. Agentic retrieval-augmented generation: A survey on agentic rag. Preprint, arXiv:2501.09136. Jianlin Su, Yu Lu, Shengfeng Pan, Ahmed Murtadha, Bo Wen, and Yunfeng Liu. 2023. Roformer: En hanced transformer with rotary position embedding. Preprint, arXiv:2104.09864. Gemini Team, Petko Georgiev, Ving Ian Lei, Ryan Burnell, Libin Bai, Anmol Gulati, Garrett Tanzer, Damien Vincent, Zhufeng Pan, Shibo Wang, Soroosh Mariooryad, Yifan Ding, Xinyang Geng, Fred Al cober, Roy Frostig, Mark Omernick, Lexi Walker, Cosmin Paduraru, Christina Sorokin, and 1118 oth ers. 2024. Gemini 1.5: Unlocking multimodal un derstanding across millions of tokens of context. Preprint, arXiv:2403.05530. The pandas development team. 2020. pandas dev/pandas: Pandas. Pauli Virtanen, Ralf Gommers, Travis E Oliphant, Matt Haberland, Tyler Reddy, David Cournapeau, Ev geni Burovski, Pearu Peterson, Warren Weckesser, Jonathan Bright, and 1 others. 2020. Scipy 1.0: fundamental algorithms for scientific computing in python. Nature methods, 17(3):261–272. Chaozheng Wang, Shuzheng Gao, Cuiyun Gao, Wenx uan Wang, Chun Yong Chong, Shan Gao, and Michael R. Lyu. 2024a. A systematic evaluation of large code models in api suggestion: When, which, and how. Preprint, arXiv:2409.13178. Chong Wang, Kaifeng Huang, Jian Zhang, Yebo Feng, Lyuye Zhang, Yang Liu, and Xin Peng. 2024b. How and Why LLMs Use Deprecated APIs in Code Completion? an Empirical Study. arXiv preprint arXiv:2312.14617. Chong Wang, Kaifeng Huang, Jian Zhang, Yebo Feng, Lyuye Zhang, Yang Liu, and Xin Peng. 2025a. LLMs Meet Library Evolution: Evaluating Depre cated API Usage in LLM-based Code Completion . In 2025 IEEE/ACM 47th International Conference on Software Engineering (ICSE), pages 781–781, Los Alamitos, CA, USA. IEEE Computer Society. Chong Wang, Kaifeng Huang, Jian Zhang, Yebo Feng, Lyuye Zhang, Yang Liu, and Xin Peng. 2025b. Llms meet library evolution: Evaluating deprecated api usage in llm-based code completion. Preprint, arXiv:2406.09834. Xingyao Wang. 2025. Introducing openhands lm 32b – a strong, open coding agent model. All Hands AI Blog.
+
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia, Ed Chi, Quoc Le, and Denny Zhou. 2023. Chain-of-thought prompting elic its reasoning in large language models. Preprint, arXiv:2201.11903. Tongtong Wu, Weigang Wu, Xingyu Wang, Kang Xu, Suyu Ma, Bo Jiang, Ping Yang, Zhenchang Xing, Yuan-Fang Li, and Gholamreza Haffari. 2024. Versi Code: Towards version-controllable code generation. xAI. 2025. Grok-3. Official xAI announcement. Ac cessed May 17, 2025. An Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, Chujie Zheng, Day iheng Liu, Fan Zhou, Fei Huang, Feng Hu, Hao Ge, Haoran Wei, Huan Lin, Jialong Tang, and 41 others. 2025. Qwen3 technical report. Preprint, arXiv:2505.09388. Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik R Narasimhan, and Yuan Cao. 2023. React: Synergizing reasoning and acting in language models. In The Eleventh International Conference on Learning Representations. Sixiang Ye, Zeyu Sun, Guoqing Wang, Liwei Guo, Qingyuan Liang, Zheng Li, and Yong Liu. 2025. Prompt alchemy: Automatic prompt re finement for enhancing code generation. Preprint, arXiv:2503.11085. Shuyan Zhou, Uri Alon, Frank F Xu, Zhiruo Wang, Zhengbao Jiang, and Graham Neubig. 2022. DocPrompting: Generating code by retrieving the docs.
+
+This appendix provides additional details on the GitChameleon 2.0 benchmark. We provide details on the dataset construction process, the structure of the dataset samples, on the processes for validating the examples and constructing the hidden tests, and finally present additional statistics regarding the dataset.
+
+A.1 Dataset Construction Process The examples were created by the authors, which took roughly 350 human hours. To construct that dataset, we compiled a list of popular Python li braries, focusing on those that had more than 1000 stars on Github as well as detailed documentation of changes between versions. For each library, we reviewed the change logs to identify breaking changes: deprecated functions, argument changes, alterations in behavior, and newly introduced func tions. For each identified change, we wrote a concise problem statement, starter code, expected solution and a suite of tests, consisting of a comprehen sive suite of hidden tests to be used for model performance evaluation and ranking and a man ually written concise visible test to be used for self debugging experiments. We also added a ground truth set of relevant documents for RAG experi ments. NOTE: Low-level changes—such as backend optimizations that do not alter the surface-level API—are not considered valid changes for our benchmark. For example, if between Torch 1.7 and Torch 1.8 the torch.nn.Softmax() func tion received a CUDA-based numerical stability im provement, this does not modify the API usage of Softmax() and is therefore not labeled as a change in our benchmark. Since most changes in mature libraries primarily impact backend functionality, collecting 328 valid samples required significant effort.
+
+A.2 Structure of Dataset Samples The main fields of each sample are given in Table 5. Additionally, each problem in GitChameleon 2.0 is associated with metadata to assist in the analy sis of the results, as described in Table 6. Each problem is classified with a type of API evolution change among the categories defined in Table 7.
+
+Library The software library under test. Library Version The exact version of that library. Task Description A problem centered on a particular library change. Initial Code The Python snippet provided as a starting point. Extra Dependencies Any additional packages required to solve the task. Hidden Tests Comprehensive unit tests designed to maxi mize coverage. The success rate on these is the benchmark metric. Visible Test A concise test that validates the specific tar get behavior, intended to be used for Self Debugging experiments. Reference Solution A correct, ground-truth implementation. Reference Documents A set of version-specific reference documents, to be used for RAG experiments.
+
+Table 5: Problem column definitions for the GitChameleon 2.0 dataset.
+
+Change Category The type of library-evolution changes, as de fined in table 7. Target Entity The specific function or class under test. Solution Style “Functional” if only a function body is ex pected, or “Full” for a general code comple tion. Web Framework Task “Yes” if the problem exercises a web development framework, otherwise “No.”
+
+Table 6: Metadata column definitions.
+
+A.3 Dataset Validation To ensure the validity of the dataset examples, we followed the following process: First, we created a clean Docker container for each problem and installed the required dependencies into it. Then, we executed the visible and hidden validation tests to ensure that all are successful. A.4 Hidden Test Construction This section presents how we generated the hidden tests for each dataset example. These tests were generated by instructing the Zencoder AI Coding Agent 4 to create test files for each example, in corporating the appropriate dependency versions. The Zencoder agent, built on the GPT-4.1 base model, operated with internet search enabled and was granted execution access, allowing it to self correct outputs that initially failed during runtime. Further errors encountered during verification were resolved by supplying error traces back to Zen coder or through an isolated instance of GPT-4o, supplemented with manual inspection and inter vention where necessary. This process enabled us to construct a robust and comprehensive test suite, achieving a coverage of 96.5%. The decision to use ZENCODER was motivated by limitations observed
+
+4https://zencoder.ai
+
+Change Category Description Argument or Attribute change
+
+The API call to a function, method, or class has a change in arguments (e.g. name, order, new, deprecated argument) between versions. Function Name change The name of the API call has changed be tween versions (e.g. pandas.append to pandas.concat).
+
+Semantics or Function Behavior change
+
+The semantic / runtime behavior of the API call changed between versions (e.g. returning a different type).
+
+New feature or addi tional dependency-based change
+
+A feature was introduced in a specific ver sion; therefore, to execute the same function ality, a model using an older version should make use of an additional dependency (e.g. torch.special was introduced in TORCH 1.10, previously one could use NUMPY for the same).
+
+Table 7: Categories of API Evolution Changes in alternative unit test generation approaches. Rule based generators such as Pynguin (Lukasczyk and Fraser, 2022) fail to account for version differences among samples that share the same or similar prob lem statements. Meanwhile, AI-based unit test gen erators like Claude Code and EarlyAI5 were not suitable: the former typically generated test classes where each sub-function was populated only with pass() statements, while the latter was restricted to functional-style problems and could not handle the more complex, class-based structures prevalent in GitChameleon 2.0.
+
+A.5 Additional Dataset Statistics Figure 10 presents the number of unique versions per library and the number of samples per library.
+
+### Detailed Experimental Setup
+
+A.6.1 Greedy Decoding We configured the generation parameters with a sampling temperature of 0 and a top_p value of 0.95. We had specified a structured output schema that specifies the fields Answer and Explanation, where both are of type string.
+
+A.6.2 Zero-Shot Chain-Of-Thought (CoT) We had used the same generation parameters as for Greedy Decoding and an output schema that specifies the fields Answer and Steps, where the former is a of type string and the latter is a list of string.
+
+A.6.3 Self-Debugging On examples that failed with Greedy Decoding, we employed the method described in (Chen et al., 2023) to feed the visible test error trace along with 5https://www.startearly.ai/ scipy torch networkx gradio sympy plotly matplotlib pandas librosa geopandas nltk scikit-learn flask tornado numpy lightgbm django jinja2 seaborn mitmproxy pytest falcon pillow tqdm spacy kymatio
+
+Library
+
+0 1 (a) Number of unique versions per library.
+
+librosa scipy sympy flask falcon torch numpy scikit-learn pandas django mitmproxy networkx lightgbm pytest plotly geopandas seaborn tornado gradio nltk matplotlib pillow jinja2 spacy tqdm kymatio
+
+Library
+
+0 5
+
+10
+
+15
+
+20
+
+25
+
+30
+
+35
+
+40 (b) Number of samples per library.
+
+Figure 10: Dataset library statistics. (a) The count of distinct versions identified for each library, presented in decreasing order of uniqueness. (b) The total frequency of samples containing each library, ordered by their occurrence count.
+
+the model’s explanation of its output back to the model.
+
+A.6.4 Retrieval-Augmented Generation We designed a RAG (Lewis et al., 2020) pipeline where we first constructed a vectorized database (VectorDB) by embedding each sample’s rel evant API documentation with the OpenAI text-embedding-3 large model (OpenAI, 2024). The corpus used for constructing the VectorDB in cluded 536 documents, with 140 samples having 1 associated document, 168 having 2 associated documents and 20 having 3 documents. Subsequently, we used DocPrompting (Zhou et al., 2022) to query the VectorDB to generate solutions.
+
+A.6.5 Multi-Step Agent We conducted experiments with a tool-calling agent, as implemented by the smolagents (Roucher et al., 2025) framework. This agent implementation mostly follows the ReAct (Yao et al., 2023) method, but, it alternates between acting and planning (Li, 2024) steps. Following the Agentic RAG approach (Singh et al., 2025), we had equipped the agent with a grounding tool in order to assess its capability to independently fetch relevant info for solving the benchmark problems. To this end, we had experi mented with the following grounding tools: Duck DuckGo Search (DuckDuckGo, 2025), Perplex ity (Perplexity AI, 2024), and Gemini with Ground ing (Google, 2025). Additionally, we examined agentic multi-step self-debugging (Jin et al., 2024) by including or omitting a code execution sandbox tool (Rabin et al., 2025), which provides the needed depen dencies for each example. The sandbox takes a Python program as input and outputs the standard output from the program. A.6.6 AI Coding Assistants In addition to evaluating a generic agentic frame work endowed with basic tools, we also analyze the performance of specialized AI coding assistant software. For this setting, we examine both Command Line Interface (CLI), such as Claude Code6 cod ing assistants and Integrated Development Environ ment (IDE) coding assistants, such as Cline7. The input to the assistants is given as a Python file which consists of the required library, version and extra dependencies as in-line comments and subsequently the starter code. NOTE: All assistants had internet and terminal commands execution ac cess. We had furthermore ablated this setting versus giving the full problem statement as input.
+
+This section presents results from additional exper imental methodologies:
+
+• Temperature Sampling: Results are shown in Table 9. We evaluate sampling at temper ature T = 0.8 across 10 seeds using both the OpenAI and Gemini model suites. The performance difference compared to greedy decoding is minimal.
+
+6https://docs.anthropic.com/en/docs/claude-c ode/overview 7https://cline.bot/
+
+• Reasoning Models: Performance results for the OpenAI o-series reasoning models are pro vided in Table 8.
+• Self-Explained Keywords (SEK) Prompt ing: We evaluate the SEK prompting method proposed by Fan et al. (2024), applied to both OpenAI and Gemini models. SEK involves a two-stage process: (1) Keyword Extraction, where the model generates relevant keywords for the coding task, and (2) Keyword Cate gorization, where keywords are ranked and classified into (a) Function, (b) General, and (c) Abstract categories. TF-IDF ranking is per formed using a 50,000-document subset of the EVOL-CODEALPACA-V1 corpus (Luo et al., 2023). As shown in our empirical analysis, SEK does not yield significant improvements over greedy sampling, and in several cases underperforms relative to it. NOTE: Temper ature T = 0 is used in both stages of SEK prompting.
+
+This section contains the following additional ex perimental results:
+
+• An experiment on Automatic Prompt Opti mization of the system prompt for Greedy De coding is described in Table 11.
+• An experiment on static analysis based gener ated solutions fixing to ensure model failures are not attributed to confounding factors like indentation problems and unused imports or variable declarations. Refer to Table 13 for further details.
+• Table 12 contains an extended set of RAG results, including both additional models and the setting where only a single document is retrieved.
+• A comparison of success rates between Self Debug and Greedy Decoding, when broken down by version release year (Figure 11) and by library (Figure 12).
+• A comparison of success rates between RAG and Greedy Decoding by library is shown in Figure 13.
+
+We also present the following additional analy ses:
+
+|  |  |  |  | Vanilla |  | Decoding |  |  |  |  |  |  |  | Vanilla |  |  | with | Self-Debug |  |  |  |  |  | Zero-shot |  | CoT |  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  |  | Model |  | Success |  |  |  |  |  |  |  |  |  | Success |  |  |  |  |  |  |  |  |  | Success |  |  |  |  |  |  |  |  |
+|  |  |  |  | Rate | (%) |  | API |  |  |  |  |  |  | Rate |  | (%) |  |  | API |  |  |  |  | Rate | (%) | API |  |  |  |  |  |  |
+|  |  |  |  |  |  |  | Hit |  |  |  |  |  |  |  |  |  |  |  | Hit |  |  |  |  |  |  | Hit |  |  |  |  |  |  |
+|  |  |  | Hidden |  | Visible |  | Rate |  |  |  | (%) |  | Hidden |  |  |  | Visible |  | Rate |  | (%) |  |  | Hidden |  | Rate |  | (%) |  |  |  |  |
+
+Success Rate (%) API Hit Rate (%) Hidden Visible Hidden Visible Hidden Additional Evaluated Models o1 51.2± 2.8 60.1± 2.7 42.1± 2.7 57.6± 2.7 68.6± 2.6 49.2± 2.8 41.2± 2.7 41.3± 2.7 o3-mini 44.5± 2.7 52.7± 2.8 40.6± 2.7 66.8± 2.6 76.5± 2.3 45.7± 2.8 50.9± 2.8 40.7± 2.7 o4-mini 48.2± 2.8 57.0± 2.7 48.3± 2.8 63.1± 2.7 75.0± 2.4 45.4± 2.7 – – codex-mini 48.5± 2.8 58.2± 2.7 47.5± 2.8 – – – 32.0± 2.6 37.9± 2.7 Llama 3.1 Instruct Turbo 30.2± 2.5 38.1± 2.7 39.7± 2.7 52.1± 2.8 69.2± 2.5 41.5± 2.7 36.6± 2.7 35.3± 2.6 Mistral Medium 3 43.6± 2.7 49.1± 2.8 44.2± 2.7 61.3± 2.8 71.3± 2.5 45.4± 2.7 44.2± 2.7 44.1± 2.7 Table 8: Success rate on visible and hidden tests and API hit rate under the Vanilla, Self-Debug, and Zero-shot CoT settings, for additional models. Model ranking on the benchmark is determined by Hidden Success Rate. Visible Success Rate figures are for context on Self-Debugging. The best result in each column is in bold. For full model details and citations, please refer to Appendix J.
+
+• Figure 14 analyzes the intra-model sample agreement rates in the Greedy Decoding, Zero Shot CoT and RAG settings.
+
+the next example_{i+1}.py. Do not at tempt to solve all the problems in the folder at the same time; it will overload your context window. Keep a running note of these instructions so that you do not forget." Results Consistent with our primary findings, Gemini 2.5 Pro achieved a 53.96% hidden suc cess rate (64.33% visible), representing the upper bound of performance. Conversely, GPT-5 Mini— a new state-of-the-art small model—scored only 36.3% on hidden tests (45.1% visible). This under scores the difficulty and relevance of the Version Conditioned Generation (VCG) problem even for highly capable agentic frameworks. Qualitative Failure Case To illustrate the chal lenge of version-sensitivity within the Mini-SWE Agent, we highlight a failure case involving the lightgbm library (version 3.0.0). The agent was tasked with writing a function to decode a byte string. # Metadata: "library": "lightgbm", "version": "3.0.0", ,→ "release_date": "2020-08" # Problem: "Write a function to decode a byte string." import lightgbm.compat as compat def decode_string(string: bytes) -> str: # Agent's Incorrect Generation: return compat.decode(string)
+
+C.1 Evaluating Open-Source Agentic Systems: Mini-SWE Agent A key methodological challenge in evaluating agen tic frameworks on large-scale benchmarks is that many promising systems are designed primarily for interactive demonstrations and lack a non interactive, headless mode. To systematically eval uate performance within an open-source agentic environment, we conducted experiments using the Mini-SWE Agent framework. Methodology We utilized a one-shot prompting strategy. The agent was first verified on a single example, which was then provided as an in-context exemplar (example_0.py) for the remaining tasks. The prompt explicitly instructed the agent to pro cess problems sequentially to prevent context win dow overload:
+
+"Follow these instructions carefully. Solve each example_{i}.py in the prob lems directory, by following the instruc tions in the commented lines very care fully. Do not assume that the problem has already been solved. Start from ex ample_i.py, read example_0.py to see an example of a completed solution. Care fully, meticulously craft a solution based on the instructions provided and place the solution in the target directory. Once you have checked your answer, move to
+
+The agent produced code calling lightgbm.compat.decode(), resulting in an AttributeError. The root cause is a di rect consequence of the agent not adhering to the specified library version: the decode() function does not exist in version 3.0.0 of lightgbm. The correct, version-aware API call is lightgbm.compat.decode_string(). This 46807 0.2 0.4 0.6 0.8 1.0 Success Rate
+
+Claude 3.7
+Sonnet
+Gemini 1.5
+Pro
+Gemini 2.5
+Pro
+GPT-4.1
+O-1
+DDG SB
+Claude 3.5
+Goose 0.0 0.2 0.4 0.6 0.8 1.0 Success Rate 0.0 0.2 0.4 0.6 0.8 1.0 Success Rate
+
+Vanilla Self-Debug
+
+Figure 11: Success Rate Breakdown by Version Release Year. Lighter and darker shaded bars represent values obtained with and without Self-Debugging, respectively. Standard error is drawn as a black line. This plot shows that the release year does not significantly impact the results for most evaluated settings.
+
+perfectly illustrates how an agent’s failure to condition its generation on the explicit version metadata leads to critical execution failures.
+
+Model
+
+Hidden Success Rate (%) API Hit Rate (%) 50.5± 0.8 44.0± 0.8 o3-mini 46.4± 1.6 42.5± 0.6 GPT-4.1 48.9± 1.4 48.1± 1.0 GPT-4.1-mini 45.9± 1.3 46.9± 0.6 GPT-4.1-nano 33.8± 1.1 43.8± 0.8 GPT-4o 47.2± 1.2 45.1± 0.9 GPT-4o-mini 40.2± 1.2 41.0± 1.1 Gemini 1.5 Pro 45.4± 1.2 45.5± 0.7 Gemini 2.5 Pro 41.0± 3.4 48.3± 1.7 Gemini 2.0 Flash 43.4± 3.1 42.5± 0.9 Gemini 2.5 Flash 46.4± 0.8 46.8± 1.2
+
+Table 9: Hidden Success Rate using temperature sam pling (T = 0.8), averaged over 10 seeds. A compari son to the greedy decoding baseline in Table 1 reveals that the changes in performance between greedy de coding and temperature sampling are mixed. For most models, the differences are small, but for a few specific models, the changes are big and noteworthy. For the majority of models evaluated (8 out of 11), the perfor mance change is minor, typically within +/- 2 percentage points. For example, Gemini-2.5-pro, shows a notable decrease in success rate (-9.0 points).
+
+0.0 0.2 0.4 0.6 0.8 1.0 Success Rate
+
+Claude 3.7 Sonnet
+Gemini 1.5 Pro
+Gemini 2.5 Pro
+GPT-4.1
+O-1
+DDG SB Claude 3.5
+Goose
+
+Torch 0.0 0.2 0.4 0.6 0.8 1.0 Success Rate
+
+NumPy 0.0 0.2 0.4 0.6 0.8 1.0 Success Rate
+
+SymPy 0.0 0.2 0.4 0.6 0.8 1.0 Success Rate
+
+Claude 3.7 Sonnet
+Gemini 1.5 Pro
+Gemini 2.5 Pro
+GPT-4.1
+O-1
+DDG SB Claude 3.5
+Goose
+
+SciPy 0.0 0.2 0.4 0.6 0.8 1.0 Success Rate
+
+Django 0.0 0.2 0.4 0.6 0.8 1.0 Success Rate
+
+Flask
+
+Vanilla Self-Debug
+
+Figure 12: Success Rate Breakdown by Library. This figure shows the differences in success rate between the libraries included in GitChameleon 2.0. All evaluated settings do very well on NumPy, which is to be expected given the popularity of the library and the subsequent abundance of code that uses it. The success rates on the web development frameworks are notably lower than on the scientific computing libraries, perhaps due to having more complex abstractions.
+
+Model
+
+Hidden Success Rate (%) API Hit Rate (%)
+
+GPT-4o 29.6± 2.5 43.6± 2.7 GPT-4o-mini 27.7± 2.5 40.3± 2.7 GPT-4.1 43.6± 2.7 49.4± 2.8 GPT-4.1-mini 41.2± 2.7 44.0± 2.7 GPT-4.1-nano 32.9± 2.6 43.8± 2.7 GPT-4.5 33.8± 2.6 58.0± 2.7 Gemini 1.5 Pro 44.5± 2.7 45.7± 2.8 Gemini 2.0 Flash 41.2± 2.7 43.4± 2.7 Gemini 2.5 Pro 47.3± 2.8 50.0± 2.8 Gemini 2.5 Flash 48.2± 2.8 43.4± 2.7
+
+Table 10: Success and API hit rates under the SEK setting. While SEK, being a two-round prompting scheme, is expected to outperform greedy decoding, we observe that it does not yield significant improve ments. For example, with GPT-4.1, the success rate actually drops by 4.9% when using SEK compared to greedy decoding.
+
+Model Best Round Success Rate (%) ∆ (%) GPT-4.1-mini 1 42.1± 2.7 –2.1 GPT-4.1-nano 3 37.5± 2.7 +3.7 GPT-4.1 1 50.0± 2.8 +1.5 GPT-4o 0 49.1± 2.8 0.0
+
+Table 11: Automatic System Prompt Optimization results. The prompt was optimized for at most 5 rounds using the method described in (Ye et al., 2025), with early stopping if the improvement over previous round is less than 1.5%. We used GPT-4.1 as the mutation model and a random fixed 20% subset of the dataset for the optimization process. For the initial prompt, we use the same system prompt that we had used for our Greedy Decoding experiments, as given in Figure 18. We report the delta of the hidden test success rate, in comparison to the Greedy Decoding baseline. The results demonstrate the limited utility of further optimizing the prompts we had used in our experiments.
+
+Model k = 1 k = 3
+
+Success Rate (%) API Hit Rate (%) Success Rate (%) API Hit Rate (%) Precision (%) Recall (%) MRR
+
+CommandA 43.6± 2.7 43.9± 2.7 48.2± 2.8 45.4± 2.7 41.9± 2.7 50.7± 2.8 0.63± 0.03 CommandR 7B 23.2± 2.3 36.3± 2.7 23.2± 2.3 35.6± 2.6 41.6± 2.7 50.4± 2.8 0.62± 0.03 Deepseek R1 50.9± 2.8 44.8± 2.7 51.2± 2.8 47.9± 2.8 41.5± 2.7 50.1± 2.8 0.62± 0.03 Reka Flash-3 8.5± 1.5 34.5± 2.6 11.6± 1.8 31.9± 2.6 29.9± 2.5 39.6± 2.8 0.47± 0.03 Jamba 1.6 Mini 18.0± 2.1 35.4± 2.6 29.3± 2.5 40.4± 2.7 41.6± 2.7 50.1± 2.8 0.62± 0.03 OpenHands LM 32B v0.1 34.8± 2.6 41.0± 2.7 28.9± 2.5 36.5± 2.7 25.9± 2.4 33.7± 2.7 0.42± 0.03 Llama 4 Scout 38.7± 2.7 45.1± 2.7 39.3± 2.7 43.6± 2.7 41.3± 2.7 50.4± 2.8 0.62± 0.03
+
+Arcee CoderL 46.3± 2.8 47.3± 2.8 36.6± 2.7 40.4± 2.7 31.1± 2.6 41.0± 2.8 0.49± 0.03 Claude 3.5 Haiku 43.6± 2.7 47.9± 2.8 43.0± 2.7 47.5± 2.8 41.9± 2.7 50.7± 2.8 0.62± 0.03 Claude 3.5 Sonnet 8.5± 1.5 18.6± 2.1 49.4± 2.8 51.5± 2.8 41.9± 2.7 50.7± 2.8 0.62± 0.03 Codestral 44.2± 2.7 47.3± 2.8 46.0± 2.8 48.5± 2.8 41.9± 2.7 50.7± 2.8 0.62± 0.03 CommandR+ 32.0± 2.6 43.0± 2.7 36.6± 2.7 41.9± 2.7 41.6± 2.7 50.4± 2.8 0.62± 0.03 Gemini 2.5 Flash 54.3± 2.8 50.5± 2.8 55.2± 2.8 51.2± 2.8 41.9± 2.7 50.7± 2.8 0.62± 0.03 GPT-4.1-mini 46.9± 2.8 50.0± 2.8 48.8± 2.8 50.0± 2.8 41.3± 2.7 50.4± 2.8 0.62± 0.03 GPT-4.1-nano 38.1± 2.7 45.1± 2.7 37.8± 2.7 45.0± 2.7 41.3± 2.7 50.4± 2.8 0.62± 0.03 GPT-4o-mini 41.5± 2.8 45.4± 2.7 43.3± 2.8 46.8± 2.8 41.0± 2.7 50.1± 2.8 0.62± 0.03 GPT-4o 48.2± 2.8 47.0± 2.7 52.1± 2.8 49.4± 2.8 40.6± 2.7 49.5± 2.8 0.61± 0.03 Inflection 3 Productivity 24.7± 2.8 42.0± 2.6 21.9± 2.7 44.2± 2.7 41.9± 2.7 50.7± 2.8 0.62± 0.03 LFM 40B MoE 30.8± 2.7 38.3± 2.7 20.7± 2.7 34.0± 2.7 33.8± 2.7 44.8± 2.8 0.53± 0.03 Table 12: RAG performance of additional models when retrieving k = 1 and k = 3 most relevant documents. Precision is shown only for k = 3 as it is equivalent to Recall in the k = 1 case. This table shows that retrieving three documents is better in almost all cases than retrieving a single document, despite the incurred false positives that arise due to most of the examples having less than three relevant documents.
+
+10% 5% 0% 5% 10% 15% 20% Success Rate Lift pandas numpy torch scipy flask django librosa sympy scikit-learn falcon
+
+(a) GPT-4.1
+
+20% 10% 0% 10% 20% 30% 40% Success Rate Lift flask numpy torch scipy pandas falcon librosa sympy django scikit-learn (b) GPT-4.1-mini 20% 10% 0% 10% 20% 30% 40% 50% Success Rate Lift django flask torch pandas scipy falcon numpy librosa sympy scikit-learn (c) GPT-4.1-nano
+
+Figure 13: ∆ Success Rate of RAG over Greedy Decoding, per library. The 10 most frequent libraries in GitChameleon 2.0 are shown here. The plots demonstrate a trend where smaller models are less effective at using RAG, with the full-size GPT-4.1 improving on 7 libraries, the mini version improving on 5 and the nano version improving only on 3.
+
+|  | Claude 3.7 Sonnet |  | 0.75 0.78 0.76 | 0.80 0.78 0.75 0.71 | 0.81 0.77 | 0.71 |  |  | Gemini 1.5 Pro |  |  |  | 0.75 0.77 | 0.79 | 0.69 0.64 0.75 | 0.79 0.77 0.81 |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  |  |  | 0.73 0.75 | 0.78 0.72 0.74 0.70 | 0.77 0.75 | 0.76 | 0.82 |  |  |  |  |  | 0.70 | 0.74 | 0.64 0.70 0.69 | 0.72 0.77 0.70 | 0.80 |  |  |
+|  | Gemini 1.5 Pro |  |  |  |  |  |  |  | Gemini 2.0 Flash |  |  |  |  |  |  |  |  |  |  |
+|  | Gemini 2.0 Flash |  | 0.74 | 0.74 0.75 0.74 0.76 | 0.76 0.77 | 0.70 | 0.80 |  | Gemini 2.5 Pro |  |  |  |  | 0.79 | 0.62 0.58 0.74 | 0.78 0.70 0.77 |  |  |  |
+|  | Gemini 2.5 Pro |  |  | 0.76 0.75 0.70 0.70 | 0.73 0.70 | 0.72 |  |  |  |  | GPT 4.1 |  |  |  | 0.66 0.60 0.77 | 0.84 0.76 0.79 | 0.75 |  |  |
+|  |  | GPT 4.1 |  | 0.80 0.75 0.72 | 0.84 0.78 | 0.73 | 0.78 |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  | GPT 4.1-mini |  |  |  |  | 0.74 0.69 | 0.66 0.69 0.66 |  |  |  |
+|  | GPT 4.1-mini |  |  | 0.77 0.73 | 0.77 0.75 | 0.72 | 0.76 |  |  |  |  |  |  |  |  |  | 0.70 |  |  |
+|  |  |  |  |  |  |  |  |  | GPT 4.1-nano |  |  |  |  |  | 0.65 | 0.56 0.70 0.57 |  |  |  |
+|  | GPT 4.1-nano |  |  | 0.71 | 0.76 0.78 | 0.69 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  |  | 0.73 0.73 | 0.71 | 0.74 |  |  |  | GPT 4.5 |  |  |  |  | 0.76 0.74 0.75 |  |  |  |
+|  |  | GPT 4.5 |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 0.65 |  |  |
+|  |  | GPT-4o |  |  | 0.80 | 0.72 |  |  |  |  | GPT-4o |  |  |  |  | 0.76 0.80 |  |  |  |
+|  |  |  |  |  |  |  | 0.72 |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  | GPT-4o-mini Llama4 Maverick Claude 3.7 Sonnet | Gemini 1.5 Pro | Gemini 2.5 Pro Gemini 2.0 Flash GPT 4.1 | GPT-4o-mini GPT 4.1-mini Llama4 Maverick GPT-4o GPT 4.1-nano GPT 4.5 |  | 0.76 | 0.70 |  | Llama4 Maverick | GPT-4o-mini | Gemini 1.5 Pro Gemini 2.0 Flash | Gemini 2.5 Pro | GPT 4.1 | GPT 4.1-mini | GPT-4o-mini GPT-4o GPT 4.1-nano GPT 4.5 | 0.71 Llama4 Maverick | 0.60 |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+
+(a) Greedy Decoding (b) Zero-Shot Chain-Of-Thought
+
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  | 0.86 |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  |  |  |  | Claude 3.7 Sonnet |  | 0.81 | 0.81 | 0.79 | 0.80 | 0.74 | 0.77 | 0.79 | 0.77 |  |  |  |  |  |  |
+|  |  |  |  | Gemini 2.5 Flash |  |  | 0.86 | 0.81 | 0.79 | 0.73 | 0.80 | 0.80 | 0.79 | 0.84 |  |  |  |  |  |
+|  |  |  |  | Gemini 2.5 Pro |  |  |  | 0.83 | 0.76 | 0.71 | 0.75 | 0.76 | 0.74 | 0.82 |  |  |  |  |  |
+|  |  |  |  | GPT 4.1 |  |  |  |  | 0.83 | 0.73 | 0.79 | 0.82 | 0.78 |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  | 0.80 |  |  |  |  |  |
+|  |  |  |  | GPT 4.1-mini |  |  |  |  |  | 0.78 | 0.82 | 0.80 | 0.80 |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  | 0.78 |  |  |  |  |  |
+|  |  |  |  | GPT 4.1-nano |  |  |  |  |  |  | 0.82 | 0.73 | 0.78 |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  | 0.81 | 0.79 | 0.76 |  |  |  |  |  |
+|  |  |  |  | GPT-4o-mini |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  | Grok 3 Llama4 Maverick Claude 3.7 Sonnet | Gemini 2.5 Pro Gemini 2.5 Flash |  | GPT 4.1-mini GPT 4.1 | GPT 4.1-nano | GPT-4o-mini |  | Llama4 Maverick | Grok 3 | 0.78 | 0.74 0.72 |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+
+(c) RAG (k=3)
+
+Figure 14: Intra model sample agreement rates. These plots show the rate of samples that have the same pass/fail result among all pairs of models, under the Greedy Decoding, Zero-Shot CoT and RAG settings. Each cell in these plots represents the agreement rate of a pair of models, with the rate also being color-coded. The high agreement rates in all three subfigures show that ensembling different models would have a limited effect on the success rates.
+
+Success Rate (%)
+
+Pylint Score ↑
+
+Assistant Model Linter
+
+N/A 1.06 54.6± 2.8 Black + Isort 1.69 54.6± 2.8 Ruff 2.64 54.6± 2.8 Cline (IDE) GPT-4.1 N/A 0.53 36.3± 2.7 Black + Isort 1.82 36.3± 2.7 Ruff 2.92 36.3± 2.7
+
+Goose (CLI) GPT-4o
+
+This section discusses additional lines of related work and provides a detailed comparison of the dif ferentation of GitChameleon 2.0 versus previous efforts.
+
+N/A 0.00 48.8± 2.8 Black + Isort 1.92 48.8± 2.8 Ruff 2.60 48.8± 2.8
+
+Claude Code (CLI)
+
+Claude 3.7 Sonnet
+
+Table 13: Static Analysis and Auto linting/Formatting. Pylint 8 scores are averaged across code samples and are scored out of 10. The success rate numbers presented are the same as in Table 3 wherein Goose has no access to problem statement while Cline and Claude are provided with the same. We observe that the original generated solutions via coding assistants do not meet minimum quality standard requirements, however when improved via auto-linters like Black 9, ISort 10 and Ruff 11, their code quality improves but with no impact to the success rate. This demonstrates that there are no confounding errors like indentation issues, unused imports and other formatting issues influencing our evaluation results observed. NOTE: For Ruff formatting, we used the already formatted/ linted solutions via Black and ISort.
+
+While the main text provides a high-level overview of the most similar benchmarks, this section offers a more detailed differentiation between GitChameleon 2.0 and other relevant works. We categorize these benchmarks based on several key dimensions, including their evaluation method (execution-based vs. non-executable) and, most importantly, their core task format (instruction based generation vs. completion- or repair based tasks). This distinction is critical as it tests different capabilities of language models.
+
+model’s ability to translate human requirements into code. D.1.2 Task Format: Code Update, Repair, and Completion In contrast, many other benchmarks focus on tasks where the primary input is existing code, not a natural language instruction. The model’s goal is to modify, repair, or complete a given code snippet. Code Update and Repair Benchmarks A sig nificant body of work evaluates a model’s ability to modify or repair existing code.
+
+|  |  |  |  | Code | Update |  | and | Repair |  | Benchmarks |  |  | A | sig |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| GitChameleon |  | is 2.0 | fundamentally | an |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  | nificant |  | body | of | work | evaluates |  | a model’s |  | ability | to |
+| instruction-based |  | benchmark. | For | each |  |  |  |  |  |  |  |  |  |  |
+| problem, | the model | is given | a natural language | modify |  | or | repair | existing |  | code. |  |  |  |  |
+
+GitChameleon 2.0 is fundamentally an instruction-based benchmark. For each problem, the model is given a natural language "Problem Statement" and starter code. The core challenge is to comprehend the user’s intent and generate a new, functionally correct solution that adheres to specific version constraints. This tests a
+
+• CodeUpdateEval (Liu et al., 2024) and JavaVersionGenBench (Ciniselli et al., 2024) are code modification benchmarks for Python and Java, respectively. They provide a model with a working piece of code and require it to be updated to a newer library version.
+• RustEvo2 (Liang et al., 2025) is a code re pair benchmark for Rust. It provides a model with code that is broken due to a dependency update and asks it to generate a fix based on compiler errors.
+
+8https://pylint.pycqa.org/en/latest/index.html
+9https://black.readthedocs.io/en/stable/
+10https://pycqa.github.io/isort/
+11https://docs.astral.sh/ruff/
+46813
+
+Benchmark Language Evaluation Method Core Task Source of Changes Key Differentiator from GitChameleon 2.0
+
+| GitChameleon | Python 2.0 | Execution-Based Generation |  | for | a static | ver |  | Real, documented | histori | (Baseline for comparison) |  |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  |  | sion: | Writes | new | code | for a |  | cal breaking | changes. |  |  |
+|  |  | specific, | often |  | older, | library |  |  |  |  |  |
+
+version.
+
+Real-world software up date commits.
+
+CodeUpdateEval Python Execution-Based Code Updating: Modifies ex isting code to work with a newer library version.
+
+Focuses on migrating code for ward to a newer version, not gen erating for a static one.
+
+JavaVersionGenBench Java Execution-Based Code Updating: Modifies ex isting Java code to handle ver sion updates.
+
+Real-world Java projects. Focuses on the Java ecosystem and its specific language/tooling challenges.
+
+A curated list of depre cated APIs.
+
+LLM-Deprecated-APl Python Non-Executable Deprecation Fixing: Identi fies and replaces specific dep recated API calls.
+
+Uses a non-executable evalua tion method and has a narrow scope focused only on API dep recation.
+
+| LibEvolutionEval | Python | Non-Executable Code | Completion: |  | Fills | in a |  | API documentation | and re | Is a completion-based | task that |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  |  | missing | part | of | a code snippet |  |  | lease notes. |  | does not test functional | correct |
+|  |  | based | on context. |  |  |  |  |  |  | ness through execution. |  |
+| RustEvo2 | Rust | Execution-Based Code | Repair: |  | Fixes existing |  |  | Real breaking | changes | Focuses on the Rust | ecosystem |
+|  |  | code that | fails | to | compile | after |  | from Rust | libraries | and a reactive, | compiler-error |
+|  |  | a dependency |  | update. |  |  |  | ("crates"). |  | driven repair task. |  |
+| CODEMENV | Python | Execution-Based Environment |  | Compatibility: |  |  |  | A broad set | of environ | Has a broader focus | on overall |
+|  |  | Generates | code |  | that is | com |  | ment configurations. |  | environment compatibility, | not |
+|  |  | patible | with | a complex |  | envi |  |  |  | specifically on | historical break |
+|  |  | ronment | specification. |  |  |  |  |  |  | ing changes. |  |
+| Table | 14: Detailed comparison | of GitChameleon | 2.0 | with | related |  |  | benchmarks | across | several key | dimensions, |
+
+highlighting differences in evaluation methodology, core task, and primary programming language.
+
+For a detailed breakdown, Table 14 contrasts GitChameleon 2.0 with these related benchmarks across several key methodological dimensions.
+
+These tasks are distinct from GitChameleon 2.0’s, as they test a reactive, corrective capability rather than the proactive generation of new code from a specification.
+
+Completion-Based and Non-Executable Bench marks Another category of benchmarks uses non-executable metrics or focuses on code com pletion.
+
+D.2 Specialized Frameworks and Repair Techniques Recognizing the unique challenges of library evo lution, researchers and practitioners are develop ing specialized frameworks and automated repair techniques that often combine LLMs with other methods.
+
+• LibEvolutionEval (Kuhar et al., 2024) is a non-executable benchmark structured as a "fill-in-the-middle" completion-based task. Its evaluation is based on textual similarity metrics (e.g., F1 score), not the functional cor rectness of the code.
+
+D.2.1 DepsRAG This framework utilizes a multi-agent system built around RAG and Knowledge Graphs specifically for reasoning about software dependencies (Al hanahnah et al., 2024). It employs distinct agents managed by an LLM: one to construct and query the dependency KG, another for web searches, and a critic agent to review and refine the generated responses, aiming for higher accuracy in complex dependency analysis tasks.
+
+• LLM-Deprecated-APl (Wang et al., 2025b), which we note in our introduction, focuses on replacing deprecated APIs. This is a specific type of repair task that is evaluated using non executable string matching.
+• CODEMENV (Cheng et al., 2025) evaluates a model’s ability to generate code compat ible with a complex environment specifica tion. While execution-based, its task is primar ily driven by satisfying technical constraints rather than implementing a distinct, high-level natural language instruction.
+
+D.2.2 Dr.Fix This tool represents a family of approaches using LLMs, often combined with program analysis and RAG, for automated program repair. It focuses on fixing API misuse in LLM-generated code based on the taxonomy of misuse types. It employs a detect reason-fix pipeline and demonstrates substantial improvements in repair accuracy metrics such as BLEU and Exact Match (Behrang et al., 2025). D.2.3 ReplaceAPI / InsertPrompt These are lightweight, targeted techniques de signed specifically to mitigate the use of depre cated APIs in LLM-based code completion. Re placeAPI performs a direct, post-generation sub stitution of known deprecated API calls with their replacements, achieving high fix rates in evalua tions (Wang et al., 2025b). InsertPrompt modifies the input prompt to discourage the generation of deprecated APIs in the first place. They serve as valuable baseline approaches for this specific prob lem (Wang et al., 2025a). D.2.4 Conclusion These works indicate a trend towards hybrid and agentic systems, moving beyond single LLM calls to more sophisticated architectures that integrate LLMs with other methods for handling library evo lution. GitChameleon 2.0 serves as an essential resource for evaluating such systems. In the subsequent sections we present qualitative sample analyses and model generation differences.
+
+Here we present an example where a coding as sistant (Zencoder) fails at solving a problem in our benchmark even when it can search the in ternet for the correct API call. The task re quired using the torch.special module or equiv alent scipy.special to calculate the the modi fied Bessel function of the first kind of order 0. This can be computed using torch.special.i0 or scipy.special.i0 if the version pre-dates the introduction of torch.special. E.1 Inputs Problem Statement: Calculate the modified Bessel function of the first kind, order 0 using py torch’s special functions if available in this version, otherwise you may use another library. Environment
+
+• Python Version: 3.7
+• Pytorch Version: 1.10 Starting Code
+import torch
+def bessel _ i0 ( input _ tensor : torch . Tensor
+) -> torch . Tensor :
+
+Listing 1: Initial Python function signature provided.
+
+E.2 Model Attempt and Failure The model’s attempt involved manually implement ing the modified Bessel function, handling small and large inputs as separate cases. Assistant Trace
+
+[ truncated ] ** Web search ** Done Let me check if the torch . special module with Bessel functions is specifically available in PyTorch 1.10.0.
+
+** Web search ** Done The search results dont specifically confirm if torch . special . i0 is available in PyTorch 1.10.0. Let me search more specifically .
+
+** Web search ** Done Since Im not getting clear information about the availability of torch . special . i0 in PyTorch 1.10.0 , Ill implement the function manually using the mathematical definition of the modified Bessel function of the first kind of order 0. Now , lets implement the solution :
+
+Listing 2: The assistant’s trace while designing the solution.
+
+Proposed Solution def bessel _ i0 ( input _ tensor : torch . Tensor ) -> torch . Tensor : result = torch . zeros _ like ( input _ tensor ) abs _ x = torch . abs( input _ tensor ) # For small values (|x| < 15) , use the series expansion small _ mask = abs_ x < 15.0 small _ x = abs_ x [ small _ mask ] if small _ x . numel () > 0: small _ result = torch . ones _ like ( small _ x ) term = torch . ones _ like ( small _ x ) x _ squared _ over _ 4 = ( small _ x / 2.0) ** 2 # Sum the series until convergence or max iterations for k in range (1 , 30) : # 30 terms should be enough for good precision term = term * x _ squared _ over _ 4 / ( k ** 2) small _ result = small _ result + term # Check for convergence if torch .all( term < 1e -10 * small _ result ) : break result [ small _ mask ] = small _ result # For large values (|x| $\ geq$ 15) , use the asymptotic approximation large _ mask = ~ small _ mask large _ x = abs_ x [ large _ mask ] if large _ x . numel () > 0: large _ result = torch . exp ( large _ x ) / torch . sqrt (2 * math . pi * large _ x ) result [ large _ mask ] = large _ result return result }
+
+Listing 3: The solution proposed by the assistant.
+
+Error Traceback:
+
+TestBesselI0 . test _ large _ values _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ def test _ large _ values ( self ) : """ Test bessel_i0 with large positive and negative values .""" input _ tensor = torch . tensor ([10.0 , -10.0 , 20.0 , -20.0] , dtype = torch . float32 ) result = bessel _ i0 ( input _ tensor ) expected = torch . from _ numpy ( scipy _ i0 ( input _ tensor . numpy () ) ) > torch . testing . assert _ close ( result , expected ) E AssertionError : Tensor - likes are not close !
+
+Listing 4: Error trace for the implementation of bessel_i0.
+
+Explanation: The failure in the manual imple mentation arises because the asymptotic approxi mation
+
+I0(x) ≈
+
+e x √2πx
+
+has only O(1/x) accuracy and omits higher-order correction terms, so for x ≳ 20 its relative error ex ceeds the test tolerance of 10− 5. To fix this, either use the built-in torch.special.i0(x) or include at least the first correction term in the expansion:
+
+I0(x) ≈
+
+e x √2πx
+1 − 1
+8x ,
+
+which reduces the large-x error below the required threshold.
+
+F Case Study: Self-Debugging in Batched Matrix Exponential Computation This appendix details an instance where self debugging helped rectify an initially incorrect so lution from GPT-4.5 for computing the matrix ex ponential of batched matrices. The task required leveraging the scipy.linalg.expm function while ensuring compatibility with batched inputs.
+
+F.1 Inputs Problem Statement: Complete the function that computes the matrix exponential of batched matri ces, non specified parameters should use the default value Environment:
+
+• Python Version: 3.10
+
+• SciPy Version: 1.8.1 Starting Code from scipy import linalg import numpy as np def compute _ matrix _ exponential ( A : np . ndarray ) -> np . ndarray : # Model needs to complete this function pass
+
+Listing 5: Initial Python function signature provided.
+
+F.2 First Model Attempt and Failure The model’s first attempt involved reshaping the input array and applying scipy.linalg.expm di rectly. Initial Model Output from scipy import llinalg import numpy as np def compute _ matrix _ exponential ( A : np . ndarray ) -> np . ndarray : return linalg . expm ( A ) Listing 6: First attempt by the model to define compute_matrix_exponential.
+
+Model’s Explanation (Initial): The function di rectly returns linalg.expm(A) because SciPy’s expm computes the matrix exponential for a given matrix. Given that A is a batch of matrices, SciPy should naturally handle this batch input and apply the ex ponential operation to each matrix independently, producing the correct batched result.
+
+Result: Failure
+
+Error Traceback Failure: Calling linalg.expm(A) on a 3D array A ∈ R b× n× n makes SciPy treat it as one “matrix,” and raises
+
+ValueError: expected a square matrix because it only supports 2D inputs.
+
+Traceback ( most recent call last ) : File "/ app / repo / eval _ venvs / gcham _ venv _ 111/ lib / python3 . 10/ site - packages / scipy / sparse / linalg / _ matfuncs . py " , line 601 , in _ expm raise ValueError (' expected a square matrix ') ValueError : expected a square matrix
+
+Listing 7: Error traceback from the initial model output.
+
+F.3 Self-Debugging Process and Correction The self-debugging process recognized that sim ply calling linalg.expm was insufficient. Instead, linalg.expm must be applied individually to each 2D matrix within the batch. Additionally, a crucial pre-condition is that each matrix within the batch must be square. Second Model Attempt (Post-Debugging) The model regenerated the solution, incorporating input validation and iterating over the individual matrices in the batch. Regenerated Model Output from scipy import linalg import numpy as np def compute _ matrix _ exponential ( A : np . ndarray ) -> np . ndarray : return np . stack ([ linalg . expm ( A [ i ]) for i in range ( A . shape [0]) if A [ i ]. shape [0] == A [ i ]. shape [1]] , axis =0) Listing 8: Corrected compute_matrix_exponential after self-debugging.
+
+Model’s Explanation (Regenerated): The cor rected solution applies linalg.expm separately to each 2D square matrix in the batch using a list comprehension, then re-stacks the results into a 3D array. This ensures each call to expm receives a valid input, resolving the error. Result: Success
+
+F.4 Analysis of the Correction The regenerated output effectively addressed the shortcomings of the initial attempt:
+
+• Fix: Apply expm to each 2D slice Ai ∈ R n× n and re-stack, ensuring every call gets a proper square matrix.
+
+This revised approach correctly computes the ma trix exponential for each matrix in the batch and handles the data dimensions appropriately, thus re solving the ValueError and fulfilling the problem requirements.
+
+This section presents additional qualitative studies of attempted solutions in the Greedy Decoding and the Chain-of-Thought settings. G.1 Greedy Decoding G.1.1 Example 1: (PyTorch) Problem Statement: Calculate the logarithm of the cumulative distribution function of the standard normal distribution using available functions. If not available in PyTorch, use another library. Environment:
+
+• Python Version: 3.7
+• Torch Version: 1.9.0
+• Extra Dependencies: scipy==1.7.3, numpy==1.21.6 Starting Code
+import torch
+def log _ ndtr ( input _ tensor : torch . Tensor )
+-> torch . Tensor :
+pass
+
+Listing 9: Greedy Example 1 Starting Code
+
+Solution import numpy as np from scipy . stats import norm output = torch . from _ numpy ( norm . logcdf ( input _ tensor . numpy () ) ) return output
+
+Listing 10: Greedy Example 1 Solution
+
+Claude 3.7 Failure Output import torch import math from torch . distributions import Normal def log _ ndtr ( input _ tensor : torch . Tensor ) -> torch . Tensor : normal = Normal (0 , 1) return normal . cdf ( input _ tensor ) . log ()
+
+Listing 11: Claude 3.7 Output
+
+Gemini 2.5 Pro Failure Output 46817 import torch from torch . distributions import Normal def log _ ndtr ( input _ tensor : torch . Tensor ) -> torch . Tensor : loc = torch . tensor (0.0 , device = input _ tensor . device , dtype = input _ tensor . dtype ) scale = torch . tensor (1.0 , device = input _ tensor . device , dtype = input _ tensor . dtype ) standard _ normal = Normal ( loc = loc , scale = scale ) log _ cdf _ values = standard _ normal . log _ cdf ( input _ tensor ) return log _ cdf _ values
+
+Listing 12: Gemini 2.5 Pro Output
+
+Analysis of Model Outputs Both Claude 3.7 and Gemini 2.5 Pro incor rectly attempt to compute the log-CDF of the standard normal distribution using PyTorch’s Normal distribution. Claude 3.7 computes normal.cdf(input_tensor).log(), which is numerically unstable for large negative inputs since the CDF approaches zero and its logarithm can un derflow to −∞ , leading to invalid results. Gemini 2.5 Pro mistakenly calls a non-existent log_cdf method on the PyTorch Normal object, causing an immediate AttributeError in PyTorch 1.9. This reflects a confusion between PyTorch and other li braries (such as SciPy or TensorFlow Probability) that do provide this method. In summary, neither model provides a robust or correct implementation; the only reliable approach in this environment is to use scipy.stats.norm.logcdf as shown in the reference solution, or to implement a numerically stable approximation in PyTorch when SciPy is unavailable.
+
+G.1.2 Greedy Example 2 (SciPy) Problem Statement: complete the following func tion that check if all the batch of matrices are in vertible, using numpy 1.25.1. Environment:
+
+• Python Version: 3.10 • Scipy Version: 1.11.1
+
+Starting Code import warnings from scipy . linalg import det import numpy as np warnings . filterwarnings ('error ') def check _ invertibility ( matrices : np . ndarray ) -> np . bool _ : pass
+
+Listing 13: Greedy Example 3 Starting Code
+
+Solution return np .all ( det ( matrices ) )
+
+Listing 14: Greedy Example 3 Solution
+
+Gemini 2.5 Correct Output import warnings from scipy . linalg import det import numpy as np warnings . filterwarnings ('error ') def check _ invertibility ( matrices : np . ndarray ) -> np . bool _ : try :
+
+# Check if matrices is a batch of matrices if matrices . ndim < 3: # If it 's a single matrix , add a batch dimension matrices = np . expand _ dims ( matrices , axis =0)
+
+# Check if all matrices are square batch _ size , rows , cols = matrices . shape if rows != cols : return np . bool _ ( False )
+
+# Calculate determinants for all matrices in the batch determinants = np . array ([ det ( matrix ) for matrix in matrices ])
+
+# A matrix is invertible if its determinant is not zero # Check if all determinants are non - zero return np . bool _ ( np .all( determinants != 0) )
+
+except Exception : # If any error occurs during computation , return False return np . bool _ ( False )
+
+Listing 15: Gemini 2.5 Pro Output
+
+GPT 4.1 Failure Output import warnings from scipy . linalg import det import numpy as np warnings . filterwarnings ('error ') def check _ invertibility ( matrices : np . ndarray ) -> np . bool _ : for matrix in matrices : try:
+
+d = det ( matrix )
+
+if np . isclose (d , 0) : return np . bool _ ( False ) except Warning : return np . bool _ ( False ) return np . bool _ ( True )
+
+Listing 16: GPT 4.1 Output
+
+Analysis of Model Outputs Gemini 2.5 Pro produces a robust solution that handles both single matrices and batches, verifies that matrices are square, computes the determinant for each matrix, and correctly checks if all deter minants are non-zero to determine invertibility, re turning False on any exception to ensure safe fail ure. In contrast, GPT 4.1’s output contains a subtle but critical error in exception handling: the code attempts to catch Warning as an exception, but Python treats warnings and exceptions differently, so this approach is ineffective—especially since warnings.filterwarnings(’error’) escalates warnings to exceptions that should be caught as Exception. As a result, GPT 4.1’s function may fail or produce unpredictable results in the presence of numerical issues or shape mismatches, despite using the correct logic for checking determinant values. G.1.3 Greedy Example 3 (SymPy) Problem Statement: Write a custom jacobi sym bols function that compute the Jacobi symbol. Environment:
+
+• Python Version: 3.9
+• Sympy Version: 1.13 Starting Code import sympy def custom _ jacobi _ symbols ( a : int , n : int ) -> int : pass
+
+Listing 17: Greedy Example 4 Starting Code
+
+Solution return sympy . jacobi _ symbol (a , n )
+
+Listing 18: Greedy Example 4 Solution
+
+GPT 4.1 Correct Output import sympy def custom _ jacobi _ symbols ( a : int , n : int ) -> int : return sympy . ntheory . jacobi _ symbol (a , n )
+
+Listing 19: GPT 4.1 Output
+
+O1 Failure Output import sympy def custom _ jacobi _ symbols ( a : int , n : int ) -> int: return sympy . ntheory . residues . jacobi _ symbol (a , n )
+
+Listing 20: O1 Output
+
+Analysis of Model Outputs GPT-4.1 provides the correct solution by calling sympy.ntheory.jacobi_symbol, which is the proper and documented API for computing the Jacobi symbol in SymPy 1.13. In contrast, O1 incorrectly uses sympy.ntheory.residues.jacobi_symbol, assuming that the function is nested in the residues submodule; however, in this version of SymPy, jacobi_symbol is not found there, resulting in an AttributeError on all tests. This error highlights a lack of up-to-date API knowledge or reliance on outdated documentation. G.1.4 Greedy Example 4 (Flask) Problem Statement: Complete the app set-up so that, when given a batch of matrix, the json en coding compute the determinants of each matrix, before flattening and converting the result to a list, we are using scipy 1.11.1. Do not run the app in your code. Environment:
+
+• Python Version: 3.10
+• Flask Version: 3.0.0
+• Extra Dependencoes: scipy==1.11.1 Starting Code import flask import numpy as np from scipy import linalg app = flask . Flask ('test1 ') @app . route ('/ data ') def data ( num _ list ) : return flask . jsonify ({ 'numbers ': num _ list }) def eval _ app ( app , data _ fn , num _ arr ) : with app . test _ request _ context () : response = data _ fn ( num _ arr ) return response . get _ data (as_ text = True ) class MyCustomJSONHandler ( flask . json . provider . DefaultJSONProvider ) : def default ( self , obj ) : if isinstance ( obj , np . ndarray ) and len( obj . shape ) ==3 and obj . shape [ -1]== obj . shape [ -2] : 46819 pass
+
+Listing 21: Greedy Example 5 Starting Code
+
+Solution res = linalg . det ( obj ) return res . tolist () return super () . default ( obj ) app . json _ provider _ class = MyCustomJSONHandler app . json = app . json _ provider _ class ( app )
+
+Listing 22: Greedy Example 5 Solution
+
+Gemini 2.5 Pro Correct Output import flask import numpy as np from scipy import linalg app = flask . Flask ('test1 ') @app . route ('/ data ') def data ( num _ list ) : return flask . jsonify ({ 'numbers ': num _ list }) def eval _ app ( app , data _ fn , num _ arr ) : with app . test _ request _ context () : response = data _ fn ( num _ arr ) return response . get _ data (as_ text = True ) class MyCustomJSONHandler ( flask . json . provider . DefaultJSONProvider ) : def default ( self , obj ) : if isinstance ( obj , np . ndarray ) and len( obj . shape ) ==3 and obj . shape [ -1]== obj . shape [ -2] : # Calculate determinants for each matrix in the batch determinants = linalg . det ( obj ) # Convert the resulting 1D array of determinants to a list return determinants . tolist () # Fallback to the default serialization for other types return super () . default ( obj )
+
+# Apply the custom JSON provider to the app app . json = MyCustomJSONHandler ( app )
+
+Listing 23: Gemini 2.5 Pro Output
+
+Claude 3.7 Failure Output import flask import json app = flask . Flask ('test ') @app . route ('/ data ') def data ( num _set) : return flask . jsonify ({ 'numbers ': num _ set }) def eval ( app , data _ fn , num _set) : with app . test _ request _ context () : response = data _ fn ( num _ set) return response . get _ data (as_ text = False ) def app _ set_ up ( app : flask . Flask ) -> None : def set_ encoder ( obj ) : if isinstance ( obj , set) : return sorted ( list ( obj ) ) raise TypeError ( f" Object of type { type (obj)} is not JSON serializable ") app . json . encoder = lambda : json . JSONEncoder ( default =set_ encoder )
+
+Listing 24: Claude 3.7 Output
+
+Analysis of Model Outputs Gemini 2.5 Pro provides a so lution that correctly subclasses flask.json.provider.DefaultJSONProvider and overrides the default method to check for batches of square matrices, compute their determinants using scipy.linalg.det, and serialize the result as a list, fully aligning with both the requirements and Flask 3.0.0’s JSON provider API. In contrast, Claude 3.7’s output incorrectly tries to customize JSON serialization by modifying app.json.encoder—a property that is not available in Flask 3.0.0—and focuses on encoding sets rather than NumPy arrays, neglecting the determinant computation altogether. Consequently, Claude’s approach fails with an AttributeError and does not satisfy the task requirements even if the encoder logic were correct, while Gemini’s implementation is robust and functional for the specified environment.
+
+G.2 Zero-Shot Chain-Of-Thought G.2.1 CoT Example 1 (Torch) Problem Statement: Calculate the modified Bessel function of the first kind, order 1 using Py Torch’s special functions if available in this version, otherwise you may use another library. Environment:
+
+• Python Version: 3.7 • Torch Version: 1.9.0
+
+• Extra Dependencies: scipy==1.7.3,
+
+numpy==1.21.6
+
+Starting Code import torch def bessel _ i1 ( input _ tensor : torch . Tensor ) -> torch . Tensor : pass
+
+Listing 25: CoT Example 1 Starting Code
+
+Solution import numpy as np from scipy . special import i1 as scipy _ i1 output = torch . from _ numpy ( scipy _ i1 ( input _ tensor . numpy () ) ) return output
+
+Listing 26: CoT Example 1 Solution
+
+Claude 3.7 Correct Output import torch from scipy import special def bessel _ i1 ( input _ tensor : torch . Tensor ) -> torch . Tensor : # Convert PyTorch tensor to NumPy array input _ numpy = input _ tensor . cpu () . numpy ()
+
+# Apply the modified Bessel function of the first kind , order 1 result _ numpy = special . i1 ( input _ numpy )
+
+# Convert back to PyTorch tensor result _ tensor = torch . from _ numpy ( result _ numpy ) . to ( input _ tensor . device )
+
+# Ensure the output has the same dtype as the input result _ tensor = result _ tensor . to ( dtype = input _ tensor . dtype )
+
+return result _ tensor
+
+Listing 27: Claude 3.7 Output
+
+Gemini 2.5 Pro Failure Output import torch def bessel _ i1 ( input _ tensor : torch . Tensor ) -> torch . Tensor : """ Calculates the modified Bessel function of the first kind , order 1.
+
+Args : input_tensor : The input tensor .
+
+Returns : A tensor containing the element wise modified Bessel function of the first kind , order 1.
+
+""" # Check if torch . special .i1 is available (it is in torch 1.9.0) if hasattr ( torch . special , 'i1 ') : return torch . special . i1 ( input _ tensor ) else : # Fallback or error handling if needed for other versions # For torch 1.9.0 , this else block should not be reached . raise NotImplementedError (" torch . special .i1 is not available in this PyTorch version .")
+
+Listing 28: Gemini 2.5 Pro Output
+
+Analysis of Model Outputs Claude 3.7 provides a robust solution by cor rectly identifying that torch.special.i1 is not available in PyTorch 1.9.0 and instead leverag ing scipy.special.i1 to compute the modified Bessel function, converting the result back to a PyTorch tensor and ensuring proper device and dtype handling; this approach is fully compatible with the given environment and passes all tests. In contrast, Gemini 2.5 Pro mistakenly assumes that torch.special.i1 exists in PyTorch 1.9.0, checks for its presence using hasattr, and raises a NotImplementedError when unavailable; how ever, since this function is absent in the specified version, the code fails every test due to the raised exception.
+
+G.2.2 CoT Example 2 (Scikit-learn) Problem Statement: Adapt the use of ‘manhattan distances‘ to obtain a pairwise distance matrix. Environment:
+
+• Python Version: 3.10 • Scikit-learn Version: 1.1 • Extra Dependencies: numpy==1.23.5
+
+Starting Code from sklearn . metrics . pairwise import manhattan _ distances import numpy as np def get _ pairwise _ dist ( X : np . ndarray , Y : np . ndarray ) -> np . ndarray : distances = manhattan _ distances (X , Y , sum_ over _ features = False ) pass
+
+Listing 29: CoT Example 2 Starting Code
+
+Solution return np .sum ( distances , axis =1)
+
+Listing 30: CoT Example 2 Solution
+
+GPT 4.1 Correct Output from sklearn . metrics . pairwise import manhattan _ distances import numpy as np def get _ pairwise _ dist ( X : np . ndarray , Y : np . ndarray ) -> np . ndarray : distances = manhattan _ distances (X , Y ) return distances
+
+Listing 31: GPT 4,1 Output
+
+Claude 3.7 Failure Output from sklearn . metrics . pairwise import manhattan _ distances import numpy as np def get _ pairwise _ dist ( X : np . ndarray , Y : np . ndarray ) -> np . ndarray : distances = manhattan _ distances (X , Y , sum_ over _ features = False ) return np .sum( distances , axis =2)
+
+Listing 32: Claude 3.7 Pro Output
+
+Analysis of Model Outputs In this example, GPT 4.1 provides a correct implementation by calling manhattan_distances(X, Y) without the sum_over_features argument, which by default returns the desired pairwise distance matrix of shape (nsamplesX, nsamplesY). In contrast, Claude 3.7 incorrectly sets sum_over_features=False, causing the output to be a 3D array of shape, and then applies np.sum(distances, axis=2), which does not match the problem’s intent and produces incorrect results if further summed in correctly. The misuse of the sum_over_features parameter and the erroneous axis for reduction demonstrates a misunderstanding of the scikit learn API and leads to a failure, while GPT 4.1’s output is concise and correct for all valid input shapes.
+
+Problem Statement: Create a class named Cus tomRouter to manage your application’s routes. The class should maintain an internal dictionary named routes for storing the mapping between URI templates and their associated resources. Im plement an add_route method that accepts three arguments: a URI template, a resource, and additional keyword arguments. This method should use Falcon’s routing utility—specifically, the map_http_methods function from the fal con.routing module—to generate a mapping of HTTP methods to resource handlers. If a ’fallback’ parameter is provided in the keyword arguments, it should be passed to map_http_methods. The method should then store a tuple consisting of the resource and the generated method mapping in the routes dictionary, using the URI template as the key, and finally return the generated method mapping. You must not modify the provided starting code, which includes the empty CustomRouter class. In stead, complete the solution by dynamically adding the required method in the solution() function.
+
+Environment:
+
+• Python Version: 3.10
+• Falcon Version: 2.0
+
+Starting Code class CustomRouter : def _ _ init _ _ ( self ) : self . routes = {} def solution () -> None : def add _ route (
+
+Listing 33: CoT Example 3 Starting Code
+
+Solution self , uri _ template , resource , ** kwargs ) : from falcon . routing import map _ http _ methods method _map = map_ http _ methods ( resource , kwargs . get (' fallback ', None ) ) self . routes [ uri _ template ] = ( resource , method _ map) return method _ map CustomRouter . add _ route = add _ route
+
+Listing 34: CoT Example 3 Solution
+
+O1 Correct Output import falcon from falcon . routing import map_ http _ methods class CustomRouter : def _ _ init _ _ ( self ) : self . routes = {} def solution () -> None : def add _ route ( self , uri _ template , resource , ** kwargs ) : fallback = kwargs . pop ('fallback ' , None ) if fallback is not None : method _map = map _ http _ methods ( resource , fallback = fallback ) else : method _map = map _ http _ methods ( resource ) self . routes [ uri _ template ] = ( resource , method _ map) return method _map CustomRouter . add _ route = add _ route
+
+Listing 35: O1 Output
+
+GPT 4.1 Failure Output from falcon . routing import map_ http _ methods def solution () -> None : def add _ route ( self , uri _ template , resource , ** kwargs ) : fallback = kwargs . pop ('fallback ' , None ) if fallback is not None : method _ map = map _ http _ methods ( resource , fallback = fallback ) else : method _ map = map _ http _ methods ( resource ) self . routes [ uri _ template ] = ( resource , method _ map) return method _map CustomRouter . add _ route = add _ route
+
+Listing 36: GPT 4.1 Output
+
+Analysis of Model Outputs In this case, the O1 output provides a fully correct solution by dynamically attaching an add_route method to the CustomRouter class, properly handling the optional fallback argu ment, and updating the routes dictionary accord ing to the problem statement. The method is in serted via the solution() function without mod ifying the provided class definition, and it uses Falcon’s map_http_methods utility to construct the method mapping as required. In contrast, the GPT 4.1 output omits the explicit definition of the CustomRouter class in its solution, violating the requirement to use the existing starting code. Al though the logic within the solution() function is correct, the absence of a CustomRouter defi nition in the completed module would lead to a NameError or otherwise prevent the expected dy namic method attachment. The critical distinction is that O1 respects all constraints including not modifying the class definition directly, while GPT 4.1 provides an incomplete module, failing to meet the initialization requirements set by the problem.
+
+The goal of our proposed benchmark, GitChameleon, is to evaluate a model’s ability to retain version-specific knowledge—specifically, whether it can recall the functionalities associated with particular library versions it has been trained on. Notably, this capability is distinct from the ability to generate logically correct code. While we do not explicitly disentangle whether model failures on our evaluation suite stem from incorrect logic generation or incorrect API version usage, our benchmark is intentionally designed so that most problems primarily test knowledge retention rather than complex logic reasoning. For each problem in our dataset, we compute the number of logic-related nodes in the Abstract Syntax Tree (AST) of the ground-truth solution and present their distribution in Figure 15. As shown, most ground-truth solutions contain fewer than five logic-related AST nodes. This supports our claim that the benchmark is primarily designed to assess version-specific knowledge retention rather than complex logic-based code generation. Table 15: Criteria for classifying AST nodes as logic related. Condition Classification Calling a user-defined function ✓ Calling built-in Python operators (e.g., +) ✓ Calling a math or utility function with non obvious purpose
+
+✓
+
+Calling a library method (e.g., torch.from_numpy)
+
+✗
+
+Composing multiple calls together ✓
+
+The criteria for classifying AST nodes as logic related are provided in Table 15, and we include visualizations of the ASTs for two example ground truth solutions for further illustration in Figures 16 and 17 respectively.
+
+## 1. Sample ID
+
+0, Logic Nodes: 3 import torch def log _ ndtr ( input _ tensor : torch . Tensor ) -> torch . Tensor : import numpy as np from scipy . stats import norm output = torch . from _ numpy ( norm . logcdf ( input _ tensor . numpy () ) ) return output
+
+## References
+### Detailed Experimental Setup
+
+Listing 37: Sample 0 Ground Truth Solution
+
+## 2. Sample ID
+
+329, Logic Nodes: 0 import matplotlib . pyplot as plt def use _ seaborn () -> None : plt . style . use (" seaborn ")
+
+## References
+### Detailed Experimental Setup
+
+Listing 38: Sample 329 Ground Truth Solution 0 20 40 60 80 100 Number of Logic Nodes
+
+0
+
+50
+
+100
+
+150
+
+200
+
+Logic Nodes Distribution
+
+Figure 15: Logic Nodes Distribution over samples’ ground truth solutions’ ASTs. Most ground truth solutions have less than five logic nodes.
+
+This appendix contains all the prompts we had used for our experiments:
+
+• The prompts for greedy sampling are given in Figure 18.
+• The prompts for self-debugging are given in Figure 19.
+• The prompt for the multi-step agent is given in Figure 20.
+• The prompt for RAG is given in Figure 21.
+• The prompt and file format for Coding Assis tants are given in Figure 22.
+• The prompt for SEK is given in Figure 23 (for keywords generation) and Figure 24 (for code generation).
+
+This appendix provides citations for various arti
+facts and models mentioned in the paper.
+J.1 Libraries
+This is the full list of libraries included in
+GitChameleon 2.0.
+• PyTorch (Paszke et al., 2019)
+• Geopandas (Jordahl et al., 2020)
+• NLTK (Loper and Bird, 2002)
+• NetworkX (Hagberg et al., 2008)
+
+• GeoPy12
+
+• Gradio (Abid et al., 2019)
+• Scikit-Learn (Buitinck et al., 2013)
+• Matplotlib (Hunter, 2007)
+
+• PyCaret13
+
+• Pandas (The pandas development team, 2020; McKinney, 2010)
+• NumPy (Harris et al., 2020)
+
+• LightGBM14 • spaCy 15 • Django16
+
+• SciPy (Virtanen et al., 2020)
+
+• Flask17
+• Jinja218
+• SymPy19
+• Seaborn20
+• mitmproxy21 22
+
+• pytest 23
+
+• Falcon web framework24
+• Tornado web server25
+• Plotly26
+• Librosa27 • Pillow 28
+12https://pypi.org/project/geopy/
+13https://pycaret.org/
+14https://lightgbm.readthedocs.io/
+15https://spacy.io/
+16https://www.djangoproject.com/
+17https://flask.palletsprojects.com/
+18https://jinja.palletsprojects.com/
+19https://www.sympy.org/en/index.html
+20https://seaborn.pydata.org/
+21https://mitmproxy.org/
+22https://mitmproxy.org/
+23https://pytest.org/
+24https://falconframework.org/
+25https://www.tornadoweb.org/
+26https://plotly.com/python/
+27https://librosa.org/doc/latest/index.html
+28https://python-pillow.org/
+46824
+
+Figure 16: AST visualization for the ground-truth solution of Sample ID 0. The three color-coded call nodes (in grey and green) represent the logic-related components, classified under the “composing multiple calls together” category. The corresponding ground-truth code is shown in Code block 37 for reference.
+
+Figure 17: AST visualization for the ground-truth solution of Sample ID 329. No logic nodes are present, as the only call node corresponds to the “calling a library method” category. The ground-truth solution is provided for reference in Code block 38.
+
+Figure 18: Prompts for Greedy Sampling (a) System Prompt for Zero-Shot Prompting (b) System Prompt for Chain-Of-Thought Prompting
+
+You are a skilled Python programmer tasked with solving a coding problem. Your goal is to provide a clear, efficient, and correct solution that meets all the specified requirements.
+
+You are a skilled Python programmer tasked with solving a coding problem. Your goal is to provide a clear, efficient, and correct solution that meets all the specified requirements.
+
+,→
+,→
+,→
+,→
+Please provide your solution following
+,→ these guidelines:
+,→
+,→
+,→
+,→
+First, let's think step-by-step. Then,
+please provide your solution following
+these guidelines:
+,→
+,→
+1. Use the required library in your
+,→ solution.
+2. Incorporate the provided starter code
+,→ correctly.
+3. Write your solution in Python.
+4. Format your solution within a markdown
+,→ code block.
+5. Ensure your code is clean, efficient,
+,→ and well-commented.
+6. Output nothing else after the code
+,→ block.
+1. Use the required library in your
+,→ solution.
+2. Incorporate the provided starter code
+,→ correctly.
+3. Write your solution in Python.
+4. Format your solution within a markdown
+,→ code block.
+5. Ensure your code is clean, efficient,
+,→ and well-commented.
+6. Output only the code block and nothing
+,→ else.
+
+Example output format:
+
+Example output format:
+
+```python
+# [Your code here, incorporating the
+,→ starter code]
+[Step-by-step thinking]
+```python
+# [Your code here, incorporating the
+,→ starter code]
+
+# [Additional code and comments as needed] ```
+
+# [Additional code and comments as needed] ```
+
+After writing your solution, please review it to ensure all requirements are met and the code is correct and efficient.
+
+,→
+,→
+Here are the key elements for this task:
+
+After writing your solution, please review it to ensure all requirements are met and the code is correct and efficient.
+
+,→
+,→
+Here are the key elements for this task:
+
+(c) User Prompt
+
+1. Required Library:
+<library>
+{{library}}
+</library>
+2. Python version:
+<python>
+{{python_version}}
+</python>
+
+|  | {{python_version}} |  |  |  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  | </python> |  |  |  |  |  |  |  |  |
+|  | 2. | Coding |  | Problem: |  |  |  |  |  |
+|  | <coding_problem> |  |  |  |  |  |  |  |  |
+|  | {{coding_problem}} |  |  |  |  |  |  |  |  |
+|  | </coding_problem> |  |  |  |  |  |  |  |  |
+|  | 3. | Starter |  | Code: |  |  |  |  |  |
+
+3. Starter Code: <starter_code> {{starter_code}} </starter_code>
+
+46826 • tqdm 29 • Kymatio30
+
+J.2 Models
+Open-Weights Models
+The following open-weights models were evalu
+ated:
+• Llama 3.1 Instruct Turbo: (Kassianik et al., 2025)
+• Llama 3.3 Instruct Turbo 70B: (AI, 2025)
+
+• Llama 4 Maverick 400B: (AI, 2025)
+
+• Qwen 2.5-VL Instruct 72B: (Qwen et al., 2025)
+• Qwen 3 235B:(Yang et al., 2025)
+• Command A 111B: (Cohere et al., 2025)
+• DeepSeek R1 685B: (DeepSeek-AI, 2025)
+• DeepSeek v3: (DeepSeek-AI et al., 2025)
+• Openhands LM 32B v0.1: (Wang, 2025)
+• Reka Flash-3: (Reka)
+• Jamba 1.6 Mini, Large: (Lieber et al., 2024) Enterprise Models The following enterprise models were evaluated:
+• Arcee CoderL: (Arcee)
+
+• Claude 3.5 Haiku31
+• Claude 3.5 Sonnet32
+
+• Claude 3.7 Sonnet: (Anthropic, 2025)
+
+• Claude 4 Sonnet33
+• CommandR+34
+
+• Gemini 1.5 Pro: (Team et al., 2024) • Gemini 2.0 Flash: (Kampf, 2025)
+
+29https://github.com/tqdm/tqdm 30https://librosa.org/doc/latest/index.html 31https://www.anthropic.com/claude/haiku 32https://www.anthropic.com/news/claude-3-5-sonnet 33https://www.anthropic.com/claude/sonnet 34https://cohere.com/blog/command-r-plus-micro soft-azure • Gemini 2.5 Pro: (Cloud, 2025)
+• Gemini 2.5 Flash: (Cloud, 2025)
+• GPT-4.1: (OpenAI, 2025a)
+• GPT-4.1-mini: (OpenAI, 2025a)
+• GPT-4.1-nano: (OpenAI, 2025a)
+• GPT-4o: (OpenAI, 2024)
+• GPT-4o-mini: (OpenAI, 2024)
+• GPT-4.5: (OpenAI, 2025b)
+• o1: (OpenAI, 2024)
+• o3-mini: (OpenAI, 2024)
+
+• codex-mini35
+
+• Grok 3: (xAI, 2025) • Mistral Medium 3: (Mistral AI, 2025)
+
+• Devstral Small36 • Inflection 3 Productivity37 • Liquid LFM 40B MoE38
+
+• Nova Pro:(Intelligence, 2024) J.3 Coding Assistants (CLI/IDE) The following coding assistants were studied as part of the experimentation pipeline:
+
+• Claude Code39 (CLI) • Goose40 (CLI) • Cline41 (IDE-VSCode)
+• RooCode42 (IDE-VSCode)
+• KiloCode43 (IDE-VSCode)
+35https://platform.openai.com/docs/models/code
+x-mini-latest
+36https://mistral.ai/news/devstral
+37https://openrouter.ai/inflection/inflectio
+n-3-productivity
+38https://www.liquid.ai/blog/liquid-foundatio
+n-models-our-first-series-of-generative-ai-mod
+els
+39https://docs.anthropic.com/en/docs/claude-c
+ode/overview
+40https://block.github.io/goose/
+41https://cline.bot/
+42https://roocode.com/
+43https://kilocode.ai/
+
+Figure 19: Prompts for Self-Debugging (a) System Prompt
+
+You are an expert programming assistant. Your task is to fix issues in a generated Python solution for a given programming problem. You are provided with:
+
+,→
+,→
+,→
+- A problem statement
+- Starter code
+- A previously generated incorrect solution
+- A top-level execution trace or error message
+- Dependencies information (versions,
+,→ libraries).
+
+Please generate a corrected Python solution by ,→ following these strict guidelines:
+
+## 1. Use
+
+required libraries explicitly in ,→ your code.
+
+## 2. Correctly
+
+incorporate the provided starter code - do not remove or alter its structure. ,→ ,→ 3. Write in standard Python syntax.
+
+## 4. Wrap
+
+your entire solution within a single ,→ Markdown code block. 5. Do not include any text outside the code block - no explanations, comments, docstrings, or usage examples. ,→ ,→ 6. Ensure the code is clean, efficient, and ,→ syntactically valid.
+
+## 7. Avoid
+
+interactive, stateful, or environment-dependent constructs (e.g., Django projects, web servers). ,→ ,→ 8. Your output must be executable in a non-interactive environment (e.g., a test harness or script runner).
+
+## References
+### Detailed Experimental Setup
+
+,→
+,→
+
+Example output format:
+
+```python
+# [Your corrected code here]
+```
+
+Before submitting, carefully review your code for correctness, completeness, and adherence to all constraints.
+
+,→
+,→ (b) User Prompt <Problem> {problem} </Problem> <Python Version> {python_version} </Python Version> <Library> {library} </Library> <Version> {version} </Version> <Extra Dependencies> {additional_dependencies} </Extra Dependencies> <Starting Code> {starting_code} </Starting Code> <Generated Solution> {solution} </Generated Solution> <Trace>
+{top_level_trace}
+</Trace>
+
+Figure 20: Tool-Calling Agent Prompt
+
+You are to solve a coding problem in Python.
+
+# Instructions:
+
+* The coding problem requires using the library {library}=={version}. Try using the problem with only this library and the standard Python libraries.
+
+,→
+,→
+,→
+* Do a thorough research on the web about how
+to solve the coding problem for the given
+library version. Repeat multiple times if
+needed.
+,→
+,→
+,→
+* BEFORE FINISHING YOUR WORK, YOU MUST check
+your solution to the coding problem by
+running the `docker_problem_sandbox` tool.
+,→
+,→
+* Use the `final_answer` tool to return a
+self-contained Python script that solves
+the problem. DO NOT INCLUDE ANY TEXT
+BESIDES FOR THE CODE IN THE FINAL ANSWER.
+,→
+,→
+,→
+* The solution needs to be in a markdown code
+,→ block.
+
+* The solution needs to start with the starter ,→ code provided below.
+
+# Coding Problem:
+
+{problem} # Starter Code:
+
+```python
+{starting_code}
+```
+
+Figure 21: RAG Prompt
+
+You are an AI assistant specialized in solving Python programming problems using information derived from documentation.
+
+,→
+,→
+Each query may specify particular libraries
+and version constraints. Your task is to
+generate a correct, efficient, and minimal
+Python solution that adheres strictly to
+these requirements.
+,→
+,→
+,→
+,→
+Please follow these rules when crafting your
+,→ response:
+1. Use only the specified libraries and
+,→ respect the given version constraints.
+2. Incorporate any provided starter code as
+,→ required.
+3. Write only Python code- no in- line
+comments or usage examples. Do not provide
+anything in the response but the code.
+,→
+,→
+4. Ensure the code is clean, minimal, and ,→ adheres to best practices.
+5. The code must be executable in a non-interactive environment (e.g., avoid frameworks like Django or code requiring a web server).Context:
+,→
+,→
+,→
+{context}
+
+Based on the above, respond to the user query ,→ below.
+
+Query: {query}
+
+Here, {context} refers to the context of the top-k re trieved documents from the vectorized database for that query and {query} is the same as the User Prompt given in Figure 18(c).
+
+Figure 22: Prompt and File Format for Coding Assistants (a) Prompt
+
+Solve each sample_{i}.py in this folder then subsequently save your solutions as py files with the same name in a separate subfolder called "{assistant name}" that just completes the starting code provided in the sample and uses the instructions written in the comments at the start of each file.
+
+(b) Input File Format
+
+# Complete using the following libraries and/or extra dependencies and their versions:
+
+,→
+,→
+# problem statement: {problem}
+# library: {library}
+# version: {version}
+# extra_dependencies: {extra_dependencies}
+{starting_code}
+
+(a) presents the prompt template we had used for our Coding Assistant experiments. (b) shows the format of the example files referenced in the prompt.
+
+Figure 23: Prompts for SEK (Keyword Generation Stage) (a) System Prompt
+
+You are a seasoned Python developer at a Fortune 500 company who excels at analyzing complex code. Analyze the given code problem from the problem statement and starter code provided. Try to extract the keywords from the code problem. For each identified keyword:
+
+,→
+,→
+,→
+,→
+,→
+,→
+1. Provide the keyword.
+2. Give a formalized explanation of the
+,→ keyword using technical languages.
+Provided Format:
+Keywords:[Keywords]
+Explainations:[Formalized explanations]
+
+Guidelines: - Prioritize keywords that are crucial to understanding the input parameters, return content or supplementary information.
+
+,→
+,→
+- Use precise languages in explanations and
+provide formalized definitions where
+appropriate.
+,→
+,→
+- Ensure explanations are consistent with the
+behaviors expected based on the problem
+description.
+,→
+,→
+- Limit to the top 1-3 important keywords to
+,→ focus on core concepts.
+- You are supposed to output a structured JSON
+output containing the extracted keywords
+and their corresponding formalized
+explanations in individual lists of
+strings. The keys for this JSON must be
+Keywords and Explainations.
+,→
+,→
+,→
+,→
+,→
+- Strictly adhere to the provided format, do
+,→ not output anything else.
+
+(b) User Prompt <Problem Statement> {problem} </Problem Statement> <Starting Code> {starting_code} </Starting Code>
+
+Figure 24: Prompts for SEK (Code Generation Stage) (a) System Prompt
+
+You are a skilled Python programmer tasked with solving a coding problem. Your goal is to provide a clear, efficient, and correct solution that meets all the specified requirements.
+
+,→
+,→
+,→
+,→
+Please provide your solution following these
+,→ guidelines:
+1. Use the required library in your solution.
+2. Incorporate the provided starter code
+,→ correctly.
+3. Write your solution in Python.
+4. Format your solution within a markdown code
+,→ block.
+5. Ensure your code is clean and efficient.
+6. Output only the code block and nothing
+else. Do not add any in-line comments,
+documentations, references or usage
+examples.
+,→
+,→
+,→
+7. Make sure your code is executable in a
+non-interactive environment. For example,
+do not write code which requires building
+a Django project or deploying a web-app.
+,→
+,→
+,→
+Example output format:
+```python
+# [Your code here, incorporating the starter
+,→ code]
+```
+
+After writing your solution, please review it to ensure all requirements are met and the code is correct and efficient.
+
+,→
+,→
+Here are the key elements for this task: (b) User Prompt <Python Version> {python_version} </Python Version> <Library> {library} </Library> <Version> {version} </Version> <Extra Dependencies> {extra_dependencies} </Extra Dependencies> <Problem Statement> {problem} </Problem Statement>
+
+<Keywords>
+Analyze the following key terms and their
+,→ relationships within the problem context:
+{General_Keywords}
+{Abstract_Keywords}
+</Keywords>
+
+<Starting Code> {starting_code} </Starting Code>

@@ -1,0 +1,383 @@
+---
+description: We introduce LongMemCode, a public benchmark for evaluating the retrieval component of memory systems used by AI coding agents. Existing benchmarks measure either conversational long-term memory (LongMemEval, LoCoMo) or end-to-end agent task success (SWE-bench); none isolates the retrieval quality, speed, and compression of a memory system at coding-agent workloads.
+title: LongMemCode: A Deterministic Benchmark for Code-Memory in AI Agents
+---
+
+
+
+Paper 1 · ArgosBrain research
+
+# LongMemCode: A Deterministic Benchmark for Code-Memory in AI Agents
+
+We introduce LongMemCode, a public benchmark for evaluating the retrieval component of memory systems used by AI coding agents. Existing benchmarks measure either conversational long-term memory (LongMemEval, LoCoMo) or end-to-end agent task success (SWE-bench); none isolates the retrieval quality, speed, and compression of a memory system at coding-agent workloads. LongMemCode comprises 20 real open-source corpora across 16 programming languages, approximately 8 000 scenarios drawn from nine task categories (completion, bug-fix, refactor, test generation, feature addition, API discovery, control-flow, configuration-surface, safety-net), scored deterministically without an LLM judge. We report baseline results for two reference adapters: a grep-backed text-search floor that scores 6.3–54.4% weighted accuracy across corpora, and a structural reference system that scores 99.2–100% with P99 latency of at most 0.82 ms and zero dollar cost per 1 000 queries. The benchmark is MIT-licensed and the repository includes stubs for third-party adapters.
+
+Update · 2026-04-24
+
+LongMemCode kubernetes-2k — workflow-shape categories + pinned oracle
+
+v0.3 extends the suite with four new categories that capture sustained-session behaviour (**ConversationalContinuation** 261, **RereadCascade** 109, **BashFeedbackLoop** 100 mined from real Kubernetes bug-fix commits, and **SubAgentContextHandoff** 50). 1,456 scenarios total on Kubernetes v1.32.0\. The three workflow-shape categories now ship with **oracle pinning** — adapters must return the canonical top-3 stable IDs to pass, no more "any non-empty response counts."
+
+99.16%
+
+ArgosBrain 0.7.0 · 1,456 scenarios · weighted accuracy
+
+0.404 ms
+
+P99 latency · sub-millisecond worst case
+
+100%
+
+on 100 real K8s bug-fix commits (BashFeedbackLoop)
+
+$0.00
+
+per query · no LLM call at read time
+
+Eight honest misses out of 953, all four ambiguous bare-name lookups in the v0.1 rollover (`Manager`, `Service`, `Graph`, `testAction`) where ArgosBrain's structural ranker prefers production code over vendored test fixtures. Full per-scenario audit log is public.
+
+[Full engineering writeup →](https://argosbrain.com/blog/kubernetes-stress-test)· [v0.3 methodology →](https://github.com/CataDef/LongMemCode/blob/main/docs/V0.3%5FMETHODOLOGY.md)· [Result JSON →](https://github.com/CataDef/LongMemCode/blob/main/results/argosbrain-kubernetes-v3-2026-04-24.json)· [Per-scenario audit (12 MB) →](https://github.com/CataDef/LongMemCode/blob/main/results/argosbrain-kubernetes-v3-2026-04-24.jsonl)
+
+Update · 2026-04-22
+
+LongMemCode kubernetes-2k — Kubernetes scale corpus + four-adapter comparison
+
+Extended to a scale corpus (Kubernetes v1.32.0, 38 771 project symbols, 1 456 scenarios) with two new reference adapters beyond the structural / text-search pair: **sbert-faiss** (dense-semantic, zero LLM) and **mem0 @ gpt-4o-mini** (Mem0's open-source general-purpose memory system). Results and the full fairness-framing report below.
+
+99.25%
+
+ArgosBrain 0.1.0 · P99 0.366 ms · $0
+
+11.21%
+
+sbert-faiss 0.1.0 · P99 327.66 ms · $0
+
+5.48%
+
+grep-baseline 0.1.0 · P99 11.84 ms · $0
+
+4.93%
+
+mem0 @ gpt-4o-mini · P99 1 677 ms · \~$0.20/1k
+
+**Fairness note.** LongMemCode measures code-structural retrieval quality on a code corpus. A general-purpose memory system (Mem0, Zep, Letta) scoring low here is not a verdict on its core job — it is a measurement of scope match. Mem0's intended primary workload is conversational memory, not code-structural retrieval. We publish these numbers with full framing, per-category breakdown, and every adapter's exact configuration so readers can interpret them in context.
+
+[Full report on GitHub →](https://github.com/CataDef/LongMemCode/blob/main/docs/V0.2%5FKUBERNETES%5FREPORT.md)· [Scoreboard →](https://github.com/CataDef/LongMemCode/blob/main/SCOREBOARD.md)· [Raw result JSONs →](https://github.com/CataDef/LongMemCode/tree/main/results)
+
+Author
+
+Aurelian Jibleanu
+
+Affiliation
+
+Neurogenesis · ArgosBrain Inc., Newark, Delaware, USA
+
+Contact
+
+[aurelian@argosbrain.dev](mailto:aurelian@argosbrain.dev)
+
+ORCID
+
+[0009-0005-3330-7150](https://orcid.org/0009-0005-3330-7150)
+
+Date
+
+April 21, 2026
+
+arXiv
+
+cs.SE / cs.AI
+
+License
+
+CC BY 4.0
+
+Keywords
+
+code memory, AI coding agents, benchmark, retrieval quality, deterministic evaluation, MCP
+
+## Abstract
+
+> We introduce LongMemCode, a public benchmark for evaluating the retrieval component of memory systems used by AI coding agents. Existing benchmarks measure either conversational long-term memory (LongMemEval, LoCoMo) or end-to-end agent task success (SWE-bench); none isolates the retrieval quality, speed, and compression of a memory system at coding-agent workloads. LongMemCode comprises 20 real open-source corpora across 16 programming languages, approximately 8 000 scenarios drawn from nine task categories (completion, bug-fix, refactor, test generation, feature addition, API discovery, control-flow, configuration-surface, safety-net), scored deterministically without an LLM judge. We report baseline results for two reference adapters: a `grep`\-backed text-search floor that scores 6.3–54.4% weighted accuracy across corpora, and a structural reference system that scores 99.2–100% with P99 latency of at most 0.82 ms and zero dollar cost per 1 000 queries. The benchmark is MIT-licensed and the repository includes stubs for third-party adapters.
+
+Figure 1: Per-category latency (P50/P95/P99) for the structural reference Grouped bar chart with nine query categories on the x-axis and log-scale latency in milliseconds on the y-axis. For every category the three bars (P50, P95, P99) are well below 1 ms, with the tallest P99 bar (refactor) reaching approximately 0.82 ms. 0.01 0.10 1.00 10.0 latency (ms, log) query category completion bug-fix refactor test-gen feature-add api-disc ctrl-flow cfg-surf safety P50 P95 P99
+
+Figure 1 — Illustrative P50/P95/P99 retrieval latency per query category for the structural reference adapter. Log-scale y-axis; all P99 values below 1 ms, with the tail concentrated in refactor, control-flow, and feature-add. Full data in the LongMemCode repository.
+
+## Introduction
+
+AI coding agents increasingly rely on persistent memory layers to answer questions about code bases between sessions: _does this symbol exist, who calls this function, which class overrides this method, where is this configuration key read_. A memory system that answers these questions incorrectly or slowly degrades every downstream task the agent performs. As of early 2026, at least a dozen memory systems are marketed to coding-agent workloads — Cursor Memories, Windsurf Cascade Memories, GitHub Copilot Memory, Mem0, Zep, Letta, Continue’s `@codebase`, Cline’s Memory Bank, Aider’s repository map, the reference MCP memory server, and others. Each publishes some combination of retrieval accuracy on general-memory benchmarks (LongMemEval, LoCoMo, DMR) or end-to-end agent task scores on SWE-bench. None publishes comparable retrieval-quality numbers on code-specific workloads. This gap is not accidental: a benchmark suited to this evaluation does not exist.
+
+We argue that the missing benchmark should be distinct from existing ones along three axes. First, it should measure the memory system in isolation from the agent’s LLM, so that retrieval quality is not confounded with model capability. Second, it should use deterministic scoring, so that reruns are identical and no LLM-as-judge introduces noise or cost. Third, it should cover the actual query mix a coding agent issues during inner-loop work, not synthetic or research-motivated queries.
+
+We introduce LongMemCode, a benchmark designed to these three axes. LongMemCode evaluates a memory system by issuing a scripted mix of structural code queries against a pre-ingested corpus and scoring each response against a ground-truth answer computed from the corpus itself. The benchmark is MIT-licensed and reproducible from commit hashes fixed per corpus. We report baseline results for two reference adapters — a `grep`\-backed text-search floor and a structural reference system — and open the scoreboard to third-party submissions via a minimal JSON-over-stdio adapter protocol.
+
+The contributions of this paper are: (1) a formal specification of LongMemCode, including its nine query categories, four scoring kinds, and four ground-truth source modes; (2) a measured floor set by `grep-baseline` across 16 corpora; (3) a measured structural reference across the same corpora, establishing feasibility; and (4) a public, open protocol and repository that allow independent replication and extension.
+
+## Related Work
+
+### 2.1 Conversational memory benchmarks
+
+LongMemEval \[Wu et al., 2024\] measures long-term conversational memory through multi-session dialogue. LoCoMo \[Maharana et al., 2024\] provides long-range conversational scenarios with question-answering over prior turns. DMR (Deep Memory Recall) is used by Zep to demonstrate temporal reasoning. All three target conversational settings: the stored content is natural-language messages, not code. A memory system can excel at these benchmarks while being unable to answer basic structural questions about source code.
+
+### 2.2 End-to-end coding-agent benchmarks
+
+SWE-bench \[Jimenez et al., 2023\] measures an agent’s ability to resolve real GitHub issues. SWE-Lancer \[Miserendino et al., 2025\] extends this to freelance coding tasks. Both evaluate the full agent loop — LLM, memory, tools, shell — as a single unit, and score on issue resolution. Neither isolates the retrieval-quality contribution of any individual component.
+
+### 2.3 Code-generation benchmarks
+
+HumanEval \[Chen et al., 2021\] and MBPP \[Austin et al., 2021\] measure function-level code generation from natural-language prompts. RepoBench \[Liu et al., 2023\] and CrossCodeEval \[Ding et al., 2023\] measure retrieval-augmented code completion. Of these, only RepoBench and CrossCodeEval measure retrieval at all, and they measure it as a component of completion accuracy — not as a standalone capability. A memory system that provides perfectly relevant code to a weak LLM is penalised; one that provides partial code to a strong LLM is rewarded.
+
+### 2.4 The gap LongMemCode fills
+
+LongMemCode differs from each of the above. Unlike conversational benchmarks, it scores structural code queries. Unlike end-to-end agent benchmarks, it evaluates the memory in isolation from the LLM. Unlike completion benchmarks, it treats retrieval quality as the outcome rather than the input. Unlike all four, it uses deterministic scoring without an LLM judge.
+
+## The Code-Memory Problem
+
+A memory system for a coding agent must satisfy four properties that distinguish it from conversational memory. First, its queries are predominantly **structural**: “list all methods of class X”, “enumerate callers of Y”, “does symbol Z exist”. The answers are sets of canonical identifiers, not natural-language passages. Second, its knowledge base is **mutable at high frequency**: source files change on every commit, and a refactor can rename hundreds of symbols in a single operation. Staleness is the dominant failure mode. Third, its latency budget is **sub-second on the inner loop**: a coding agent issues memory queries mid-task, and a memory system with a two-second P99 interrupts the developer’s flow state. Fourth, its correctness is **deterministic-checkable**: whether a symbol exists, what methods a class has, which functions call a target — all are ground truths recoverable from the code itself.
+
+These four properties together imply that evaluating code memory is both easier and stricter than evaluating conversational memory. Easier, because ground truth does not require human judgment; stricter, because a structural answer is either right or wrong, with no partial credit except set-overlap. LongMemCode exploits exactly this property: every scenario carries a deterministic expected answer, and every response is scored by a pure function.
+
+## LongMemCode: Benchmark Design
+
+### 6.1 Corpora
+
+LongMemCode comprises 20 corpora across 16 programming languages. Each corpus is a widely-used open-source codebase pinned to a specific commit, with a fetch script that reproduces the exact source tree. The 20 corpora are: `fastapi` (Python), `clap` (Rust), `gin` (Go), `tRPC` (TypeScript), `fastify` (JavaScript), `commons-lang` (Java), `scala-library` (Scala), `phpstorm-stubs` (PHP), `ruby-stdlib` (Ruby), `MediatR` (C#), `dart-collection` (Dart), and stubs or corpora in progress for Solidity, F#, C, C++, Kotlin, Swift, Objective-C, R, Bash, PowerShell, SQL, Lua, Groovy, Elixir, Julia, HCL, Perl, plus small demo fixtures. Selection criteria are: (a) active open-source project; (b) single language dominant; (c) sufficient structural diversity (classes or traits, multiple modules, configuration surface where applicable).
+
+### 6.2 Task categories
+
+Each scenario in a corpus belongs to one of nine task categories. The categories are derived from JetBrains’ 2024 Developer Ecosystem survey, SWE-bench issue distributions, GitClear code-churn studies, and published Copilot hallucination analyses. The nine categories, with their weights:
+
+| Category | Weight | Description |
+| ------------------------- | ------ | ----------------------------------------------------------------------- |
+| Completion | 28% | Agent imports or constructs a symbol and needs the canonical identifier |
+| BugFix | 18% | Enumerate callers or dependents of a suspected file or symbol |
+| Refactor | 10% | Rename audit — every method on a type, every override of a function |
+| TestGen | 8% | List existing symbols in a file to scaffold a test |
+| FeatureAdd | 8% | Resolve a canonical symbol to scaffold a mirrored feature |
+| ApiDiscovery + Ambiguity | 15% | Does this symbol exist? Reject hallucinated names |
+| Control-flow & Type-shape | 5% | Agent triaging an error — locate exception or type |
+| Config-surface | 4% | Who reads DATABASE\_URL? Who checks FeatureFlag::X? |
+| Safety-net | 4% | Hand-curated edge cases |
+
+Weights sum to 100\. A weighted accuracy score for a corpus is `Σ(category_average × category_weight)`.
+
+### 6.3 Scoring kinds
+
+Each scenario carries one of four scoring kinds, chosen to match the task category:
+
+* **`exact_symbol`**: the top-1 result must equal the expected stable identifier. Score: 1.0 or 0.0.
+* **`in_top_k`**: the expected identifier must appear in the first _k_ results. Score: 1.0 or 0.0.
+* **`exact_set`**: F1 = 2 × precision × recall / (precision + recall). **Empty-set on both sides = 1.0**, which is load-bearing for the anti-hallucination scenarios.
+* **`contains`**: `|required ∩ returned| / |required|`. Extras do not penalise.
+
+The pass threshold for a single scenario is 0.999.
+
+### 6.4 Ground-truth sources
+
+Four modes are declared per scenario:
+
+* **`scip_roundtrip`** (\~60% of scenarios): ground truth derived from the structural bundle’s own facts, testing the decoder fidelity of a memory system against the SCIP index for the corpus.
+* **`adversarial`** (\~10–20%): expected set is empty. Fabricated symbol names must return `[]`. This is where memory systems that hallucinate lose points.
+* **`grep_compared`** (\~20%, v0.2 and up): ground truth computed from `rg -n` on the source tree.
+* **`manual`** (\~10%): hand-curated edge cases.
+
+### 6.5 Speed measurement
+
+Each scenario is timed end-to-end as JSON-over-stdio between the benchmark runner and the adapter. Cold-start (first query) is excluded so compile and startup latency do not pollute retrieval latency. The scoreboard reports P50, P95, and P99\. P99 is the headline metric because it reflects the latency ceiling a developer experiences in an interactive IDE loop.
+
+### 6.6 Compression and cost measurement
+
+Two compression numbers are reported: bundle bytes versus gzipped source bytes, and tokens returned per run versus a naive baseline of “concatenate the entire repository”. Cost is reported as dollars per 1 000 queries and includes any LLM, embedding, or API charges incurred on the retrieval path.
+
+### 6.7 Reproducibility
+
+Every corpus is pinned to a specific commit SHA. Fetch scripts are version-controlled. Benchmark runs are deterministic given a fixed adapter and corpus. All scoring functions are pure. Results land in `results/ - -.json`and can be verified against the scoreboard submission contract in `results/README.md`.
+
+## Baseline Adapters
+
+### 7.1 `grep-baseline` 0.1.0
+
+`grep-baseline` is a minimal adapter that wraps `ripgrep` (`rg`) as a text-search backend. It performs literal or regex matching on the corpus source tree, ranks by match count and file location, and returns the top-_k_ file paths or identifier matches. It implements exactly the JSON-over-stdio adapter protocol. Its purpose is to establish a floor: a memory system that does not beat `grep` on any category has no reason to exist.
+
+### 7.2 Structural reference adapter
+
+The structural reference adapter is an in-process Rust graph memory engine that ingests each corpus as a semantic graph of canonical symbol identifiers and their relations. Graph construction uses compiler-grade indexing where mature indexers exist (e.g. SCIP), live language-server ingest where no indexer exists, and bespoke tree-sitter semantic walkers for the long tail. Retrieval is a graph traversal over the ingested structure, without any LLM call on the read path. Further architectural detail is out of scope for this paper and is discussed in forthcoming work.
+
+### 7.3 Why only two baselines here
+
+We report only the text-search floor and the structural reference. We do not adapt commercial products (Cursor Memories, Copilot Memory, Mem0, Zep, Letta) ourselves, because running an unofficial adapter for a third-party product and publishing its score would be strategically unfair to that product. We instead publish empty adapter stubs in the repository for interested parties (notably Mem0 and Zep, whose JSON-RPC interfaces make adaptation tractable) to submit their own results.
+
+### 7.4 On the absence of a dedicated semantic / RAG baseline
+
+A reviewer will naturally ask for a Sentence-BERT + FAISS (or similar embedding-model + vector-store) baseline to bracket the floor from the other side. We declined to author one for this paper, for a specific reason: a poor semantic baseline straw-mans the paradigm we would be arguing against. A fair semantic baseline requires an embedding-model selection, a chunking strategy, a chunk-overlap parameter, a retrieval-_k_ setting, a re-ranker choice, and a similarity threshold — each a defensible research axis. Choosing any single configuration biases the result and invites a legitimate "but you did not tune it" rebuttal from the class we are evaluating.
+
+The MIT-licensed adapter protocol is specifically designed so that any research group motivated to submit a strong semantic adapter can do so with a single JSON-over-stdio endpoint; the scoreboard is the neutral ground. Companion work \[Jibleanu, 2026b\] argues, on theoretical grounds, why the majority of LongMemCode categories are definitionally beyond pure semantic retrieval — but the empirical question remains open and the benchmark is the forum for answering it.
+
+## Results
+
+### 8.1 Headline numbers
+
+Across the 16 corpora for which complete runs exist at time of writing:
+
+* **`grep-baseline` 0.1.0**: weighted accuracy ranges from 6.3% (PHP, `phpstorm-stubs`) to 54.4% (Rust, `clap`). P99 latency ranges from 1.14 ms to 38.77 ms. Cost: $0.00 per 1 000 queries.
+* **Structural reference**: weighted accuracy ranges from 99.2% to 100.0%. P99 latency ranges from 0.01 ms to 0.82 ms. Cost: $0.00 per 1 000 queries.
+
+Complete per-corpus, per-category numbers appear in Appendix A.
+
+### 8.2 Figures
+
+**Figure 1 — P50 / P95 / P99 latency per query category, structural reference.**
+
+A grouped bar chart. X-axis: the nine task categories. Y-axis: latency in milliseconds, log scale. Three bars per category (P50, P95, P99). Source data: `results/argosbrain-*.json` aggregated across the 16 corpora; per-category percentiles computed from the flat union of scenario timings. **What this figure shows**: tail latency is bounded across every category; no category exhibits a surprising slow path. **What it deliberately does not show**: no comparison to any other system — this is a single-adapter profile to establish the shape of the structural reference’s latency distribution.
+
+**Figure 2 — Memory footprint versus corpus symbol count.**
+
+A scatter plot. X-axis: number of symbols per corpus (log scale). Y-axis: resident memory in megabytes during steady-state query serving. One point per corpus, 16 points total. Source data: published per-corpus in `SCOREBOARD.md` alongside accuracy and latency; measured via the standard OS resident-set size on a laptop-class machine. **What this figure shows**: memory scales approximately sub-linearly with corpus size; the largest corpus (a few hundred thousand symbols) fits in low-hundreds of megabytes. **What it deliberately does not show**: no tiering, caching, or on-disk spill details — the architectural choices that make this possible are Paper 3’s subject.
+
+**Figure 3 — Re-ingest time after simulated branch switch.**
+
+A line chart. X-axis: number of changed files (0, 10, 30, 100, 300, 1 000). Y-axis: re-ingest wall-clock time in seconds. One series for three corpora (fastapi, clap, gin) chosen to cover Python / Rust / Go. Source data: collected by scripting `git checkout` across branch pairs with known diffs of the target file count, re-running the ingest pipeline, measuring elapsed time. **What this figure shows**: re-ingest time is approximately linear in the number of changed files, not in the total repository size — the inflection at low values is dominated by fixed overhead, not scanning. **What it deliberately does not show**: the mechanism (content-hash skip) is described verbally in the figure caption without pseudocode or parameters.
+
+### 8.3 Per-category observations (discussion of Figure 1 + Appendix A)
+
+The per-category accuracy gap between `grep-baseline` and the structural reference is largest on **Refactor**(structural reference 100% vs grep 6.5% on fastapi), **Config-surface** (100% vs 0.0% on fastapi), and **TestGen** (100% vs 0.0% on fastapi). These are precisely the categories where text search lacks the information needed to answer: “every method on class X” requires knowing that methods belong to classes, which is structural; “who reads `DATABASE_URL`” requires knowing what reads a string literal in its semantic context. The smallest gap is on **Completion**, where both systems are substantially above floor — text search can find the definition of a uniquely-named symbol. This distribution of gaps is itself the empirical contribution of this paper: text search is not a substitute for structural memory on the majority of real coding-agent queries.
+
+## Discussion
+
+### 9.1 What near-perfect structural accuracy means
+
+The structural reference adapter scores 99.2–100% weighted accuracy across every corpus. We do not present this as marketing: these are deterministic, structural questions with deterministic, structural answers. A well-built structural memory system _should_ score near perfect on them. If it did not, it would have correctness bugs in its indexer or scorer. The informative comparison is not “99% versus 95%” — it is “99% versus `grep-baseline`’s 6–54%”, which quantifies what text search cannot answer at all.
+
+### 9.2 Why P99 and not P50
+
+We report P50, P95, and P99\. The headline number is P99, not P50, because an interactive IDE loop exposes the user to the tail. A memory system with a 0.2 ms P50 and a 2 s P99 feels broken every hundred queries — a developer using it in a coding session will hit the tail within minutes. A memory system at sub-millisecond P99 is not noticed at all, which is the correct outcome for a memory layer.
+
+### 9.3 Limitations
+
+LongMemCode in its current form has limitations we state explicitly:
+
+* **Ground-truth source dominance**. Approximately 60% of scenarios use `scip_roundtrip` ground truth, derived from the same structural bundle format the structural reference produces. This advantages any adapter that ingests via SCIP and disadvantages adapters that index via other means. We plan to increase `grep_compared` coverage to 40% in v0.2 to dilute this dominance.
+* **Long-tail language under-representation**. Corpora currently cover 16 of the 28 languages we plan to ship. Languages without a mature SCIP indexer (Solidity, F#, C, C++, Perl, and the tree-sitter-only set) have thinner scenario coverage per corpus.
+* **Commercial-product coverage is absent**. No commercial memory system has been benchmarked because we decline to run unofficial adapters for them. The repository ships empty adapter stubs for Mem0 and Zep; we invite those teams to submit results.
+* **Category weights are approximate.** The weights (Completion 28%, BugFix 18%, Refactor 10%, ...) are drawn from industry surveys — JetBrains' Developer Ecosystem Report, SWE-bench issue distributions, GitClear code-churn studies, Copilot hallucination analyses — and an explicit judgement call. They are not derived from a measured distribution of real agent-to-repository queries, which to our knowledge has never been published at the scale needed to be statistically useful. A v1.0 goal is to re-derive weights from de-identified real-world coding-agent telemetry, collected under explicit consent from cooperating agent vendors, and to publish the empirical distribution alongside the benchmark update. Until then, a rational critic can re-weight any scoreboard result by their own prior over the category mix; the per-category numbers in Appendix A make this trivial.
+* **Scale ceiling on the structural reference.** The structural reference adapter has been measured on repositories up to the scale of the largest corpus in v0.1 (several hundred thousand symbols), where steady-state RSS remains in the low hundreds of megabytes. We have not yet benchmarked repositories of Linux-kernel or Chromium class (several million symbols). A full in-memory graph at that scale would require tiered storage — for example, a local key-value store (SQLite, RocksDB, LMDB) for cold subgraphs with in-memory retention of hot ones, or sharding per logical sub-project. This is future work; every latency and footprint claim in the current paper is bounded to the measured scale.
+
+### 9.4 Fairness and reproducibility
+
+The full scenario set, runner, scoring functions, and both reference adapters are MIT-licensed and version-controlled. Every scoreboard number is reproducible from a fixed commit SHA and a fixed adapter version. No LLM judge is involved at any point. We explicitly invite attempts to disprove our results.
+
+## Conclusion and Future Work
+
+We have presented LongMemCode, a public, deterministic, code-specific benchmark for the retrieval component of memory systems used by AI coding agents. The benchmark fills a gap left by conversational-memory benchmarks (LongMemEval, LoCoMo, DMR), end-to-end agent benchmarks (SWE-bench, SWE-Lancer), and retrieval-augmented completion benchmarks (RepoBench, CrossCodeEval). Baseline results show a substantial gap between text-search retrieval (`grep-baseline`, 6.3–54.4% weighted accuracy) and structural retrieval (99.2–100%), with the gap concentrated in refactor, configuration-surface, and test-generation categories.
+
+Future work falls into three branches. First, v1.0 of the benchmark: expanding `grep_compared` ground-truth coverage to 40%, re-deriving category weights from real agent telemetry, and expanding to the full 28 languages. Second, third-party adapter submissions from commercial memory products (Mem0, Zep, Letta, Cursor Memories, Copilot Memory), enabling the first published comparison across commercial systems on code-specific workloads. Third, a companion analysis of the structural-versus-semantic query taxonomy this benchmark exposes, and the architectural implications of that taxonomy, both of which are treated in forthcoming work.
+
+## References
+
+```
+@inproceedings{austin2021program,
+  title={Program Synthesis with Large Language Models},
+  author={Austin, Jacob and Odena, Augustus and Nye, Maxwell and Bosma, Maarten and Michalewski, Henryk and Dohan, David and Jiang, Ellen and Cai, Carrie and Terry, Michael and Le, Quoc and Sutton, Charles},
+  booktitle={arXiv preprint arXiv:2108.07732},
+  year={2021}
+}
+
+@inproceedings{chen2021evaluating,
+  title={Evaluating Large Language Models Trained on Code},
+  author={Chen, Mark and others},
+  booktitle={arXiv preprint arXiv:2107.03374},
+  year={2021}
+}
+
+@inproceedings{ding2023crosscodeeval,
+  title={CrossCodeEval: A Diverse and Multilingual Benchmark for Cross-File Code Completion},
+  author={Ding, Yangruibo and others},
+  booktitle={NeurIPS},
+  year={2023}
+}
+
+@inproceedings{jimenez2023swe,
+  title={SWE-bench: Can Language Models Resolve Real-World GitHub Issues?},
+  author={Jimenez, Carlos E. and Yang, John and Wettig, Alexander and Yao, Shunyu and Pei, Kexin and Press, Ofir and Narasimhan, Karthik},
+  booktitle={arXiv preprint arXiv:2310.06770},
+  year={2023}
+}
+
+@inproceedings{liu2023repobench,
+  title={RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems},
+  author={Liu, Tianyang and Xu, Canwen and McAuley, Julian},
+  booktitle={arXiv preprint arXiv:2306.03091},
+  year={2023}
+}
+
+@inproceedings{maharana2024evaluating,
+  title={Evaluating Very Long-Term Conversational Memory of LLM Agents},
+  author={Maharana, Adyasha and others},
+  booktitle={arXiv preprint arXiv:2402.17753},
+  year={2024}
+}
+
+@inproceedings{miserendino2025swelancer,
+  title={SWE-Lancer: Can Frontier LLMs Earn \$1 Million from Real-World Freelance Software Engineering?},
+  author={Miserendino, Samuel and others},
+  booktitle={arXiv preprint arXiv:2502.12115},
+  year={2025}
+}
+
+@inproceedings{packer2023memgpt,
+  title={MemGPT: Towards LLMs as Operating Systems},
+  author={Packer, Charles and Wooders, Sarah and Lin, Kevin and Fang, Vivian and Patil, Shishir G. and Stoica, Ion and Gonzalez, Joseph E.},
+  booktitle={arXiv preprint arXiv:2310.08560},
+  year={2023}
+}
+
+@inproceedings{rasmy2024zep,
+  title={Zep: A Temporal Knowledge Graph Architecture for Agent Memory},
+  author={Rasmy, Preston and others},
+  booktitle={arXiv preprint arXiv:2501.13956},
+  year={2025}
+}
+
+@inproceedings{chhikara2024mem0,
+  title={Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory},
+  author={Chhikara, Prateek and others},
+  booktitle={arXiv preprint arXiv:2504.19413},
+  year={2025}
+}
+
+@inproceedings{wu2024longmemeval,
+  title={LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory},
+  author={Wu, Di and others},
+  booktitle={arXiv preprint arXiv:2410.10813},
+  year={2024}
+}
+
+@misc{jibleanu2026longmemcode,
+  title={LongMemCode: A Deterministic Benchmark for Code-Memory in AI Agents},
+  author={Jibleanu, Aurelian},
+  year={2026},
+  note={MIT-licensed benchmark repository: \url{https://github.com/CataDef/LongMemCode}}
+}
+```
+
+## Appendix A — Per-corpus scoreboard
+
+A single wide table. Columns: Corpus · Language · Scenarios · Adapter · Weighted accuracy · P50 ms · P95 ms · P99 ms · Cost per 1 000 queries. Rows: one per `(corpus, adapter)` pair, sorted first by corpus then by accuracy descending.
+
+Source data: `SCOREBOARD.md` in the LongMemCode repository at submission time. **Do not hand-fabricate numbers**. Pull from the repo; if a corpus is incomplete, mark the cell as `—` rather than estimating.
+
+## Appendix B — Example scenarios, verbatim
+
+One sub-section per category, three scenarios each, copied exactly from `scenarios/fastapi.json`, `scenarios/clap.json`, or `scenarios/python-mini.json`. Format: JSON code blocks with `intent`, `query`, `expected`, and `ground_truth_source` fields. No commentary in this appendix — the main body discusses categories; the appendix lets a reader inspect raw scenarios.
+
+※Related papers
+
+## Read the rest of the collection.
+
+[ Paper 2 Structural vs Semantic Retrieval in Code-Memory: A Query-Type Taxonomy Aurelian Jibleanu · Neurogenesis · April 2026 ](https://argosbrain.com/papers/structural-semantic-taxonomy)[ Paper 3 Zero-Cost Graph Retrieval at Compiler-Grade Depth for AI Coding Agents Aurelian Jibleanu · Neurogenesis · April 2026 ](https://argosbrain.com/papers/zero-cost-graph-retrieval)
+
+[Back to all papers →](https://argosbrain.com/papers)
+
+```json
+{"@context": "https://schema.org", "@type": "ScholarlyArticle", "@id": "https://argosbrain.com/papers/longmemcode-benchmark", "headline": "LongMemCode: A Deterministic Benchmark for Code-Memory in AI Agents", "name": "LongMemCode: A Deterministic Benchmark for Code-Memory in AI Agents", "author": {"@type": "Person", "name": "Aurelian Jibleanu", "affiliation": {"@type": "Organization", "name": "Neurogenesis"}}, "datePublished": "2026-04-21", "inLanguage": "en", "keywords": "code memory, AI coding agents, benchmark, retrieval quality, deterministic evaluation, MCP", "abstract": "We introduce LongMemCode, a public benchmark for evaluating the retrieval component of memory systems used by AI coding agents. Existing benchmarks measure either conversational long-term memory (LongMemEval, LoCoMo) or end-to-end agent task success (SWE-bench); none isolates the retrieval quality, speed, and compression of a memory system at coding-agent workloads. LongMemCode comprises 20 real open-source corpora across 16 programming languages, approximately 8 000 scenarios drawn from nine task categories (completion, bug-fix, refactor, test generation, feature addition, API discovery, control-flow, configuration-surface, safety-net), scored deterministically without an LLM judge. We report baseline results for two reference adapters: a grep-backed text-search floor that scores 6.3–54.4% weighted accuracy across corpora, and a structural reference system that scores 99.2–100% with P99 latency of at most 0.82 ms and zero dollar cost per 1 000 queries. The benchmark is MIT-licensed and the repository includes stubs for third-party adapters.", "license": "https://creativecommons.org/licenses/by/4.0/", "url": "https://argosbrain.com/papers/longmemcode-benchmark", "mainEntityOfPage": "https://argosbrain.com/papers/longmemcode-benchmark", "isPartOf": {"@type": "CollectionPage", "@id": "https://argosbrain.com/papers", "name": "ArgosBrain Research Papers", "url": "https://argosbrain.com/papers"}, "publisher": {"@type": "Organization", "name": "ManageVendors Inc.", "url": "https://argosbrain.com"}}
+```

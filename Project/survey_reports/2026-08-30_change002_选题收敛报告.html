@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change-002 选题收敛报告 · Harness 的记忆与持续学习</title>
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --sub: #555;
+    --accent: #1f4e79;
+    --accent-light: #eaf1f8;
+    --border: #d9dee5;
+    --bg: #fdfdfb;
+    --warn: #8b3a3a;
+    --gold: #b8963e;
+    --green: #2d6a4f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
+    background: var(--bg); color: var(--ink);
+    line-height: 1.85; margin: 0; padding: 0;
+    font-size: 16px;
+  }
+  .page { max-width: 980px; margin: 0 auto; padding: 48px 40px 80px; }
+  header { border-bottom: 3px double var(--accent); padding-bottom: 20px; margin-bottom: 32px; }
+  h1 { font-size: 26px; margin: 0 0 8px; color: var(--accent); letter-spacing: 1px; }
+  .meta { color: var(--sub); font-size: 14px; font-family: "PingFang SC", "Noto Sans CJK SC", sans-serif; }
+  h2 {
+    font-size: 20px; color: var(--accent); margin: 44px 0 14px;
+    padding-left: 10px; border-left: 5px solid var(--accent);
+    font-family: "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  }
+  h3 { font-size: 17px; margin: 28px 0 10px; color: #2c3e50; font-family: "PingFang SC", "Noto Sans CJK SC", sans-serif; }
+  h4 { font-size: 15.5px; margin: 20px 0 8px; color: #34495e; font-family: "PingFang SC", "Noto Sans CJK SC", sans-serif; }
+  p { margin: 10px 0; text-align: justify; }
+  table {
+    border-collapse: collapse; width: 100%; margin: 14px 0 20px;
+    font-size: 13.5px; font-family: "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  }
+  th { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+  th, td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; vertical-align: top; }
+  tr:nth-child(even) td { background: #f7f9fb; }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em;
+    background: #eef0f3; padding: 1px 5px; border-radius: 3px;
+  }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { border-bottom-style: solid; }
+  .verdict {
+    background: var(--accent-light); border: 1px solid #c5d6e8;
+    border-radius: 6px; padding: 18px 24px; margin: 24px 0;
+  }
+  .verdict ol { margin: 8px 0 0; padding-left: 22px; }
+  .verdict li { margin: 8px 0; }
+  .keybox {
+    background: #f6f3ea; border-left: 4px solid var(--gold);
+    padding: 12px 18px; margin: 16px 0; font-size: 15px;
+  }
+  .warnbox {
+    background: #faf0f0; border-left: 4px solid var(--warn);
+    padding: 12px 18px; margin: 16px 0; font-size: 15px;
+  }
+  .greenbox {
+    background: #eef6f1; border-left: 4px solid var(--green);
+    padding: 12px 18px; margin: 16px 0; font-size: 15px;
+  }
+  ul, ol { padding-left: 24px; }
+  li { margin: 5px 0; }
+  .rank { font-weight: 700; color: var(--accent); }
+  .score-hi { color: var(--green); font-weight: 700; }
+  .score-lo { color: var(--warn); font-weight: 700; }
+  footer {
+    margin-top: 60px; padding-top: 16px; border-top: 1px solid var(--border);
+    color: var(--sub); font-size: 14px; text-align: right;
+    font-family: "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  }
+  .toc { font-family: "PingFang SC", "Noto Sans CJK SC", sans-serif; font-size: 14px; background: #f4f6f8; border-radius: 6px; padding: 14px 26px; }
+  .toc a { border-bottom: none; }
+  .small { font-size: 13px; color: var(--sub); }
+  .topic-card {
+    border: 2px solid var(--accent); border-radius: 8px;
+    padding: 16px 22px; margin: 18px 0; background: #fff;
+  }
+  .topic-card .tag {
+    display: inline-block; background: var(--accent); color: #fff;
+    font-size: 12.5px; padding: 2px 10px; border-radius: 3px; margin-right: 8px;
+    font-family: "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>选题收敛报告：从 5 个高潜方向到 2 个可立项论文选题</h1>
+  <div class="meta">openspec change-002 · 任务 8（synthesis）· 综合 5 份深挖底稿（deep_A5 / deep_B1 / deep_B3 / deep_C6 / deep_D1，检索截至 2026-08-29）· 目标 venue：NeurIPS / ICML / ICLR</div>
+</header>
+
+<nav class="toc">
+<strong>目录</strong>：
+<a href="#s0">结论先行</a> ·
+<a href="#s1">五方向评分对比</a> ·
+<a href="#s2">合并与取舍论证</a> ·
+<a href="#s3">选题一：LiveRepoMem</a> ·
+<a href="#s4">选题二：HarnessAblate</a> ·
+<a href="#s5">未入选方向处置</a> ·
+<a href="#s6">投稿时间线与执行顺序</a>
+</nav>
+
+<!-- ============ 结论 ============ -->
+<h2 id="s0">结论先行：收敛出两个选题</h2>
+
+<div class="verdict">
+<p><strong>本轮综合的总判断</strong>：五个方向的"宽表述空白"在过去 12–18 个月内已全部被相邻工作填掉或收窄（这是 change-002 深挖最重要的止损发现），但每份底稿都核实出了收窄后仍然真实、可辩护的空白。按"空白真实性 × 数据可行性 × 与库内证据链的咬合度"收敛，<strong>五方向归并为两个选题</strong>：A5、C6、D1 三个基准型方向合并为一个三 track 统一基准（选题一）；B1 独立成题（选题二）；B3 不立项、降级留树。</p>
+</div>
+
+<div class="topic-card">
+  <p><span class="tag">选题一 · 主选</span><strong>LiveRepoMem（工作名）：演化仓库上的 harness 原生记忆与持续学习基准</strong>（A5 + C6 + D1 合并）</p>
+  <p>一句话定位：<strong>第一个把 harness 原生记忆机制（分层记忆文件、放置决策、compaction 存活、离线固结）当作受控变量，在去污染的真实仓库演化任务流上，同时度量"学习收益、机制质量、更新回归、漂移危害"四个截面的可执行基准。</strong></p>
+  <p class="small">目标 venue：<strong>NeurIPS 2027 Datasets &amp; Benchmarks</strong>（主投）；ICLR 2028 备选；2026 Q4 以 workshop 短文 / 预注册占位。</p>
+</div>
+
+<div class="topic-card">
+  <p><span class="tag">选题二 · 副选</span><strong>HarnessAblate（工作名）：harness 可编辑面的前瞻消融——收益/风险双轴下的最小充分集</strong>（B1 独立成题）</p>
+  <p>一句话定位：<strong>第一个在同一 coding harness 上、固定进化算法与预算，对六类可编辑面（system prompt / 记忆 / skills / 工具 / workflow / 代码本体）做"开放哪个面进化"的前瞻性交叉消融，并同时量化收益与风险（回归率、安全衰减、膨胀、可逆性）的受控实验研究。</strong></p>
+  <p class="small">目标 venue：<strong>ICML 2027</strong>（主投，实验周期短、窗口紧迫故取最近截稿）；NeurIPS 2027 主会备选。</p>
+</div>
+
+<p><strong>未入选</strong>：B3（弱评估器下的自进化）不立项——权重层已红海（三个月内 5 篇共进化 rubric 工作），harness 层交集空白虽真实但窗口仅 3–6 个月且"评估循环"是本质困难；降级为 medium 留树，其三角审计协议与信号可靠性思想被两个入选选题作为评测协议成分吸收（详见 <a href="#s5">第 5 节</a>）。</p>
+
+<!-- ============ 评分对比 ============ -->
+<h2 id="s1">一、五方向评分对比</h2>
+
+<p>评分依据五份底稿的核实结论,每维 1–5 分（5 最优）。<strong>竞争风险维为反向计分</strong>（分越高=风险越低）。"空白真实性"打的是<em>收窄后</em>表述的空白,原宽表述五个方向均已不成立。</p>
+
+<table>
+<tr>
+  <th>维度</th>
+  <th>A5 · 记忆基准</th>
+  <th>B1 · 可编辑面消融</th>
+  <th>B3 · 弱评估器自进化</th>
+  <th>C6 · lifelong coding 基准</th>
+  <th>D1 · retention 回归集</th>
+</tr>
+<tr>
+  <td><strong>空白真实性</strong>（收窄后）</td>
+  <td class="score-hi">4</td>
+  <td class="score-hi">4</td>
+  <td>3</td>
+  <td>3（单独）/ <span class="score-hi">4</span>（合并）</td>
+  <td class="score-hi">5</td>
+</tr>
+<tr>
+  <td><strong>新颖性窗口</strong></td>
+  <td>3（8 个月新增 6+ 基准,窗口紧迫）</td>
+  <td>3（半年 ≥15 篇 harness 进化论文,AHE 团队一步之遥）</td>
+  <td class="score-lo">2（3–6 个月,三个作者组均在一步之遥）</td>
+  <td class="score-lo">2（一年 8 个基准,SWE-Milestone 已占 ICML 2026）</td>
+  <td>3（HCL 已把 retention evaluation 点名为 open challenge,6–12 个月）</td>
+</tr>
+<tr>
+  <td><strong>数据可行性</strong></td>
+  <td class="score-hi">4（SWE-bench-Live/SWE-rebench/REPOLAUNCH 底座现成）</td>
+  <td class="score-hi">5(SWE-bench Verified + Terminal-Bench 直接可用,无需策展)</td>
+  <td>3（真不可验证域的 ground truth 本质稀缺）</td>
+  <td class="score-hi">4（同 A5,另有 DeepCommit/GitChameleon 管线可复用）</td>
+  <td class="score-hi">4（历史成功轨迹回放+更新反推探针,工程路径清晰）</td>
+</tr>
+<tr>
+  <td><strong>工程成本</strong></td>
+  <td>3(2–3 人 × 4–5 月,评测算力 $3k–8k/系统)</td>
+  <td>3（~27,000 次 agent 运行,~$25k,3–4 周可跑完）</td>
+  <td>3（单机夜间预算可行,但审计协议需人类金标)</td>
+  <td class="score-lo">2（三维矩阵 $2–5 万/完整榜单）</td>
+  <td>3(k 次重复 × 数百用例 × 每次更新,信噪比换算力)</td>
+</tr>
+<tr>
+  <td><strong>竞争风险</strong>（反向,高分=低风险）</td>
+  <td class="score-lo">2（DreamBench-SWE 在迭代,LME-V2/AMA-Bench 团队可能顺势下场）</td>
+  <td>3（AHE 团队是唯一明确竞争者,前瞻式设计与其换入式有区隔）</td>
+  <td class="score-lo">1（权重层红海;harness 层 TTHE/AHE/HOTE 组均可即刻跟进）</td>
+  <td class="score-lo">2（OpenHands 系/Xingyao Wang 同时握有 SWE-Milestone 与持久记忆 SDK）</td>
+  <td>3（HCL 团队大概率在做后续,但它做机制、我们做方法学,可差异化）</td>
+</tr>
+<tr>
+  <td><strong>合计</strong>（等权）</td>
+  <td>16</td>
+  <td class="score-hi">18</td>
+  <td class="score-lo">12</td>
+  <td>13 / 15</td>
+  <td class="score-hi">18</td>
+</tr>
+</table>
+
+<div class="keybox">
+<strong>读表要点</strong>：(1) D1 的空白最"硬"——回归集构建方法学是<em>彻底空白</em>,连 HCL 自己都承认做不了;但 D1 单独成篇会被审稿人问"为什么不做成完整基准"（deep_D1 §5 自己指出的风险）。(2) A5 与 C6 单独立项都各自撞 3+ 个竞品,只有合取(演化仓库 × harness 原生记忆 × 三度量 × live 去污染)无人占据——三份底稿各自独立得出了同一结论。(3) B1 与 B3 同属分支 B,但 B1 是"受控实验+基准"型（评审生命周期长）,B3 是"方法"型且正处红海——同分支内取 B1 弃 B3。(4) B3 总分垫底,且其最大风险（评估循环是结构均衡,arXiv:2603.28063 已理论证明）不是工程能解的。
+</div>
+
+<!-- ============ 合并取舍 ============ -->
+<h2 id="s2">二、合并与取舍论证</h2>
+
+<h3>2.1 为什么 A5 + C6 + D1 必须合并（而非各自成篇或两两组合）</h3>
+
+<p>这不是 synthesis 阶段的外部撮合,而是三份底稿<strong>各自独立推导出的同一结论</strong>:deep_C6 §3.3 明确建议"不再单独立项 C-6,与 A-5 合并",并补充"D-1 是同一基准的第三个截面";deep_D1 §5 给出两个选项后倾向"(a) 合并成一篇——更强、更完整,推荐";deep_A5 的基准草案（HarnessMemBench）已经内含 FT/BWT 等 lifelong 指标与固结/干扰维度,与 C6/D1 的核心度量天然重叠。合并的实质理由有四:</p>
+
+<ol>
+<li><strong>数据基座完全同构,分开做是三倍重复成本。</strong>三者都需要"同一真实仓库上的时序任务序列 + 显式会话边界 + git 版本化的持久记忆目录"。仓库策展、REPOLAUNCH 级环境构建、标注管线做一次即可支撑三个 track;分开做则互相竞争新颖性且各自单薄。</li>
+<li><strong>指标天然分层:机制层是结果层的归因层,回归层是两者的守护层。</strong>Lifelong 曲线差(C6)时,需要 Memory track(A5)回答"是记忆没写对还是写对了没用上";记忆在更新(D1)时,需要 retention 协议回答"这次固结/compaction 破坏了什么"。三截面拼合才构成完整因果链——这正是 2026 年评审趋势偏好的"多截面统一协议"型工作(Harness the Memory、EvoMemBench 均为此型)。</li>
+<li><strong>竞品格局逼迫合并。</strong>单做 C6 撞 SWE-Bench-CL/SWE-Milestone/SWE-ContextBench;单做 A5 撞 DreamBench-SWE/MemTrace-Bench/LongMemEval-V2;单做 D1 撞 HCL 后续。合取后的四要素组合(deep_C6 §3.2 缺口矩阵:每一列都有人做到,没有一行全绿)是唯一无人占据的位置,且护城河随合并加深——竞争者要抢跑必须同时复制三条能力线。</li>
+<li><strong>D1 并入不损其独立贡献,反而借壳落地。</strong>D1 的核心创新(更新反推探针、统计功效分析、守护机制横评)作为基准的 Retention track 完整保留;"没有完整任务流"这一 D1 独立成篇的最大软肋被 C6 的序列骨架直接补上。</li>
+</ol>
+
+<div class="warnbox">
+<strong>合并的代价与对策(scope 风险)。</strong>三 track 合并后 scope 明显变大,这是本选题最大的执行风险。对策采用 deep_C6 提出的分层发布:<strong>core/lite 版</strong>(2–3 仓库、3 个记忆配置、三 track 各出最小指标集)在 2026 Q4 以 workshop 短文/预注册先行占位;<strong>full 版</strong>随月度滚动数据扩展,投 NeurIPS 2027 D&amp;B。SWE-bench-Live 的"冻结 split + 滚动 split"模式直接照抄。若执行中 Retention track 工程量失控,降级预案是将其缩为"每序列周期性重评历史成功集"的单一协议(保留 URR 指标),完整守护横评拆去后续论文。
+</div>
+
+<h3>2.2 为什么 B1 独立成题(而不并入选题一或放弃)</h3>
+
+<ol>
+<li><strong>研究对象正交。</strong>选题一的被测对象是<em>记忆内容</em>在固定 harness 机制下的读写与演化;B1 的被测对象是<em>可编辑面本身</em>——进化算法被允许改动 harness 的哪个部件。前者是"用 harness"的科学,后者是"改 harness"的科学。硬并会使受控变量矩阵爆炸(记忆配置 × 可编辑面 × 更新算子),任何一维都测不深。</li>
+<li><strong>论文类型不同,风险对冲。</strong>选题一是 D&amp;B 型(数据+协议+榜单),周期长、护城河深;B1 是受控实验型(9 条件 × 3+ seeds,3–4 周跑完),周期短、结论快。两题并行恰好形成"快慢双轨":B1 可赶 ICML 2027(2027-01 截稿),选题一从容准备 NeurIPS 2027 D&amp;B(2027-05 截稿)。</li>
+<li><strong>证据链互喂而不互斥。</strong>B1 的风险轴(回归率、可逆性)直接复用选题一 Retention track 的判定协议;B1 关于"记忆面开放进化的收益/风险比"的结论,反过来为选题一的记忆配置选择提供先验。两篇论文互引成链,构成本 wiki 项目在"harness 持续学习"上的系列辨识度。</li>
+<li><strong>空白同样可辩护。</strong>deep_B1 核实:现有证据全部是单面(CODESKILL/ACE)、事后换入(AHE Table 3)、观察性(Ben Sghaier)或只测收益不测风险;综述(arXiv:2608.03392)明确把"缺隔离消融、harness 膨胀、可逆性"列为开放问题。"首个跨面、双轴、预算受控的前瞻消融"表述经得起 related work 拷问。</li>
+</ol>
+
+<h3>2.3 为什么 B3 不立项</h3>
+
+<p>三条理由,均来自 deep_B3 自己的核实:(1) <strong>红海</strong>——"几乎空白"已被证伪,权重层五条路线成熟,2026 年 5–7 月三个月内 5 篇评估器共进化工作密集撞车;(2) <strong>剩余真空窄且守不住</strong>——harness 层 × 真不可验证域的交集虽空,但 TTHE/AHE/HOTE 三个作者组都在一步之遥,底稿自估窗口仅 3–6 个月,短于任何一篇像样论文的执行周期;(3) <strong>本质困难</strong>——"进化是否真的变好"的评估循环已被理论证明是有限评估下的结构均衡(reward hacking as equilibrium),草案 C 的三角审计只能缓解不能解决,以此为主贡献的论文姿态只能是"给出经验边界",上限受制。deep_B3 建议的最稳妥切入(草案 C 审计协议)本质是<em>评测协议</em>而非方法——这一价值我们不丢弃:三角审计的"冻结外部锚 + canary 可验证任务 + 时间滞后审计"直接吸收进选题一的防污染与防刷榜协议(§3.4),信号可靠性思想吸收进选题二的编辑接受函数设计。处置详见第 5 节。</p>
+
+<!-- ============ 选题一 ============ -->
+<h2 id="s3">三、选题一立项论证:LiveRepoMem</h2>
+
+<h3>3.1 研究问题</h3>
+
+<div class="keybox">
+<strong>总 RQ:配备原生持久记忆的 coding harness,在同一真实仓库的长期演化任务流上,能否"越用越强"而不退化?收益、损伤与退化各自可归因到记忆机制的哪一环?</strong>
+</div>
+
+<p>分解为五个子问题,横跨三个 track:</p>
+<ul>
+<li><strong>RQ1(学习,Lifelong track)</strong>:跨会话经验积累带来的成功率/效率增益曲线是什么形状?哪类记忆内容(环境坑/用户偏好/仓库惯例/工作流)贡献最大?</li>
+<li><strong>RQ2(机制,Memory track)</strong>:agent 自写记忆的操作级质量——写入 precision/recall(对照人工标注的"值得记住集合")、放置正确率(user/repo/path 三层 scope)、compaction 后存活率、离线固结前后的卫生与损伤——各是多少?</li>
+<li><strong>RQ3(保持,Retention track)</strong>:harness 记忆状态每次更新(append/rewrite/merge/delete/compact)后,历史成功任务的回归率(URR)是多少?回归是否局域(与更新内容的语义距离相关)?</li>
+<li><strong>RQ4(漂移,Drift 探针,跨 track)</strong>:仓库演化到 v+1 后,v 时代沉淀的记忆多久失效、造成多大危害、多少任务后被自我纠正?——这是"记忆与仓库协同演化"维度,deep_C6 核实全场无人做。</li>
+<li><strong>RQ5(干扰与效率)</strong>:项目 A 的记忆对项目 B 是助益还是污染(跨项目 backward interference)?全部结果在 token/延迟预算约束下按 LAFS 式前沿报告。</li>
+</ul>
+
+<h3>3.2 贡献声明(投稿时的 claim 草案)</h3>
+<ol>
+<li>首个以 <strong>harness 原生记忆机制为受控变量</strong>的 coding agent 基准:记忆条件矩阵(无记忆/只读指令文件/auto-memory/auto-memory+定期固结/外挂 MCP 记忆层)× 放置扰动 × 强制 compaction 事件,多 harness(Claude Code / OpenHands / Codex CLI)执行以回应 scaffold-effect 批评;</li>
+<li>首个建立在 <strong>live 去污染管线</strong>上的记忆基准:全部任务取自各被测模型 cutoff 之后创建的 issue(SWE-rebench 日期标记协议),月度滚动,同时以注入层(合成不可推断事实+可执行 oracle)保证冻结版可复现——正面解决"记忆序列要求长期稳定 vs live 源要求刷新"的矛盾;</li>
+<li>首个 <strong>学习-机制-保持三 track 统一协议</strong>与配套指标栈:成功率斜率/FT/BWT/复用率(Lifelong)、写入-放置-固结操作级质量(Memory)、URR/Retention@t/locality 曲线(Retention)、过期记忆危害率与纠正延迟(Drift);</li>
+<li>公开 <strong>retention 回归集构建工具链</strong>(历史成功轨迹回放 + 更新反推探针 + 语义等价扰动)及其统计功效分析——"检出 5pp 净回归需 150–200 配对用例"这类规模-功效曲线本身即方法学贡献;</li>
+<li>实证副产品:现有 harness 记忆机制在真实演化仓库上的净收益何时为正——库内证据(AGENTbench 的 LLM 生成 context 文件负收益、MemTrace 的 61.9→75.5% 有用率伴随 ~20% 坏率、SWE-ContextBench 的自由检索≈零增益)暗示答案可能反直觉,这对 D&amp;B 论文是加分叙事。</li>
+</ol>
+
+<h3>3.3 方法草案:基准结构</h3>
+
+<h4>任务序列构造(三源混合 + 漂移探针)</h4>
+<table>
+<tr><th>层</th><th>构造方法</th><th>污染控制</th><th>复用管线</th></tr>
+<tr><td><strong>Live 层</strong>(主体)</td><td>抓取 cutoff 后新 issue,按仓库分组、issue/PR 引用关系成链,时序排列;60–100 序列(约 500–800 任务),月刷 10–20</td><td>日期标记 + 月度刷新</td><td>SWE-bench-Live REPOLAUNCH、SWE-rebench 采集协议、SWE-ContextBench 关联对挖掘</td></tr>
+<tr><td><strong>注入层</strong>(冻结可复现)</td><td>真实仓库上合成"不可推断事实"注入早期会话,后期任务用可执行 oracle 验证是否用到;40–60 序列,每序列 3–5 个探针</td><td>事实是新造的,天然免污染</td><td>MemoryCode / DreamBench-SWE 的 non-inferable 设计</td></tr>
+<tr><td><strong>回放层</strong>(真实性锚)</td><td>真实 harness 会话转录重建为可复现任务 + 用户模拟器回放纠偏;30–50 任务</td><td>转录时间戳</td><td>SWE-chat 管线(11,260 会话→109 任务)、codememo 先例</td></tr>
+<tr><td><strong>漂移探针</strong>(嵌入各层)</td><td>在序列中部选真实版本断裂点,构造"此前记忆现已过期"的探针任务</td><td>断裂点为公开文档事实</td><td>GitChameleon 2.0 / CodeUpdateArena</td></tr>
+</table>
+
+<h4>会话与记忆协议(基准的机制核心)</h4>
+<p>每任务一个全新会话(fresh context),仓库 checkout 到该任务对应的真实历史状态;<strong>唯一跨任务通道是 harness 持久记忆目录</strong>(CLAUDE.md/MEMORY.md/skills/ 或外挂记忆系统),每次记忆变更 git 提交留痕——记忆变更历史本身成为评测产物,直接供 Retention track 以"单次 harness diff"为被测单元做回归归因,也支持 Memory track 的固结正确性对照标注。这一设计把 A5 的机制评测、C6 的序列协议与 D1 的更新级归因焊接在同一份数据上,是三题合并在工程上成立的关键。</p>
+
+<h4>Retention track 协议(D1 创新点的落地)</h4>
+<ul>
+<li><strong>回归用例三来源</strong>:历史成功轨迹回放(任务输入+环境快照+可执行验收判据);更新反推探针——对每条被更新的记忆工件自动生成"该工件应支配的行为"探针(RippleEdits 范式移植),使回归集随记忆库增长;语义等价扰动区分真回归与 prompt 敏感性噪声。</li>
+<li><strong>统计协议</strong>:每用例 k=3–5 次重复取多数票,集合级配对差检验(McNemar/paired-t),任务按族分组用 clustered SE(依 Anthropic《Adding Error Bars to Evals》);检出 5pp 净回归需约 150–200 配对用例——HCL 的 80 anchors/task 只能检出 ~10pp 级回归,这一功效分析结论本身可写入论文。</li>
+<li><strong>成本控制</strong>:变更感知的切片优先级(CASPER 范式):按更新工件与用例的语义关联度排序,预算内优先跑高风险切片。</li>
+</ul>
+
+<h3>3.4 实验设计雏形</h3>
+<table>
+<tr><th>要素</th><th>设计</th></tr>
+<tr><td><strong>被测配置(横轴)</strong></td><td>no-memory 基线 / 朴素轨迹回放 / ReasoningBank-ExpeL 式蒸馏 / AWM 工作流归纳 / ACE playbook / Claude Code auto memory(产品原生) / Mem0 类外挂 / SkillFlow 式技能库,共 8 配置;放置扰动子实验(同一记忆内容强制放 user/repo/path 层)× 强制 compaction 事件</td></tr>
+<tr><td><strong>Harness 与模型</strong></td><td>3 harness(Claude Code、OpenHands、Codex CLI,版本 pin)× 4 模型;locked-harness 协议 + 每 harness 独立榜单,防 scaffold 效应(20+pp)淹没记忆效应(个位数 pp)</td></tr>
+<tr><td><strong>基线协议复现</strong></td><td>SWE-Bench-CL 与 SWE-ContextBench 的协议在本数据上复现,作为对比锚(同时化解命名心智之争)</td></tr>
+<tr><td><strong>指标栈</strong></td><td>Lifelong:AA、成功率斜率、FT/BWT、复用率(记忆条目被检索且被采纳的轨迹级判定,抽样人工校准)、成本曲线;Memory:写入 P/R、放置正确率、compaction 存活率、固结前后卫生与损伤率(沿 HaluMem 三阶段);Retention:URR、Retention@t、locality 曲线、守护成本;Drift:过期记忆危害率(bad rate)、自我纠正延迟</td></tr>
+<tr><td><strong>防刷榜/防污染审计</strong>(吸收 B3 草案 C)</td><td>冻结外部锚(held-out 强 judge + 人工金标,只在检查点评估);canary 任务(live 榜单分数上涨而冻结 canary 下跌 → 判定过拟合);时间滞后审计(用发布后新 issue 事后检验)</td></tr>
+<tr><td><strong>标注计划</strong>(用足标注员资源)</td><td>"值得记住集合"金标:每序列 2–3 人时 × 150 序列 ≈ 400 人时;固结正确性标注(记忆条目 vs 轨迹事实,MemTrace 协议)约 200 人时;漂移探针过期判定与序列质量校验约 200–300 人时;复用率 LLM-judge 的人工校准抽样 100 人时。<strong>合计约 900–1000 人时,在"大量本科级标注员"假设下 4–6 周并行完成;资源充裕时倍增标注做双人交叉一致性(报 Cohen's κ),直接提升 D&amp;B 评审印象</strong></td></tr>
+<tr><td><strong>算力预算</strong></td><td>token 近乎无限的假设下直接跑 full 矩阵:8 配置 × 4 模型 × 3 harness 的全序列 + Retention 重评,粗估 $5–10 万等级;同时发布 lite split(2–3 仓库)供社区低成本复现</td></tr>
+</table>
+
+<h3>3.5 目标会议与投稿窗口</h3>
+<ul>
+<li><strong>占位</strong>:2026 Q4,NeurIPS 2026 / ICLR 2027 相关 workshop 短文 + 预注册(设计与统计协议),同时开源 lite 版——对冲 8 个月新增 6+ 基准的抢跑风险;</li>
+<li><strong>主投</strong>:<strong>NeurIPS 2027 Datasets &amp; Benchmarks</strong>(约 2027-05 截稿;SWE-bench-Live、SWE-rebench 先例);</li>
+<li><strong>备选</strong>:ICLR 2028(BEAM/MemoryAgentBench 先例);ACL 2028 系统 track(MemoryCode 先例)。</li>
+</ul>
+
+<h3>3.6 主要风险与竞品</h3>
+<table>
+<tr><th>风险</th><th>等级</th><th>缓解</th></tr>
+<tr><td><strong>抢跑</strong>:DreamBench-SWE 在迭代(v2.1)、LME-V2 团队(UCLA)可能做 coding 版、OpenHands 系(Xingyao Wang 握有 SWE-Milestone + 持久记忆 SDK)是最危险竞争者</td><td class="score-lo">高</td><td>以"harness 机制为受控变量"这一无人持有的角度切入;lite 版 + 预注册尽快占位;三 track 合并本身即护城河</td></tr>
+<tr><td><strong>效应量小</strong>:AGENTbench 显示 context 文件效应仅 ±3–4%;若记忆净收益普遍 &lt;2pp,榜单价值受损</td><td>中</td><td>注入层保证存在"必须靠记忆才能解"的任务;把"记忆可有可无"与"记忆必要"两个 regime 分开报告;负结果预案(作为科学发现叙事仍可发表)</td></tr>
+<tr><td><strong>harness 不稳定/闭源</strong>:Claude Code auto memory/Dreams 语义随版本漂移</td><td>中</td><td>版本 pin + 机制抽象层("分层文件记忆"定义为规范接口);开源 harness 为主锚,闭源为外推验证臂</td></tr>
+<tr><td><strong>live 刷新 vs 可复现张力</strong></td><td>中</td><td>双轨制:冻结版(注入层为主)保证论文可复现,live 排行榜滚动刷新</td></tr>
+<tr><td><strong>评测成本与榜单腐化</strong></td><td>中</td><td>lite split;fractional factorial 条件裁剪;发布时承诺维护周期与独立复测通道(吸取 AMB 教训)</td></tr>
+</table>
+
+<h4>最像的五个竞品与一句话差异化</h4>
+<ul>
+<li><strong>DreamBench-SWE</strong>(最像):它只测记忆卫生一维、外挂记忆条件、单作者方法学存疑;我们测收益/写入/固结/干扰/保持多维、harness 原生机制为变量、live 去污染、多 harness。</li>
+<li><strong>SWE-Milestone</strong>(ICML 2026,最强已发表):它是单一连续 session 内的演化;我们是跨会话、以持久记忆为唯一通道——正交且可复用其 DeepCommit 管线。</li>
+<li><strong>SWE-Bench-CL / SWE-ContextBench</strong>:旧 SWE-bench 数据(已污染)+ 外挂记忆;我们 live 数据 + 原生机制 + 全指标族,并把两者协议作为 baseline 复现。</li>
+<li><strong>MemTrace-Bench</strong>(ICSE 2027 在审):它只测危害面(构造 prelude);我们测学习-保持-漂移全曲线,借用其危害标注协议。</li>
+<li><strong>HCL</strong>:它是机制原型(anchor set 为内部私有组件);我们是公开回归基准与构建方法学——HCL 成为我们 Retention track 的被测守护机制之一(类比 RippleEdits 之于 MEMIT)。</li>
+</ul>
+
+<h3>3.7 库内引用锚点(raw/papers/)</h3>
+<p class="small">竞品与协议来源:<code>2026-singh-dreambench-swe.pdf</code>、<code>2026-deng-swe-milestone.pdf</code>、<code>2025-joshi-swe-bench-cl.pdf</code>、<code>2026-zhu-swe-contextbench.pdf</code>、<code>2025-rakotonirina-memorycode.pdf</code>、<code>2026-kang-harness-continual-learning.pdf</code>、<code>2026-zhang-skillflow.pdf</code>、<code>2026-shen-evocode-bench.pdf</code>、<code>2026-chen-swe-ci.pdf</code>、<code>2026-orlanski-slopcodebench.pdf</code>;数据底座:<code>2025-zhang-swe-bench-live.pdf</code>、<code>2025-badertdinov-swe-rebench.pdf</code>、<code>2026-baumann-swe-chat.pdf</code>;指标与方法学:<code>2025-chen-halumem.pdf</code>、<code>2026-wu-longmemeval-v2.pdf</code>、<code>2025-hu-memoryagentbench.pdf</code>、<code>2026-he-memoryarena.pdf</code>、<code>2026-zhao-ama-bench.pdf</code>、<code>2025-tavakoli-beam.pdf</code>、<code>2023-cohen-ripple-effects.pdf</code>、<code>2024-gu-model-editing-hurts.pdf</code>、<code>2024-miller-error-bars-evals.pdf</code>、<code>2026-muse-casper.pdf</code>、<code>2023-ma-prompt-regression-llm-apis.pdf</code>、<code>2026-chen-harnessfix.pdf</code>、<code>2026-xue-past-bench.pdf</code>、<code>2026-chen-slipstream.pdf</code>;实证先验:<code>2026-gloaguen-evaluating-agents-md.pdf</code>(C6 底稿登记名 <code>2026-gloaguen-agentbench-contextfiles.pdf</code>)、<code>2026-huang-harness-memory.pdf</code>、<code>2025-zheng-lifelongagentbench.pdf</code>、<code>2024-wu-streambench.pdf</code>、<code>2025-chen-swe-exp.pdf</code>、<code>2025-ouyang-reasoningbank.pdf</code>、<code>2026-vats-scaffold-effect.pdf</code>、<code>2026-zhang-harness-disclosure.pdf</code>、<code>2025-dong-minja.pdf</code>。</p>
+
+<!-- ============ 选题二 ============ -->
+<h2 id="s4">四、选题二立项论证:HarnessAblate</h2>
+
+<h3>4.1 研究问题</h3>
+
+<div class="keybox">
+<strong>总 RQ:在固定进化算法与预算下,单独开放 coding harness 的每一类可编辑面自我进化,各自的收益与风险是多少?是否存在"最小充分集"——组合收益接近全开放而风险显著更低的面子集?</strong>
+</div>
+
+<ul>
+<li><strong>RQ1(双轴画像)</strong>:六类面(system prompt / 长期记忆 / skills / 工具定义 / workflow / 代码本体)逐一开放的收益(held-out 解决率 Δ、步数/成本 Δ)与风险(held-out 回归率、安全探针失败率、膨胀度、可逆性)各是多少?</li>
+<li><strong>RQ2(最小充分集)</strong>:是否存在面子集,组合收益 ≈ 全开放,而风险显著低于全开放(尤其低于全代码库开放)?</li>
+<li><strong>RQ3(调节变量)</strong>:收益/风险比如何随基座模型能力与任务域(regime)变化?——直接对话 Harness Updating ≠ Benefit 的非单调性发现与 Yu &amp; Desell 的 regime 交互。</li>
+</ul>
+
+<h3>4.2 贡献声明</h3>
+<ol>
+<li>首个<strong>前瞻性</strong>(进化只被允许触碰指定面,文件级 ACL 强制)、<strong>跨六面</strong>、<strong>固定算法与预算</strong>的 harness 可编辑面交叉消融——区别于 AHE 的事后换入归因,回答的是部署者真正的问题"该开放什么";</li>
+<li>首次把<strong>风险轴做成一等公民</strong>:回归率、Misevolution 式安全探针、膨胀曲线、随机回滚可逆性四项与收益并列报告——现有全部证据只测收益;</li>
+<li>"最小充分集"结论与开放决策查找表(面 × 模型能力 × 任务域),为 harness 自进化的产品化提供第一份受控证据;</li>
+<li>通路证据协议(借鉴 PAST-Bench):trace 级验证增益是否真经过被开放面,排除旁路效应。</li>
+</ol>
+
+<h3>4.3 方法与实验设计</h3>
+<table>
+<tr><th>要素</th><th>设计</th></tr>
+<tr><td><strong>Harness(双臂)</strong></td><td>主臂:开源 harness(OpenHands 或 AHE 式文件暴露组件的自建 harness),六面全开可控;外推臂:Claude Code 本体配置面子集(CLAUDE.md/memory/skills/hooks/MCP 工具描述,无代码本体条件),验证对闭源产品的外推性(引 Dive into Claude Code 论证组件同构)</td></tr>
+<tr><td><strong>进化算法(固定)</strong></td><td>Self-Harness 式循环(弱点挖掘 → 提案 → 回归验证)统一驱动;提案 agent 仅被授权写入当前条件开放的面(文件级 ACL);每编辑 git 提交可回滚</td></tr>
+<tr><td><strong>条件矩阵</strong></td><td>主臂:C0 冻结基线 / C1–C6 单面 / C7 全开 / C8 最小充分集候选(自适应);<strong>token 近乎无限的资源假设下,leave-one-out 六条件从"预算允许时补跑"升级为默认全跑(共 15 条件),并把种子从 3 增到 5</strong>——面间交互与 run-to-run 方差是 deep_B1 列出的两大风险,资源换稳健是最直接的对策</td></tr>
+<tr><td><strong>任务集</strong></td><td>SWE-bench Verified 抽样 100 题(60 train / 40 held-out,按 repo 切分)+ Terminal-Bench 2 全量(域外泛化);进化只见 train,held-out 与域外全程冻结</td></tr>
+<tr><td><strong>预算协议</strong></td><td>每条件 15 轮迭代 × 每轮 20 train 题 × ≤3 次编辑提案;预实验先估方差决定最终种子数</td></tr>
+<tr><td><strong>评估四轴</strong></td><td>收益:held-out 解决率 Δ、成本 Δ;风险:(a) 回归率(C0 能解而该条件不能解),(b) 安全探针(Misevolution 式污染反馈/诱导任务),(c) 膨胀度(字节/条目增长曲线),(d) 可逆性(随机回滚后恢复度);通路证据:trace 级归因;模型协变量:2 档开源模型全矩阵 + 闭源模型关键条件复现</td></tr>
+<tr><td><strong>成本</strong></td><td>15 条件 × 5 seeds 全矩阵约 40,000+ 次 agent 运行,~$40–60k(在资源假设下可接受);并行度 20 下 4–6 周含基建</td></tr>
+</table>
+
+<h3>4.4 目标会议与投稿窗口</h3>
+<ul>
+<li><strong>主投:ICML 2027</strong>(约 2027-01 截稿)。理由:实验 4–6 周可完成,2026-09 启动、11 月出全量结果、12 月成稿在窗口内;而 deep_B1 明确警示 AHE 团队做前瞻版消融是最可能的竞争者,取最近的顶会截稿是对冲抢发的最优解;</li>
+<li><strong>备选</strong>:NeurIPS 2027 主会(若 ICML 结果需补强);ICLR 2028 兜底;</li>
+<li>消融协议与任务集可作为"消融基准"开源,给后续社区复用,增加 citation 尾部价值。</li>
+</ul>
+
+<h3>4.5 主要风险与竞品</h3>
+<table>
+<tr><th>风险</th><th>等级</th><th>缓解</th></tr>
+<tr><td>结果"无聊":六面排序与 AHE Table 3 一致</td><td>中</td><td>风险轴与最小充分集(RQ2)是 AHE 没有的贡献面,做成一等公民;RQ3 的模型 × regime 交互也是全新结论空间</td></tr>
+<tr><td>进化循环 run-to-run 高方差(PAST-Bench 已报告 Δ 小于 run 间波动)</td><td class="score-lo">高</td><td>预实验估方差;5 seeds + 配对检验;资源假设下必要时继续加 seed</td></tr>
+<tr><td>面间交互被单面消融低估(全因子 2^6 不可负担)</td><td>中</td><td>leave-one-out 全跑(默认)+ C8 自适应组合;明示这是 fractional 设计并报告局限</td></tr>
+<tr><td>AHE 团队抢发前瞻版</td><td class="score-lo">高</td><td>压缩时间线主投 ICML 2027;差异化护城河是风险轴 + 双 harness 外推臂</td></tr>
+<tr><td>基准污染与模型版本漂移</td><td>中</td><td>repo 级切分 + 域外 Terminal-Bench;锁定模型 snapshot</td></tr>
+</table>
+
+<h4>最像的竞品与一句话差异化</h4>
+<ul>
+<li><strong>AHE Table 3</strong>(最像):事后换入归因 vs 我们的前瞻开放消融;无风险轴 vs 双轴;单 harness vs 双臂。</li>
+<li><strong>Harness Updating ≠ Benefit</strong>:按模型能力轴分析 vs 我们按面做轴、模型为协变量。</li>
+<li><strong>Yu &amp; Desell</strong>:静态工具面配置消融 vs 我们进化闭环下的六面矩阵。</li>
+<li><strong>PAST-Bench / CODESKILL</strong>:单面(记忆/skills)消融 vs 跨面对照;其配对对照与通路证据方法学被我们借用。</li>
+<li><strong>Ben Sghaier et al.</strong>:观察性组件敏感度 vs 我们受控因果归因;其"context management 高风险"发现作先验假设。</li>
+</ul>
+
+<h3>4.6 库内引用锚点(raw/papers/)</h3>
+<p class="small">核心对照:<code>2026-lin-agentic-harness-engineering.pdf</code>、<code>2026-zhang-self-harness.pdf</code>、<code>2026-lee-meta-harness.pdf</code>、<code>2025-zhang-darwin-godel-machine.pdf</code>、<code>2025-robeyns-sica.pdf</code>;消融证据:<code>2026-yu-execute-code-ablation.pdf</code>、<code>2026-li-codeskill.pdf</code>、<code>2026-xue-past-bench.pdf</code>、<code>2026-bensghaier-harness-evolution-quality.pdf</code>、<code>2026-lin-harness-updating-not-benefit.pdf</code>;谱系与风险:<code>2026-hu-self-evolving-coding-agents-survey.pdf</code>、<code>2025-shao-misevolution.pdf</code>、<code>2026-liu-dive-into-claude-code.pdf</code>、<code>2026-raj-model-or-harness.pdf</code>、<code>2026-macedo-what-makes-a-harness.pdf</code>;优化基线:<code>2025-zhang-ace.pdf</code>、<code>2025-agrawal-gepa.pdf</code>、<code>2023-khattab-dspy.pdf</code>、<code>2024-yuksekgonul-textgrad.pdf</code>、<code>2024-wang-agent-workflow-memory.pdf</code>。</p>
+
+<!-- ============ 未入选处置 ============ -->
+<h2 id="s5">五、未入选方向的处置建议</h2>
+
+<table>
+<tr><th>方向</th><th>处置</th><th>理由与后续动作</th></tr>
+<tr>
+  <td><strong>B3 · 弱评估器自进化</strong></td>
+  <td><strong>降级留树</strong>(paper_potential: high → medium)</td>
+  <td>不独立立项(红海 + 窗口 3–6 个月 + 评估循环系本质困难)。三项资产保留:(1) 草案 C 三角审计协议已吸收进选题一的防刷榜协议(§3.4);(2) 信号可靠性加权思想作为选题二编辑接受函数的备选设计记录在案;(3) 草案 B(EvoScore 延迟信号回流)在 search tree 挂为新观察点——若 6 个月后 harness 层 × 不可验证域仍无人占,可以"审计协议"最小切口重启(评测类工作生命周期长,是该方向唯一撞车风险低的入口)。21 篇归档论文与 index_002_B3.yaml 保持有效。</td>
+</tr>
+<tr>
+  <td><strong>A5 · 记忆基准</strong></td>
+  <td><strong>关闭独立立项,并入选题一</strong>(Memory track 主体)</td>
+  <td>其基准草案(HarnessMemBench)的记忆条件矩阵、放置扰动、三源任务构造被选题一完整继承;A5 分支在 search tree 标记 merged_into: 选题一。</td>
+</tr>
+<tr>
+  <td><strong>C6 · lifelong coding 基准</strong></td>
+  <td><strong>关闭独立立项,并入选题一</strong>(Lifelong track 主体 + 序列骨架)</td>
+  <td>底稿自荐合并;其三源混合序列构造、缺口矩阵、成本估算直接成为选题一设计文档的底座;标记 merged_into: 选题一。</td>
+</tr>
+<tr>
+  <td><strong>D1 · retention 回归集</strong></td>
+  <td><strong>关闭独立立项,并入选题一</strong>(Retention track 核心创新),<strong>保留拆分预案</strong></td>
+  <td>更新反推探针、功效分析、守护横评是选题一最深的方法学护城河;若执行中 scope 失控,按 §2.1 预案拆回独立方法学论文(用现成小任务流,投 ICSE/FSE 系亦可行——deep_D1 已论证独立可行性),此为选题一的风险对冲选项。</td>
+</tr>
+<tr>
+  <td><strong>其余 19 个 change-001 候选问题</strong></td>
+  <td>维持原状,留树待下轮</td>
+  <td>本 change 非目标;唯一建议:分支 B 待挖问题 4(进化安全护栏)与选题二的安全探针轴有耦合,选题二执行后其优先级应重估。</td>
+</tr>
+</table>
+
+<!-- ============ 时间线 ============ -->
+<h2 id="s6">六、投稿时间线与执行顺序建议(供 change-003 参考)</h2>
+
+<table>
+<tr><th>时间</th><th>选题一 · LiveRepoMem</th><th>选题二 · HarnessAblate</th></tr>
+<tr><td>2026-09</td><td>基建启动:REPOLAUNCH 复用、记忆目录 git 留痕的评测层、lite 版仓库策展</td><td>基建 + 预实验(方差估计、ACL 机制、安全探针集)</td></tr>
+<tr><td>2026-10 ~ 11</td><td>注入层构造 + 标注启动(标注员并行);lite 版跑通 3 配置</td><td>全条件矩阵开跑(并行度拉满)</td></tr>
+<tr><td>2026-12</td><td><strong>workshop 短文/预注册占位</strong>(协议 + lite 结果)</td><td>结果分析、成稿</td></tr>
+<tr><td>2027-01</td><td>live 层滚动、full 矩阵开跑</td><td><strong>投 ICML 2027</strong></td></tr>
+<tr><td>2027-02 ~ 04</td><td>full 榜单 + Retention/Drift 全量 + 标注收尾</td><td>(rebuttal;若未中转投 NeurIPS 2027)</td></tr>
+<tr><td>2027-05</td><td><strong>投 NeurIPS 2027 D&amp;B</strong></td><td>—</td></tr>
+</table>
+
+<p>两题共享的基础设施(容器化评测环境、SWE 任务池、回归判定协议、统计脚本)应一次建成双向复用;选题二的"记忆面开放进化"条件所产生的记忆演化轨迹,可直接回灌选题一作为额外的被测记忆配置——这是并行执行的隐藏红利。</p>
+
+<div class="greenbox">
+<strong>综合判断一句话</strong>:change-002 的深挖把五个"看似空白"全部证伪了一遍,又各自捞出了收窄后的真空白——这正是深挖的价值所在。收敛后的两个选题,一个占据"三截面统一基准"的合取无人区(护城河深、窗口约 9 个月),一个占据"前瞻双轴消融"的受控实验无人区(执行快、窗口约 4–6 个月),类型互补、风险对冲、证据链互喂,建议 change-003 按本报告时间线双轨启动。
+</div>
+
+<footer>
+  report-agent · 2026-08-30 18:14
+</footer>
+
+</div>
+</body>
+</html>

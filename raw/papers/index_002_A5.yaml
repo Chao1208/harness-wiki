@@ -1,0 +1,200 @@
+# change-002 · 方向 A5(评测方法学:harness 记忆基准)新增论文索引
+# 由 survey-agent-A5 创建;主 agent 稍后合并入 index.yaml,请勿直接改 index.yaml
+# pdf_status: archived = raw/papers/ 已有 PDF;pending = arXiv 当日网络故障未能下载,见文末说明
+papers:
+- id: 2025-rakotonirina-memorycode
+  title: 'From Tools to Teammates: Evaluating LLMs in Multi-Session Coding Interactions (MemoryCode)'
+  authors: Rakotonirina et al.
+  year: 2025
+  venue: ACL 2025
+  url: https://arxiv.org/abs/2502.13791
+  pdf: https://aclanthology.org/2025.acl-long.964.pdf
+  file: 2025-rakotonirina-memorycode.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:10
+  agent: survey-agent-A5
+  summary: 合成多会话 mentor-mentee 编码对话基准,测跨会话追踪并执行编码约定;GPT-4o 从单指令~95%跌到全历史~28%,证明跨会话指令整合是基础模型级缺陷。
+  direction: A5
+- id: 2025-hu-memoryagentbench
+  title: 'Evaluating Memory in LLM Agents via Incremental Multi-Turn Interactions (MemoryAgentBench)'
+  authors: Hu, Wang & McAuley (UCSD)
+  year: 2025
+  venue: ICLR 2026
+  url: https://arxiv.org/abs/2507.05257
+  pdf: https://proceedings.iclr.cc/paper_files/paper/2026/file/fd1eff9dd295df50a41f2521942fa31d-Paper-Conference.pdf
+  file: 2025-hu-memoryagentbench.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:11
+  agent: survey-agent-A5
+  summary: 增量喂入协议下测四能力(精确检索/测试时学习/长程理解/冲突消解),新增 EventQA 与 FactConsolidation 两数据集;冲突消解普遍最差。
+  direction: A5
+- id: 2025-tavakoli-beam
+  title: 'Beyond a Million Tokens: Benchmarking and Enhancing Long-Term Memory in LLMs (BEAM)'
+  authors: Tavakoli et al.
+  year: 2025
+  venue: ICLR 2026
+  url: https://arxiv.org/abs/2510.27246
+  pdf: https://openreview.net (notes/attachment y59hf5lrMn)
+  file: 2025-tavakoli-beam.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 100 段 128K-10M token 连贯对话、2000 问、10 记忆能力;1M 上下文模型+RAG 均随长度崩塌;附 LIGHT 三通路记忆框架。
+  direction: A5
+- id: 2025-chen-halumem
+  title: 'HaluMem: Evaluating Hallucinations in Memory Systems of Agents'
+  authors: Chen, Ding et al. (MemTensor/IAAR-Shanghai)
+  year: 2025
+  venue: arXiv (ACL 2026 投稿)
+  url: https://arxiv.org/abs/2511.03506
+  pdf: https://openreview.net (notes/attachment EZ6kgyWtHW)
+  file: 2025-chen-halumem.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 首个操作级记忆幻觉基准:拆解提取/更新/QA 三阶段定位幻觉产生环节;约 15k 记忆点、3.5k 问、上下文超 1M token;更新阶段正确率<26%且随规模趋零。
+  direction: A5
+- id: 2026-he-memoryarena
+  title: 'MemoryArena: Benchmarking Agent Memory in Interdependent Multi-Session Agentic Tasks'
+  authors: He, Zexue et al. (UCSD/Stanford)
+  year: 2026
+  venue: arXiv(ICML 2026 审稿版)
+  url: https://arxiv.org/abs/2602.16313
+  pdf: https://openreview.net (notes/attachment JI6lVgLPjp)
+  file: 2026-he-memoryarena.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 766 个任务间显式依赖的多会话 agentic 任务(web 导航/偏好约束规划/递进检索/形式推理),直接度量记忆到行动转化;LoCoMo 高分系统在此大幅退化。
+  direction: A5
+- id: 2026-wu-longmemeval-v2
+  title: 'LongMemEval-V2: Evaluating Long-Term Agent Memory Toward Experienced Colleagues'
+  authors: Wu, Di; Ji, Zixiang et al. (UCLA)
+  year: 2026
+  venue: arXiv 2605.12493
+  url: https://arxiv.org/abs/2605.12493
+  pdf: https://openreview.net (notes/attachment WUU5KTwCq5)
+  file: 2026-wu-longmemeval-v2.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 451 人工问题 + 25M-115M token 多模态 web-agent 轨迹历史;5 能力(静态回忆/动态追踪/工作流知识/gotchas/前提感知);LAFS 延迟-准确率前沿计分。
+  direction: A5
+- id: 2026-zhao-ama-bench
+  title: 'AMA-Bench: Evaluating Long-Horizon Memory for Agentic Applications'
+  authors: Zhao, Yujie et al. (UCSD)
+  year: 2026
+  venue: ICML 2026
+  url: https://arxiv.org/abs/2602.22769
+  pdf: https://openreview.net (notes/attachment GfQI92bpC1)
+  file: 2026-zhao-ama-bench.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 立论"agent 记忆是机器生成交互流而非对话";真实轨迹+专家 QA 与可任意拉长的合成轨迹+规则 QA 双子集;暴露相似度检索的有损性。
+  direction: A5
+- id: 2026-gloaguen-evaluating-agents-md
+  title: 'Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?'
+  authors: Gloaguen et al. (ETH Zurich)
+  year: 2026
+  venue: arXiv(ICLR 2026 审稿版)
+  url: https://arxiv.org/abs/2602.11988
+  pdf: https://openreview.net (notes/attachment 0DyJeJ3iia)
+  file: 2026-gloaguen-evaluating-agents-md.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 首个系统评测仓库级上下文文件(AGENTS.md/CLAUDE.md)的工作:开发者手写仅 +4%,LLM 生成反而 -3% 且成本 +20%;附新基准 AGENTbench(138 任务,12 个带手写 context file 的仓库)。
+  direction: A5
+- id: 2026-baumann-swe-chat
+  title: 'SWE-chat: Coding Agent Interactions From Real Users in the Wild'
+  authors: Baumann et al. (Stanford)
+  year: 2026
+  venue: COLM 2026
+  url: https://openreview.net/forum?id=KMAxjswrFe
+  pdf: https://openreview.net (notes/attachment KMAxjswrFe)
+  file: 2026-baumann-swe-chat.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 真实用户-coding agent 交互数据集(in the wild);为"用真实 harness 会话做基准语料"提供数据来源与许可先例(A5-3 数据来源论证用)。
+  direction: A5
+# ---------- 以下为深读候选但当日 arXiv 全域连接被重置、其它源无副本,PDF 待补 ----------
+- id: 2025-joshi-swe-bench-cl
+  title: 'SWE-Bench-CL: Continual Learning for Coding Agents'
+  authors: Joshi, Chowdhury & Uysal
+  year: 2025
+  venue: arXiv 2507.00014
+  url: https://arxiv.org/abs/2507.00014
+  pdf: https://arxiv.org/pdf/2507.00014
+  file: 2025-joshi-swe-bench-cl.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 把 SWE-Bench Verified 重组为按时间排序 issue 序列,定义 ACC/Forgetting/FT/BWT/CL-F1 等持续学习指标;只有协议与初步分析,无完整实验结果。
+  direction: A5
+- id: 2026-singh-dreambench-swe
+  title: 'DreamBench-SWE: A Multi-Session Memory-Hygiene Benchmark for Software Agents'
+  authors: Singh, Sarthak
+  year: 2026
+  venue: arXiv 2608.20664
+  url: https://arxiv.org/abs/2608.20664
+  pdf: https://github.com/iroiro147/dreambench-swe/releases/tag/v2.1.0
+  file: 2026-singh-dreambench-swe.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 多会话软件任务记忆卫生基准:后续任务依赖前期会话中不可推断的隐藏证据,由可执行隐藏 oracle 计分;预注册审计式报告;无外部记忆条件通过率仅 11.67%。
+  direction: A5
+- id: 2026-swe-contextbench
+  title: 'SWE-ContextBench: A Benchmark for Context Learning in Coding'
+  authors: 待补(arXiv 2602.08316)
+  year: 2026
+  venue: arXiv 2602.08316
+  url: https://arxiv.org/abs/2602.08316
+  pdf: https://www.arxiv.org/pdf/2602.08316
+  file: 2026-zhu-swe-contextbench.pdf
+  pdf_status: ok  # 与 C6 同篇,PDF 由 survey-agent-C6 归档
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 基于 SWE-Bench Lite 的经验复用基准:300 基础任务+99 个由真实 issue/PR 依赖关系派生的关联任务;评准确率/时间/成本三维;摘要式经验有益、未过滤经验有害。
+  direction: A5
+- id: 2026-catastrophic-remembering-claude-md
+  title: 'Why Does CLAUDE.md Keep Growing? Catastrophic Remembering in Agentic Coding'
+  authors: 待补(arXiv 2608.11095)
+  year: 2026
+  venue: arXiv 2608.11095
+  url: https://arxiv.org/abs/2608.11095
+  pdf: https://arxiv.org/pdf/2608.11095
+  file: 2026-catastrophic-remembering-claude-md.pdf
+  pdf_status: ok  # 主agent补下载(alphaxiv镜像) 2026-08-30 10:10
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 量化 agentic 指令文件的"灾难性记住":中位数 39 条指令、生命周期内 +226%;提出 prompt comments(记录指令 latent reasoning)消除 99.3% 超额增长并提升指令遵循 23.1%。
+  direction: A5
+- id: 2026-trustmem
+  title: 'TrustMem: Learning Trustworthy Memory Consolidation for LLM Agents with Long-Term Memory'
+  authors: 待补(arXiv 2606.25161)
+  year: 2026
+  venue: arXiv 2606.25161
+  url: https://arxiv.org/abs/2606.25161
+  pdf: https://arxiv.org/pdf/2606.25161
+  file: 2026-trustmem.pdf
+  pdf_status: ok  # 主agent补下载(alphaxiv镜像) 2026-08-30 10:10
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: Memory Transition Verifier 按 coverage/preservation/faithfulness 为记忆更新打分 + 偏好 RL;在 HaluMem 上提取 F1 +12.14,转移级 omission/corruption/hallucination 分别 -40.1%/-79.1%/-50.0%。
+  direction: A5
+- id: 2026-deng-memtrace
+  title: 'MemTrace: Tracing and Attributing Errors in Large Language Model Memory Systems'
+  authors: Deng, Xinle et al. (浙大/阿里)
+  year: 2026
+  venue: arXiv 2605.28732
+  url: https://arxiv.org/abs/2605.28732
+  pdf: https://arxiv.org/pdf/2605.28732
+  file: 2026-deng-memtrace.pdf
+  pdf_status: ok  # 主agent补下载(alphaxiv镜像) 2026-08-30 10:10
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 把记忆管线转为可执行操作图做错误溯源;MemTraceBench 160 个标注失败案例(基于 LoCoMo/LongMemEval/RealMem × 4 系统);归因信号反哺提示优化,端任务 +7.62%。
+  direction: A5

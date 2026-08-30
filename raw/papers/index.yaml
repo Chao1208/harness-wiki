@@ -493,3 +493,843 @@ papers:
   pdf: https://arxiv.org/pdf/2606.12344
   added: 2026-08-27 11:44
   agent: survey-agent-D
+
+# ---- change-002 五分支合并(2026-08-30 10:10,main-agent;按 arXiv id 去重,详情见 index_002_*.yaml) ----
+- id: 2023-cohen-ripple-effects
+  title: 'Evaluating the Ripple Effects of Knowledge Editing in Language Models'
+  authors: Roi Cohen, Eden Biran, Ori Yoran, Amir Globerson, Mor Geva
+  year: 2023
+  arxiv: 2307.12976
+  url: https://arxiv.org/abs/2307.12976
+  pdf: https://arxiv.org/pdf/2307.12976
+  file: 2023-cohen-ripple-effects.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: model editing 的"涟漪效应"评测(RippleEdits):单点编辑必须连带更新逻辑关联事实、且不得波及无关事实——locality/portability 指标体系是 harness 层 retention 度量的最直接方法论迁移源。
+- id: 2023-ma-prompt-regression-llm-apis
+  title: '(Why) Is My Prompt Getting Worse? Rethinking Regression Testing for Evolving LLM APIs'
+  authors: Wanqin Ma, Chenyang Yang, Christian Kästner
+  year: 2023
+  arxiv: 2311.11123
+  url: https://arxiv.org/abs/2311.11123
+  pdf: https://arxiv.org/pdf/2311.11123
+  file: 2023-ma-prompt-regression-llm-apis.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 最早系统论证"LLM 应用需要重新思考回归测试"的工作:模型 API 演化使既有 prompt 行为回归,传统确定性回归测试假设(确定输出、二值判定)全部失效。
+- id: 2023-zamfirescu-conversation-regression-testing
+  title: 'Conversation Regression Testing: A Design Technique for Prototyping Generalizable Prompt Strategies for Pre-trained Language Models'
+  authors: J.D. Zamfirescu-Pereira, Bjoern Hartmann, Qian Yang
+  year: 2023
+  arxiv: 2302.03154
+  url: https://arxiv.org/abs/2302.03154
+  pdf: https://arxiv.org/pdf/2302.03154
+  file: 2023-zamfirescu-conversation-regression-testing.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 最早提出"对话回归测试"概念(HCI 视角):prompt 改动修复一处对话缺陷时可能破坏其它对话,需在固定对话集上回归检查——D1 问题在 prompt 设计工具层的雏形。
+- id: 2024-dixit-retain
+  title: 'RETAIN: Interactive Tool for Regression Testing Guided LLM Migration'
+  authors: Tanay Dixit, Daniel Lee, Sally Fang, Sai Sree Harsha, Anirudh Sureshan, Akash Maharaj, Yunyao Li
+  year: 2024
+  arxiv: 2409.03928
+  url: https://arxiv.org/abs/2409.03928
+  pdf: https://arxiv.org/pdf/2409.03928
+  file: 2024-dixit-retain.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: Adobe 工业界工具:模型迁移场景下的 prompt 回归测试交互系统,行为差异可视化+错误发现辅助,证明回归测试在 LLM 应用运维中的实际需求形态。
+- id: 2024-gu-model-editing-hurts
+  title: 'Model Editing Can Hurt General Abilities of Large Language Models'
+  authors: Jia-Chen Gu, Hao-Xiang Xu, Jun-Yu Ma, Pan Lu, Zhen-Hua Ling, Kai-Wei Chang, Nanyun Peng
+  year: 2024
+  arxiv: 2401.04700
+  url: https://arxiv.org/abs/2401.04700
+  pdf: https://arxiv.org/pdf/2401.04700
+  file: 2024-gu-model-editing-hurts.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 系统量化参数编辑对通用能力的副作用(跨 8 任务基准回归评测),确立"编辑收益必须与通用能力保持一起报告"的评测范式——D1 主张的参数层先例。
+- id: 2024-miller-error-bars-evals
+  title: 'Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations'
+  authors: Evan Miller (Anthropic)
+  year: 2024
+  arxiv: 2411.00640
+  url: https://arxiv.org/abs/2411.00640
+  pdf: https://arxiv.org/pdf/2411.00640
+  file: 2024-miller-error-bars-evals.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: LLM 评测的统计学处理(CLT、成对差检验、方差缩减);retention 回归集"多大规模才有统计效力"的直接计算依据(成对比较可大幅缩减所需样本量)。
+- id: 2024-yuan-self-rewarding-lms
+  pdf: 2024-yuan-self-rewarding-lms.pdf
+  title: Self-Rewarding Language Models
+  authors: Weizhe Yuan et al. (Meta)
+  year: 2024
+  arxiv: "2401.10020"
+  url: https://arxiv.org/abs/2401.10020
+  pdf_url: https://arxiv.org/pdf/2401.10020
+  summary: 模型自己当 judge 给自己的输出打分构造 DPO 偏好数据,迭代自训练;LLM-as-judge 驱动自进化的奠基工作,也是后续 judge hacking 批评的主要靶子。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2025-badertdinov-swe-rebench
+  title: 'SWE-rebench: An Automated Pipeline for Task Collection and Decontaminated Evaluation of Software Engineering Agents'
+  authors: Ibragim Badertdinov, Alexander Golubev, et al. (Nebius)
+  year: 2025
+  arxiv: '2505.20411'
+  url: https://arxiv.org/abs/2505.20411
+  pdf: https://arxiv.org/pdf/2505.20411
+  venue: NeurIPS 2025
+  summary: 21,000+ 交互式 SWE 任务的自动采集管线；逐 issue 记录创建日期 vs 模型发布日期并在榜单显式标记潜在污染——lifelong coding 基准做污染控制的参考协议。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2025-chen-halumem
+  title: 'HaluMem: Evaluating Hallucinations in Memory Systems of Agents'
+  authors: Chen, Ding et al. (MemTensor/IAAR-Shanghai)
+  year: 2025
+  venue: arXiv (ACL 2026 投稿)
+  url: https://arxiv.org/abs/2511.03506
+  pdf: https://openreview.net (notes/attachment EZ6kgyWtHW)
+  file: 2025-chen-halumem.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 首个操作级记忆幻觉基准:拆解提取/更新/QA 三阶段定位幻觉产生环节;约 15k 记忆点、3.5k 问、上下文超 1M token;更新阶段正确率<26%且随规模趋零。
+  direction: A5
+- id: 2025-chen-swe-exp
+  title: 'SWE-Exp: Experience-Driven Software Issue Resolution'
+  authors: Silin Chen, Shaoxin Lin, Yanan Shi, Heng Lian, Xiaodong Gu, et al.
+  year: 2025
+  arxiv: '2507.23361'
+  url: https://arxiv.org/abs/2507.23361
+  pdf: https://arxiv.org/pdf/2507.23361
+  summary: SWE 场景经验蒸馏与复用方法（非基准）；其"经验检索严格遵守仓库边界与时序（排除同仓库时序后置轨迹）"的防泄漏协议，是 lifelong coding 基准设计复用度量时必须借鉴的规范。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2025-dong-minja
+  title: 'A Practical Memory Injection Attack against LLM Agents (MINJA)'
+  authors: Shen Dong, Shaocheng Xu, Pengfei He, Yige Li, Jiliang Tang, Tianming Liu, Hui Liu, Zhen Xiang
+  year: 2025
+  arxiv: 2503.03704
+  url: https://arxiv.org/abs/2503.03704
+  pdf: https://arxiv.org/pdf/2503.03704
+  file: 2025-dong-minja.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 仅凭 query 交互即可向 agent 记忆库注入恶意记录并在后续会话触发(≈98% 注入成功率);证明记忆写入路径缺乏行为级验收——对抗版的"记忆更新副作用"。
+- id: 2025-gunjal-rubrics-as-rewards
+  pdf: 2025-gunjal-rubrics-as-rewards.pdf
+  title: "Rubrics as Rewards: Reinforcement Learning Beyond Verifiable Domains"
+  authors: Anisha Gunjal et al. (Scale AI)
+  year: 2025
+  arxiv: "2507.17746"
+  url: https://arxiv.org/abs/2507.17746
+  pdf_url: https://arxiv.org/pdf/2507.17746
+  summary: 把 instance-specific checklist 式 rubric 作为 on-policy RL 奖励,医学/科学域比 Likert judge 基线相对提升至多 31%(HealthBench);rubric-RL 路线的命名之作。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2025-hu-memoryagentbench
+  title: 'Evaluating Memory in LLM Agents via Incremental Multi-Turn Interactions (MemoryAgentBench)'
+  authors: Hu, Wang & McAuley (UCSD)
+  year: 2025
+  venue: ICLR 2026
+  url: https://arxiv.org/abs/2507.05257
+  pdf: https://proceedings.iclr.cc/paper_files/paper/2026/file/fd1eff9dd295df50a41f2521942fa31d-Paper-Conference.pdf
+  file: 2025-hu-memoryagentbench.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:11
+  agent: survey-agent-A5
+  summary: 增量喂入协议下测四能力(精确检索/测试时学习/长程理解/冲突消解),新增 EventQA 与 FactConsolidation 两数据集;冲突消解普遍最差。
+  direction: A5
+- id: 2025-joshi-swe-bench-cl
+  title: 'SWE-Bench-CL: Continual Learning for Coding Agents'
+  authors: Joshi, Chowdhury & Uysal
+  year: 2025
+  venue: arXiv 2507.00014
+  url: https://arxiv.org/abs/2507.00014
+  pdf: https://arxiv.org/pdf/2507.00014
+  file: 2025-joshi-swe-bench-cl.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 把 SWE-Bench Verified 重组为按时间排序 issue 序列,定义 ACC/Forgetting/FT/BWT/CL-F1 等持续学习指标;只有协议与初步分析,无完整实验结果。
+  direction: A5
+- id: 2025-rakotonirina-memorycode
+  title: 'From Tools to Teammates: Evaluating LLMs in Multi-Session Coding Interactions (MemoryCode)'
+  authors: Rakotonirina et al.
+  year: 2025
+  venue: ACL 2025
+  url: https://arxiv.org/abs/2502.13791
+  pdf: https://aclanthology.org/2025.acl-long.964.pdf
+  file: 2025-rakotonirina-memorycode.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:10
+  agent: survey-agent-A5
+  summary: 合成多会话 mentor-mentee 编码对话基准,测跨会话追踪并执行编码约定;GPT-4o 从单指令~95%跌到全历史~28%,证明跨会话指令整合是基础模型级缺陷。
+  direction: A5
+- id: 2025-saadfalcon-weaver
+  pdf: 2025-saadfalcon-weaver.pdf
+  title: "Weaver: Shrinking the Generation-Verification Gap with Weak Verifiers"
+  authors: Jon Saad-Falcon et al. (Stanford)
+  year: 2025
+  arxiv: "2506.18203"
+  url: https://arxiv.org/abs/2506.18203
+  pdf_url: https://arxiv.org/pdf/2506.18203
+  summary: 用弱监督(无标签估计各弱 verifier 准确率)加权集成多个 LM judge/奖励模型,Llama-70B 达 o3-mini 级选答准确率,并可蒸馏成 400M 交叉编码器;弱 verifier 组合的方法论基石(NeurIPS 2025)。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2025-tavakoli-beam
+  title: 'Beyond a Million Tokens: Benchmarking and Enhancing Long-Term Memory in LLMs (BEAM)'
+  authors: Tavakoli et al.
+  year: 2025
+  venue: ICLR 2026
+  url: https://arxiv.org/abs/2510.27246
+  pdf: https://openreview.net (notes/attachment y59hf5lrMn)
+  file: 2025-tavakoli-beam.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 100 段 128K-10M token 连贯对话、2000 问、10 记忆能力;1M 上下文模型+RAG 均随长度崩塌;附 LIGHT 三通路记忆框架。
+  direction: A5
+- id: 2025-zhang-swe-bench-live
+  title: 'SWE-bench Goes Live!'
+  authors: Linghao Zhang, Shilin He, Chaoyun Zhang, et al. (Microsoft)
+  year: 2025
+  arxiv: '2505.23419'
+  url: https://arxiv.org/abs/2505.23419
+  pdf: https://arxiv.org/pdf/2505.23419
+  venue: NeurIPS 2025 Datasets & Benchmarks
+  summary: RepoLaunch 全自动策展管线（issue 挖掘→容器环境→测试验证），1,890 任务/223 仓库，每月滚动 +50 题，已扩多语言与 Windows；live 任务序列与污染控制的现成数据底座。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2025-zhao-intuitor
+  pdf: 2025-zhao-intuitor.pdf
+  title: Learning to Reason without External Rewards (Intuitor)
+  authors: Xuandong Zhao et al. (UC Berkeley)
+  year: 2025
+  arxiv: "2505.19590"
+  url: https://arxiv.org/abs/2505.19590
+  pdf_url: https://arxiv.org/pdf/2505.19590
+  summary: 提出 RLIF 范式,用模型自身 self-certainty(输出分布对均匀分布的 KL)作内在奖励替代外部 verifier,数学域内比肩 GRPO 且跨域泛化更好;置信度类代理信号代表作。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2025-zuo-ttrl
+  pdf: 2025-zuo-ttrl.pdf
+  title: "TTRL: Test-Time Reinforcement Learning"
+  authors: Yuxin Zuo et al. (Tsinghua/PRIME)
+  year: 2025
+  arxiv: "2504.16084"
+  url: https://arxiv.org/abs/2504.16084
+  pdf_url: https://arxiv.org/pdf/2504.16084
+  summary: 无标签测试数据上用多数投票伪标签作 RL 奖励,Qwen-Math-7B 在 AIME24 提升约 159%;self-consistency 代理信号路线的旗舰,但依赖"存在唯一正确答案"的任务结构。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-baumann-swe-chat
+  title: 'SWE-chat: Coding Agent Interactions From Real Users in the Wild'
+  authors: Baumann et al. (Stanford)
+  year: 2026
+  venue: COLM 2026
+  url: https://openreview.net/forum?id=KMAxjswrFe
+  pdf: https://openreview.net (notes/attachment KMAxjswrFe)
+  file: 2026-baumann-swe-chat.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 真实用户-coding agent 交互数据集(in the wild);为"用真实 harness 会话做基准语料"提供数据来源与许可先例(A5-3 数据来源论证用)。
+  direction: A5
+# ---------- 以下为深读候选但当日 arXiv 全域连接被重置、其它源无副本,PDF 待补 ----------
+- id: 2026-bensghaier-harness-evolution-quality
+  file: 2026-bensghaier-harness-evolution-quality.pdf
+  title: "Don't Blame the Large Language Model: How Agent Harness Evolution Shapes Coding Agent Quality"
+  authors: "Oussama Ben Sghaier, Hao Li, Bram Adams, Ahmed E. Hassan"
+  year: 2026
+  arxiv: "2607.03691"
+  url: "https://arxiv.org/abs/2607.03691"
+  summary: "首个隔离 harness 贡献的受控纵向研究:固定模型、跨版本对比真实 harness(如 OpenHands)演化,发现 LLM Provider 与 Context Management 等架构组件回归风险最高——观察性组件敏感度证据,非主动逐组件进化消融。"
+  direction: B1
+- id: 2026-catastrophic-remembering-claude-md
+  title: 'Why Does CLAUDE.md Keep Growing? Catastrophic Remembering in Agentic Coding'
+  authors: 待补(arXiv 2608.11095)
+  year: 2026
+  venue: arXiv 2608.11095
+  url: https://arxiv.org/abs/2608.11095
+  pdf: https://arxiv.org/pdf/2608.11095
+  file: 2026-catastrophic-remembering-claude-md.pdf
+  pdf_status: ok  # 主agent补下载(alphaxiv镜像) 2026-08-30 10:10
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 量化 agentic 指令文件的"灾难性记住":中位数 39 条指令、生命周期内 +226%;提出 prompt comments(记录指令 latent reasoning)消除 99.3% 超额增长并提升指令遵循 23.1%。
+  direction: A5
+- id: 2026-chen-harnessfix
+  title: 'From Failed Trajectories to Reliable LLM Agents: Diagnosing and Repairing Harness Flaws (HarnessFix)'
+  authors: Mengzhuo Chen, Junjie Wang, Zhe Liu, Yawen Wang, Qing Wang
+  year: 2026
+  arxiv: 2606.06324
+  url: https://arxiv.org/abs/2606.06324
+  pdf: https://arxiv.org/pdf/2606.06324
+  file: 2026-chen-harnessfix.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 轨迹驱动的 harness 缺陷诊断与修复;补丁经"regression-aware validation"(防新补丁破坏既有行为)后才接受——生产 harness 侧最接近 retention 回归检查的机制。
+- id: 2026-chen-harnessforge
+  file: 2026-chen-harnessforge.pdf
+  title: "HarnessForge: Joint Harness and Policy Evolution for Adaptive Agent Systems"
+  authors: "Mingju Chen, Can Lv, Guibin Zhang, Heng Chang, Shiji Zhou"
+  year: 2026
+  arxiv: "2606.01779"
+  url: "https://arxiv.org/abs/2606.01779"
+  summary: "harness 与模型策略联合进化;可编辑面为整体 harness 配置,未做逐组件消融。"
+  direction: B1
+- id: 2026-chen-harnessx
+  pdf: 2026-chen-harnessx.pdf
+  title: "HarnessX: A Composable, Adaptive, and Evolvable Agent Harness Foundry"
+  authors: Tingyang Chen et al.
+  year: 2026
+  arxiv: "2606.14249"
+  url: https://arxiv.org/abs/2606.14249
+  pdf_url: https://arxiv.org/pdf/2606.14249
+  summary: 类型化 harness 原语的替换代数 + 轨迹驱动多 agent 进化引擎(AEGIS),五基准平均 +14.5%;harness 层进化的工程化集大成,但进化信号仍来自可验证基准分。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-chen-slipstream
+  title: 'Slipstream: Trajectory-Grounded Compaction Validation for Long-Horizon Agents'
+  authors: Zhuofu Chen, Rui Pan, Yinwei Dai, Ravi Netravali
+  year: 2026
+  arxiv: 2605.08580
+  url: https://arxiv.org/abs/2605.08580
+  pdf: https://arxiv.org/pdf/2605.08580
+  file: 2026-chen-slipstream.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 把 compaction(harness 触发的明文重写)当作需要验证的变更:异步生成摘要并用 agent 后续行为对照验证摘要是否丢了关键信息——"明文更新需行为验证"思想在 context 层的实例。
+- id: 2026-chen-swe-ci
+  pdf: 2026-chen-swe-ci.pdf
+  title: "SWE-CI: Evaluating Agent Capabilities in Maintaining Codebases via Continuous Integration"
+  authors: Jialong Chen et al. (中山大学/Alibaba)
+  year: 2026
+  arxiv: "2603.03823"
+  url: https://arxiv.org/abs/2603.03823
+  pdf_url: https://arxiv.org/pdf/2603.03823
+  summary: 用真实仓库平均 233 天/71 连续提交的演化史构造 CI 循环任务,提出 EvoScore(未来加权的功能正确率)量化长期可维护性与技术债;"repo 长期健康"首次有了可计算度量,但尚无人将其闭环为进化信号。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-deng-memtrace
+  title: 'MemTrace: Tracing and Attributing Errors in Large Language Model Memory Systems'
+  authors: Deng, Xinle et al. (浙大/阿里)
+  year: 2026
+  venue: arXiv 2605.28732
+  url: https://arxiv.org/abs/2605.28732
+  pdf: https://arxiv.org/pdf/2605.28732
+  file: 2026-deng-memtrace.pdf
+  pdf_status: ok  # 主agent补下载(alphaxiv镜像) 2026-08-30 10:10
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 把记忆管线转为可执行操作图做错误溯源;MemTraceBench 160 个标注失败案例(基于 LoCoMo/LongMemEval/RealMem × 4 系统);归因信号反哺提示优化,端任务 +7.62%。
+  direction: A5
+- id: 2026-deng-swe-milestone
+  title: 'SWE-Milestone: Evaluating AI Agents on Continuous Software Evolution'
+  authors: Gangda Deng, Zhaoling Chen, ..., Xiangru Tang, Xingyao Wang
+  year: 2026
+  arxiv: '2603.13428'
+  url: https://arxiv.org/abs/2603.13428
+  pdf: https://arxiv.org/pdf/2603.13428
+  venue: ICML 2026
+  summary: DeepCommit 管线从 commit 史重构可执行里程碑 DAG（98 里程碑/7 仓库/5 语言），单一连续会话推进整个演化流；孤立任务 >80% 的模型在连续设定跌到 38.03%。"同仓库长期演化"维度最强已发表竞品，但不测跨会话记忆。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-ding-evorubrics
+  pdf: 2026-ding-evorubrics.pdf
+  title: "EvoRubrics: Dynamic Rubrics as Rewards via Adversarial Co-Evolution"
+  authors: Hongxin Ding et al.
+  year: 2026
+  arxiv: "2606.23038"
+  url: https://arxiv.org/abs/2606.23038
+  pdf_url: https://arxiv.org/pdf/2606.23038
+  summary: 静态 rubric 随策略变强失去判别力导致奖励饱和/hacking;让 Policy 与 Rubric Generator 每步对抗共进化形成自动课程,纯自监督变体也有增益,rubric 生成器可迁移为奖励模型。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-dong-echo
+  pdf: 2026-dong-echo.pdf
+  title: "Echo: Learning from Experience Data via User-Driven Refinement"
+  authors: Hande Dong et al.
+  year: 2026
+  arxiv: "2605.21984"
+  url: https://arxiv.org/abs/2605.21984
+  pdf_url: https://arxiv.org/pdf/2605.21984
+  summary: 生产环境代码补全中,把用户对 agent 输出的后续修改序列(最终稳定进编辑器的代码=事后 ground truth)挖掘为训练信号,接受率 25.7%→35.7%;人类偏好回流路线的工业级验证。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-gloaguen-evaluating-agents-md
+  title: 'Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?'
+  authors: Gloaguen et al. (ETH Zurich)
+  year: 2026
+  venue: arXiv(ICLR 2026 审稿版)
+  url: https://arxiv.org/abs/2602.11988
+  pdf: https://openreview.net (notes/attachment 0DyJeJ3iia)
+  file: 2026-gloaguen-evaluating-agents-md.pdf  # 同文重复归档:2026-gloaguen-agentbench-contextfiles.pdf(survey-agent-C6)
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 首个系统评测仓库级上下文文件(AGENTS.md/CLAUDE.md)的工作:开发者手写仅 +4%,LLM 生成反而 -3% 且成本 +20%;附新基准 AGENTbench(138 任务,12 个带手写 context file 的仓库)。
+  direction: A5
+- id: 2026-guan-continualskillbench
+  title: 'ContinualSkillBench: Can LLM Agents Truly Evolve Their Capabilities?'
+  authors: Tianyi Guan, Yiding Wang, Haotong Yang, Siyuan Cao, Shirui Liu, Jiaqi Li, Muhan Zhang
+  year: 2026
+  arxiv: 2608.03874
+  url: https://arxiv.org/abs/2608.03874
+  pdf: https://arxiv.org/pdf/2608.03874
+  file: 2026-guan-continualskillbench.pdf
+  added: 2026-08-28 17:35
+  agent: survey-agent-D1
+  direction: D1
+  summary: 在真实 coding harness(Codex CLI/Claude Code 改造)上测技能持续演化;发现 ICL 与显式技能维护平均相当(0.605 vs 0.602),技能库会膨胀且质量参差——真实 harness 上的技能演化收益/风险实证。
+- id: 2026-guan-evorubric
+  pdf: 2026-guan-evorubric.pdf
+  title: "EvoRubric: Self-Evolving Rubric-Driven RL for Open-Ended Generation"
+  authors: Xin Guan et al.
+  year: 2026
+  arxiv: "2605.29847"
+  url: https://arxiv.org/abs/2605.29847
+  pdf_url: https://arxiv.org/pdf/2605.29847
+  summary: 单策略内交替扮演 Reasoner 与 Rubric Generator,配 meta-verifier、零方差剪枝、Leave-One-Out 同伴共识的多级验证防 reward hacking,验证过的准则入记忆池;覆盖医学/写作/科学三域。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-he-memoryarena
+  title: 'MemoryArena: Benchmarking Agent Memory in Interdependent Multi-Session Agentic Tasks'
+  authors: He, Zexue et al. (UCSD/Stanford)
+  year: 2026
+  venue: arXiv(ICML 2026 审稿版)
+  url: https://arxiv.org/abs/2602.16313
+  pdf: https://openreview.net (notes/attachment JI6lVgLPjp)
+  file: 2026-he-memoryarena.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 766 个任务间显式依赖的多会话 agentic 任务(web 导航/偏好约束规划/递进检索/形式推理),直接度量记忆到行动转化;LoCoMo 高分系统在此大幅退化。
+  direction: A5
+- id: 2026-hebbar-sia
+  file: 2026-hebbar-sia.pdf
+  title: "SIA: Self Improving AI with Harness & Weight Updates"
+  authors: "Prannay Hebbar, Yogendra Manawat, et al. (Hexo Labs)"
+  year: 2026
+  arxiv: "2605.27276"
+  url: "https://arxiv.org/abs/2605.27276"
+  summary: "同时更新 harness 与模型权重的自改进闭环;harness/权重两大面有对照,组件级无。"
+  direction: B1
+- id: 2026-hu-self-evolving-coding-agents-survey
+  file: 2026-hu-self-evolving-coding-agents-survey.pdf
+  title: "Self-Evolving Coding Agents (Survey)"
+  authors: "Haichuan Hu, Tianyu Luo, Ye Shang, Hao Zhou, Quanjun Zhang"
+  year: 2026
+  arxiv: "2608.03392"
+  url: "https://arxiv.org/abs/2608.03392"
+  summary: "以'进化目标'为中心的六类分类综述(framework/memory/skill&tool/model/workflow/environment);明确指出产品级能力多无隔离消融、harness 膨胀与可逆性是开放问题——为 B1 空白点提供综述级佐证。"
+  direction: B1
+- id: 2026-huang-g-zero
+  pdf: 2026-huang-g-zero.pdf
+  title: "G-Zero: Self-Play for Open-Ended Generation from Zero Data"
+  authors: Chengsong Huang et al.
+  year: 2026
+  arxiv: "2605.09959"
+  url: https://arxiv.org/abs/2605.09959
+  pdf_url: https://arxiv.org/pdf/2605.09959
+  summary: 完全 verifier-free 的开放式生成自进化:Hint-δ 内在信号(提示引起的对数似然偏移)驱动 Proposer(GRPO)与 Generator(DPO)共进化,绕开 judge 能力天花板与 reward hacking;R-Zero 作者对开放域的续作,附 best-iterate 次优性理论保证。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-li-codeskill
+  file: 2026-li-codeskill.pdf
+  title: "CODESKILL: Learning Self-Evolving Skills for Coding Agents"
+  authors: "Yanzhou Li, Yiran Zhang, Xiaoyu Zhang, Xiaoxia Liu, Yang Liu"
+  year: 2026
+  arxiv: "2605.25430"
+  url: "https://arxiv.org/abs/2605.25430"
+  summary: "训练 skill 管理模型维护 skill bank;Table 2 给出 skill 面内部生命周期消融(extraction/evolution/maintenance 逐级启用),是 skill 单面进化收益的最强实证之一。"
+  direction: B1
+- id: 2026-li-r-diverse
+  pdf: 2026-li-r-diverse.pdf
+  title: "R-Diverse: Mitigating Diversity Illusion in Self-Play LLM Training"
+  authors: Gengsheng Li et al.
+  year: 2026
+  arxiv: "2602.13103"
+  url: https://arxiv.org/abs/2602.13103
+  pdf_url: https://arxiv.org/pdf/2602.13103
+  summary: 指出 self-play 的两类多样性幻觉(跨轮模式循环、表面多样但技能同质),用记忆增强惩罚+技能感知度量维持可持续进化;弱信号自进化的多样性坍缩防御代表。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-lin-harness-updating-not-benefit
+  file: 2026-lin-harness-updating-not-benefit.pdf
+  title: "Harness Updating Is Not Harness Benefit: Disentangling Evolution Capabilities in Self-Evolving LLM Agents"
+  authors: "Minhua Lin, Juncheng Wu, Zijun Wang, et al."
+  year: 2026
+  arxiv: "2605.30621"
+  url: "https://arxiv.org/abs/2605.30621"
+  summary: "区分'harness 更新能力'与'harness 受益能力':不同能力模型产生相似更新但受益非单调;更新对象含 prompt/skill/memory/tool,按更新类型而非组件维度分析。"
+  direction: B1
+- id: 2026-liu-adaptive-auto-harness
+  title: 'Adaptive Auto-Harness: Sustained Self-Improvement for Agentic System Deployment on Open-Ended Task Streams'
+  authors: Zewen Liu, Zhan Shi, Yisi Sang, Bing He, Minhua Lin, Tianxin Wei, Dakuo Wang, Benoit Dumoulin, Wei Jin, Hanqing Lu
+  year: 2026
+  arxiv: 2606.01770
+  url: https://arxiv.org/abs/2606.01770
+  pdf: https://arxiv.org/pdf/2606.01770
+  file: 2026-liu-adaptive-auto-harness.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 实证"单一 harness 被反复密集更新会脆化:准确率早期见顶后下滑";以 harness 树+solve-time 路由代替原地覆写,把演化损失与适配损失分解——原地更新导致回归的系统级证据。
+- id: 2026-liu-dive-into-claude-code
+  file: 2026-liu-dive-into-claude-code.pdf
+  title: "Dive into Claude Code: The Design Space of Today's and Future AI Agent Systems"
+  authors: "Jiacheng Liu, Xiaohan Zhao, Xinyi Shang, Zhiqiang Shen"
+  year: 2026
+  arxiv: "2604.14228"
+  url: "https://arxiv.org/abs/2604.14228"
+  summary: "对 Claude Code 架构的解剖研究(权限系统、上下文管线、MCP/plugins/skills/hooks 扩展机制、subagent 委派),为 Claude Code 类 harness 的组件枚举提供直接依据。"
+  direction: B1
+- id: 2026-ma-skillclaw
+  file: 2026-ma-skillclaw.pdf
+  title: "SkillClaw: Let Skills Evolve Collectively with Agentic Evolver"
+  authors: "Ziyu Ma, Shidong Yang, Yuxiang Ji, et al. (Alibaba DreamX)"
+  year: 2026
+  arxiv: "2604.08377"
+  url: "https://arxiv.org/abs/2604.08377"
+  summary: "跨 agent 集体 skill 进化;可编辑面仅限 skills 单面,提供 skill 面内证据。"
+  direction: B1
+- id: 2026-macedo-what-makes-a-harness
+  file: 2026-macedo-what-makes-a-harness.pdf
+  title: "What makes a harness a harness: necessary and sufficient conditions for an agent harness"
+  authors: "Sanderson Oliveira de Macedo"
+  year: 2026
+  arxiv: "2606.10106"
+  url: "https://arxiv.org/abs/2606.10106"
+  summary: "概念论文,给出 agent harness 的必要/充分条件定义,可作为组件枚举的理论参照,无实证消融。"
+  direction: B1
+- id: 2026-muse-casper
+  title: 'CASPER: Change-Aware Slice Prioritization for Efficient Regression Testing of LLM-based Systems'
+  authors: Biruk Asmare Muse, Lionel Briand, Yiwei Lu, Keheliya Gallaba
+  year: 2026
+  arxiv: 2608.00378
+  url: https://arxiv.org/abs/2608.00378
+  pdf: https://arxiv.org/pdf/2608.00378
+  file: 2026-muse-casper.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 面向 LLM 系统的回归测试:单实例失败信息量不足,以"语义切片"为单位做变更感知的回归用例优先级排序,降低全量回归评测成本——回归集运行成本问题的直接方法论参考。
+- id: 2026-nie-evolvenet
+  file: 2026-nie-evolvenet.pdf
+  title: "EvolveNet: Collaborative Harness Evolution for Agent Self-Improvement"
+  authors: "Jun Nie, Yonggang Zhang, Qianshu Cai, Yiu-ming Cheung, Xinmei Tian, Bo Han"
+  year: 2026
+  arxiv: "2608.04968"
+  url: "https://arxiv.org/abs/2608.04968"
+  summary: "多 agent 协作式 harness 进化;开放面为 harness 配置整体,无逐组件消融。"
+  direction: B1
+- id: 2026-nie-tthe
+  pdf: 2026-nie-tthe.pdf
+  title: "TTHE: Test-Time Harness Evolution"
+  authors: Jun Nie et al. (HKBU/USTC/HKUST)
+  year: 2026
+  arxiv: "2607.08124"
+  url: https://arxiv.org/abs/2607.08124
+  pdf_url: https://arxiv.org/pdf/2607.08124
+  summary: 首个测试时 harness 进化:冻结 LLM 分饰 solver/proposer/judge,凭无标签执行轨迹的代理信号维护并演化 harness 种群;任务域(SQL/编程/SWE)本质可验证,作者自认"执行派生代理信号的可靠性"是中心挑战——B3 空白核实的关键证据。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-orlanski-slopcodebench
+  title: 'SlopCodeBench: Benchmarking How Coding Agents Degrade Over Long-Horizon Iterative Tasks'
+  authors: Gabriel Orlanski, Devjeet Roy, et al.
+  year: 2026
+  arxiv: '2603.24755'
+  url: https://arxiv.org/abs/2603.24755
+  pdf: https://arxiv.org/pdf/2603.24755
+  summary: 20 题/93 检查点，agent 在演化需求下反复扩展自己的旧代码；追踪 verbosity 与结构侵蚀两个质量信号——80%/89.8% 的轨迹质量单调恶化，人类代码保持平稳。证明 pass-rate 基准系统性低估扩展鲁棒性。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-park-autosaddler
+  file: 2026-park-autosaddler.pdf
+  title: "AutoSaddler: Automatic Harness Optimization with Durable Updates from Agent Execution Traces"
+  authors: "Sungho Park, Wonjoong Kim, Rongyuan Tan, Jue Zhang, Wook-Shin Han, et al."
+  year: 2026
+  arxiv: "2608.23041"
+  url: "https://arxiv.org/abs/2608.23041"
+  summary: "从执行 trace 自动优化 harness 的持久更新;消融针对方法阶段(深度诊断/结构化干预/泛化感知选择)而非 harness 组件本身。"
+  direction: B1
+- id: 2026-piao-hote
+  pdf: 2026-piao-hote.pdf
+  title: Hybrid Open-Ended Tri-Evolution Makes Better Deep Researcher (HOTE)
+  authors: Hongming Piao et al.
+  year: 2026
+  arxiv: "2606.13710"
+  url: https://arxiv.org/abs/2606.13710
+  pdf_url: https://arxiv.org/pdf/2606.13710
+  summary: 明言"agent evolution 只在可验证任务上被验证过,与开放式研究任务之间存在 gap",用混合模式 RL 让 proposer/solver/judge 三方共进化,8B 模型超静态 8-32B;与 B3 立项最像的竞品之一(权重层)。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-qi-llm-as-code
+  file: 2026-qi-llm-as-code.pdf
+  title: "LLM-as-Code: Agentic Programming for Agent Harness"
+  authors: "Junjia Qi, Wenlin Zhang, et al."
+  year: 2026
+  arxiv: "2606.15874"
+  url: "https://arxiv.org/abs/2606.15874"
+  summary: "把 harness 表达为可被 agent 编程的代码(LLM-as-Code),可编辑面为全代码;粒度谱系'全代码库'一端的新代表。"
+  direction: B1
+- id: 2026-raj-model-or-harness
+  file: 2026-raj-model-or-harness.pdf
+  title: "Model or Harness? An Interaction-Centric Taxonomy for Localizing Agent Failures"
+  authors: "Harsh Raj, Vipul Gupta, Anas Mahmoud, et al. (Scale AI)"
+  year: 2026
+  arxiv: "2607.28802"
+  url: "https://arxiv.org/abs/2607.28802"
+  summary: "提出以交互为中心的失败归因分类法,把 agent 失败定位到模型或 harness 的具体环节,可为逐组件消融提供失败归因工具。"
+  direction: B1
+- id: 2026-shen-evocode-bench
+  title: 'EvoCode-Bench: Evaluating Coding Agents in Multi-Turn Iterative Interactions'
+  authors: Haiyang Shen, Xuanzhong Chen, Wen Xu, Yun Ma, Liangqiang Chen, Kuan Li
+  year: 2026
+  arxiv: '2605.24110'
+  url: https://arxiv.org/abs/2605.24110
+  pdf: https://arxiv.org/pdf/2605.24110
+  summary: 26 个有状态任务/227 评测轮：同一 workspace 与 agent session 保持 5-15 轮、需求演化、累积测试验证；单轮 SR 比多轮 MT@4 高 22-40 点且重排名次，第 5 轮聚合通过率跌破首轮一半——量化"多轮状态保持"缺口。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-singh-dreambench-swe
+  title: 'DreamBench-SWE: A Multi-Session Memory-Hygiene Benchmark for Software Agents'
+  authors: Singh, Sarthak
+  year: 2026
+  venue: arXiv 2608.20664
+  url: https://arxiv.org/abs/2608.20664
+  pdf: https://github.com/iroiro147/dreambench-swe/releases/tag/v2.1.0
+  file: 2026-singh-dreambench-swe.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 多会话软件任务记忆卫生基准:后续任务依赖前期会话中不可推断的隐藏证据,由可执行隐藏 oracle 计分;预注册审计式报告;无外部记忆条件通过率仅 11.67%。
+  direction: A5
+- id: 2026-sui-conl
+  pdf: 2026-sui-conl.pdf
+  title: "Conversation for Non-verifiable Learning: Self-Evolving LLMs through Meta-Evaluation (CoNL)"
+  authors: Yuan Sui et al.
+  year: 2026
+  arxiv: "2601.21464"
+  url: https://arxiv.org/abs/2601.21464
+  pdf_url: https://arxiv.org/pdf/2601.21464
+  summary: 直面"judge 质量上限"问题:critique 的质量用"是否帮别人改进了解"来度量(diagnostic reward),多 agent 自博弈联合优化生成、评估与元评估;鸡生蛋问题的一个可操作解。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-swe-contextbench
+  title: 'SWE-ContextBench: A Benchmark for Context Learning in Coding'
+  authors: 待补(arXiv 2602.08316)
+  year: 2026
+  venue: arXiv 2602.08316
+  url: https://arxiv.org/abs/2602.08316
+  pdf: https://www.arxiv.org/pdf/2602.08316
+  file: 2026-zhu-swe-contextbench.pdf
+  pdf_status: ok  # 与 C6 同篇(arXiv 2602.08316),PDF 由 survey-agent-C6 归档
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: 基于 SWE-Bench Lite 的经验复用基准:300 基础任务+99 个由真实 issue/PR 依赖关系派生的关联任务;评准确率/时间/成本三维;摘要式经验有益、未过滤经验有害。
+  direction: A5
+- id: 2026-trustmem
+  title: 'TrustMem: Learning Trustworthy Memory Consolidation for LLM Agents with Long-Term Memory'
+  authors: 待补(arXiv 2606.25161)
+  year: 2026
+  venue: arXiv 2606.25161
+  url: https://arxiv.org/abs/2606.25161
+  pdf: https://arxiv.org/pdf/2606.25161
+  file: 2026-trustmem.pdf
+  pdf_status: ok  # 主agent补下载(alphaxiv镜像) 2026-08-30 10:10
+  added: 2026-08-29 01:55
+  agent: survey-agent-A5
+  summary: Memory Transition Verifier 按 coverage/preservation/faithfulness 为记忆更新打分 + 偏好 RL;在 HaluMem 上提取 F1 +12.14,转移级 omission/corruption/hallucination 分别 -40.1%/-79.1%/-50.0%。
+  direction: A5
+- id: 2026-wang-serpo
+  pdf: 2026-wang-serpo.pdf
+  title: "SERPO: Self-Evolving Rubric Policy Optimization for Open-Ended Test-Time RL"
+  authors: Jianze Wang et al. (HUST/Alibaba)
+  year: 2026
+  arxiv: "2607.26873"
+  url: https://arxiv.org/abs/2607.26873
+  pdf_url: https://arxiv.org/pdf/2607.26873
+  summary: 把 TTRL 从答案投票推广到开放域:Good-Normal-Bad 响应档案、查询特定 rubric、策略参数三方闭环共进化,HealthBench/ResearchQA 提升至多 20 分;开放式 test-time 自进化的当前 SOTA。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-wu-longmemeval-v2
+  title: 'LongMemEval-V2: Evaluating Long-Term Agent Memory Toward Experienced Colleagues'
+  authors: Wu, Di; Ji, Zixiang et al. (UCLA)
+  year: 2026
+  venue: arXiv 2605.12493
+  url: https://arxiv.org/abs/2605.12493
+  pdf: https://openreview.net (notes/attachment WUU5KTwCq5)
+  file: 2026-wu-longmemeval-v2.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 451 人工问题 + 25M-115M token 多模态 web-agent 轨迹历史;5 能力(静态回忆/动态追踪/工作流知识/gotchas/前提感知);LAFS 延迟-准确率前沿计分。
+  direction: A5
+- id: 2026-xia-context-rot-search
+  title: 'Diagnosing and Mitigating Context Rot in Long-horizon Search'
+  authors: Shijie Xia, Yikun Wang, Zhen Huang, Pengfei Liu
+  year: 2026
+  arxiv: 2606.29718
+  url: https://arxiv.org/abs/2606.29718
+  pdf: https://arxiv.org/pdf/2606.29718
+  file: 2026-xia-context-rot-search.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 诊断长程搜索中 context rot 的行为机理,并对比 compaction/trimming/isolation 各种 context 管理策略如何重塑模型行为——"context 层退化"与其缓解手段的行为级分析。
+- id: 2026-xue-past-bench
+  file: 2026-xue-past-bench.pdf
+  title: "PAST-Bench: Benchmarking the Foundations of Recursive Self-Improvement in Personal Agents"
+  authors: "Shuhan Xue, Zixin Ding, Yichen Shen, Yinjie Wang, Zhenfei Yin, et al."
+  year: 2026
+  arxiv: "2608.04003"
+  url: "https://arxiv.org/abs/2608.04003"
+  summary: "配对 persistence 开/关对照(固定模型/prompt/工具/seed)隔离'留存经验'这一面的贡献,7 模型 x 4 框架;Hermes+ 提供逐机制(Plan/Render/Route/Gate/Close)消融——经验/记忆面的受控消融范式,可直接借鉴到 B1 实验设计。"
+  direction: B1
+- id: 2026-yang-rubric-dropout
+  pdf: 2026-yang-rubric-dropout.pdf
+  title: "Rubric Dropout: A Simple Way to Mitigate Reward Hacking in Rubric-as-Reward RL"
+  authors: Minglai Yang et al.
+  year: 2026
+  arxiv: "2608.11669"
+  url: https://arxiv.org/abs/2608.11669
+  pdf_url: https://arxiv.org/pdf/2608.11669
+  summary: 实测 rubric-RL 中训练 judge 分数持续上升而 gold judge 分数先升后跌(ResearchQA 跌 22 分)证明 hacking 而非噪声;每步随机丢弃部分 rubric 准则使策略无法过拟合固定代理,一行代码缓解。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-ye-llm-as-a-coach
+  pdf: 2026-ye-llm-as-a-coach.pdf
+  title: "LLM-as-a-Coach: Experiential Learning for Non-Verifiable Tasks"
+  authors: Tianzhu Ye et al. (含 Furu Wei, MSRA)
+  year: 2026
+  arxiv: "2607.18110"
+  url: https://arxiv.org/abs/2607.18110
+  pdf_url: https://arxiv.org/pdf/2607.18110
+  summary: 把 judge 升级为 coach:不压缩成标量,而是把逐响应评估蒸馏为可迁移的经验知识,经 on-policy 上下文蒸馏内化进策略;比 rubric-RL 泛化更好且缓解 reward hacking——"富文本反馈优于标量"在不可验证域的直接证据。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-yu-execute-code-ablation
+  file: 2026-yu-execute-code-ablation.pdf
+  title: "When Does Restricting a Coding Agent to execute_code Help? A Regime x Agent-Design Ablation"
+  authors: "Qi Yu, Travis Desell"
+  year: 2026
+  arxiv: "2607.10569"
+  url: "https://arxiv.org/abs/2607.10569"
+  summary: "对 coding agent 工具面(baseline/bash_only/code_only)在任务域(regime)x agent 设计上做交叉消融,证明工具面选择由任务域与 agent 设计共同决定——目前最接近'单组件受控消融'的工作,但只覆盖工具面。"
+  direction: B1
+- id: 2026-zhang-skillflow
+  title: 'SkillFlow: Benchmarking Lifelong Skill Discovery and Evolution for Autonomous Agents'
+  authors: Zhang et al.
+  year: 2026
+  arxiv: '2604.17308'
+  url: https://arxiv.org/abs/2604.17308
+  pdf: https://arxiv.org/pdf/2604.17308
+  summary: 166 任务/20 工作流族的 Agentic Lifelong Learning 协议：agent 从零技能起步、顺序解题、以轨迹+rubric 驱动技能补丁并携带技能库前行；直接在 Claude Code/Codex CLI 等真实 harness 上评测（Opus 4.6 +8.43 点，多数模型无法稳定自进化）。lifelong 侧最接近 harness 场景的新基准，但任务为合成族、非真实仓库演化。
+  direction: C6
+  pdf_status: ok
+  added: 2026-08-29 01:40
+  agent: survey-agent-C6
+- id: 2026-zhao-ama-bench
+  title: 'AMA-Bench: Evaluating Long-Horizon Memory for Agentic Applications'
+  authors: Zhao, Yujie et al. (UCSD)
+  year: 2026
+  venue: ICML 2026
+  url: https://arxiv.org/abs/2602.22769
+  pdf: https://openreview.net (notes/attachment GfQI92bpC1)
+  file: 2026-zhao-ama-bench.pdf
+  pdf_status: archived
+  added: 2026-08-29 01:18
+  agent: survey-agent-A5
+  summary: 立论"agent 记忆是机器生成交互流而非对话";真实轨迹+专家 QA 与可任意拉长的合成轨迹+规则 QA 双子集;暴露相似度检索的有损性。
+  direction: A5
+- id: 2026-zheng-seagym
+  pdf: 2026-zheng-seagym.pdf
+  title: "SEAGym: An Evaluation Environment for Self-Evolving LLM Agents"
+  authors: Congjie Zheng et al.
+  year: 2026
+  arxiv: "2606.17546"
+  url: https://arxiv.org/abs/2606.17546
+  pdf_url: https://arxiv.org/pdf/2606.17546
+  summary: 主张评自进化必须度量更新过程本身(证据来源、快照回归、改进持久性、成本/不稳定性)而非只报终分;为"进化是否真的变好"提供了评测方法论,是 B3 实验设计的直接参照。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-zhong-skilllearnbench
+  title: 'SkillLearnBench: Benchmarking Continual Learning Methods for Agent Skill Generation on Real-World Tasks'
+  authors: Shanshan Zhong, Yi Lu, Jingjie Ning, Yibing Wan, Lihan Feng, Yuyi Ao, Leonardo F. R. Ribeiro, Markus Dreyer, Sean Ammirati, Chenyan Xiong
+  year: 2026
+  arxiv: 2604.20087
+  url: https://arxiv.org/abs/2604.20087
+  pdf: https://arxiv.org/pdf/2604.20087
+  file: 2026-zhong-skilllearnbench.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 首个持续技能学习基准(COLM'26);技能质量/执行轨迹/任务结果三级评测;发现仅靠 self-feedback 迭代技能会产生 recursive drift(自反馈递归漂移)。
+- id: 2026-zhou-self-play-reward-hacking
+  pdf: 2026-zhou-self-play-reward-hacking.pdf
+  title: "More Convincing, Not More Correct: Self-Play Reward Hacking of Reference-Free LLM Judges"
+  authors: Chenyu Zhou
+  year: 2026
+  arxiv: "2607.05904"
+  url: https://arxiv.org/abs/2607.05904
+  pdf_url: https://arxiv.org/pdf/2607.05904
+  summary: 结构性证伪 reference-free judge:条件在候选答案上的 judge 评的是 plausibility 而非 correctness,self-play 把 judge 通过率从 0.72 刷到 0.94 而真实准确率停在 0.20;解法是 de-anchoring(judge 先独立作答再评),假阳性率 0.719→0.012。B3 风险与防御的核心文献。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- id: 2026-zhu-score-deep-research
+  pdf: 2026-zhu-score-deep-research.pdf
+  title: Self-Evolving Deep Research via Joint Generation and Evaluation (SCORE)
+  authors: Han Zhu et al.
+  year: 2026
+  arxiv: "2606.04507"
+  url: https://arxiv.org/abs/2606.04507
+  pdf_url: https://arxiv.org/pdf/2606.04507
+  summary: 深研报告生成无 ground-truth,静态 judge 会饱和;SCORE 让共享参数的 evaluator 与 solver 共进化,外加 meta-harness 约束评估环境防跑偏;"评估器与被评者共同进化"在不可验证域的代表(权重层)。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3

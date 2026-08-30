@@ -1,7 +1,11 @@
 # harness-wiki 版本配置（唯一版本事实来源）
-current_version: "0.2"
+current_version: "0.3"
 
 history:
+  - version: "0.3"
+    date: "2026-08-30 18:35"
+    agent: "main-agent"
+    summary: "change-002 选题收敛完成：5方向深挖底稿、论文索引67→139条、选题报告(LiveRepoMem主投NeurIPS'27 D&B + HarnessAblate主投ICML'27)、wiki新增4概念页更新5主题页、工作日志"
   - version: "0.2"
     date: "2026-08-27 12:20"
     agent: "main-agent"

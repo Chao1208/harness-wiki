@@ -1,0 +1,207 @@
+# change-002 · D1 方向新增论文索引(survey-agent-D1)
+# 主 agent 稍后合并入 index.yaml;字段与主索引一致,另加 direction 与 summary
+papers:
+- id: 2026-lin-harness-updating-not-benefit
+  title: 'Harness Updating Is Not Harness Benefit: Disentangling Evolution Capabilities in Self-Evolving LLM Agents'
+  authors: Minhua Lin, Juncheng Wu, Zijun Wang, Zhan Shi, Yisi Sang, Bing He, et al.
+  year: 2026
+  arxiv: 2605.30621
+  url: https://arxiv.org/abs/2605.30621
+  pdf: https://arxiv.org/pdf/2605.30621
+  file: 2026-lin-harness-updating-not-benefit.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 拆分"产出 harness 更新的能力"与"从更新中获益的能力";弱模型会不激活或不忠实执行 harness 工件,更新收益与基座能力呈倒 U 形——说明 harness 更新的收益判定必须在目标执行模型上做行为级评测。
+- id: 2026-liu-adaptive-auto-harness
+  title: 'Adaptive Auto-Harness: Sustained Self-Improvement for Agentic System Deployment on Open-Ended Task Streams'
+  authors: Zewen Liu, Zhan Shi, Yisi Sang, Bing He, Minhua Lin, Tianxin Wei, Dakuo Wang, Benoit Dumoulin, Wei Jin, Hanqing Lu
+  year: 2026
+  arxiv: 2606.01770
+  url: https://arxiv.org/abs/2606.01770
+  pdf: https://arxiv.org/pdf/2606.01770
+  file: 2026-liu-adaptive-auto-harness.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 实证"单一 harness 被反复密集更新会脆化:准确率早期见顶后下滑";以 harness 树+solve-time 路由代替原地覆写,把演化损失与适配损失分解——原地更新导致回归的系统级证据。
+- id: 2026-chen-harnessfix
+  title: 'From Failed Trajectories to Reliable LLM Agents: Diagnosing and Repairing Harness Flaws (HarnessFix)'
+  authors: Mengzhuo Chen, Junjie Wang, Zhe Liu, Yawen Wang, Qing Wang
+  year: 2026
+  arxiv: 2606.06324
+  url: https://arxiv.org/abs/2606.06324
+  pdf: https://arxiv.org/pdf/2606.06324
+  file: 2026-chen-harnessfix.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 轨迹驱动的 harness 缺陷诊断与修复;补丁经"regression-aware validation"(防新补丁破坏既有行为)后才接受——生产 harness 侧最接近 retention 回归检查的机制。
+- id: 2026-zhang-skillflow
+  title: 'SkillFlow: Benchmarking Lifelong Skill Discovery and Evolution for Autonomous Agents'
+  authors: Ziao Zhang, Kou Shi, Shiting Huang, Avery Nie, Yu Zeng, Yiming Zhao, et al.
+  year: 2026
+  arxiv: 2604.17308
+  url: https://arxiv.org/abs/2604.17308
+  pdf: https://arxiv.org/pdf/2604.17308
+  file: 2026-zhang-skillflow.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 166 任务/20 工作流族的 lifelong 技能演化基准;发现弱模型把有缺陷技能固化入库并反复复用,单次错误变成跨任务回归(skill enshrinement),多个模型在技能演化下净退步。
+- id: 2026-zhong-skilllearnbench
+  title: 'SkillLearnBench: Benchmarking Continual Learning Methods for Agent Skill Generation on Real-World Tasks'
+  authors: Shanshan Zhong, Yi Lu, Jingjie Ning, Yibing Wan, Lihan Feng, Yuyi Ao, Leonardo F. R. Ribeiro, Markus Dreyer, Sean Ammirati, Chenyan Xiong
+  year: 2026
+  arxiv: 2604.20087
+  url: https://arxiv.org/abs/2604.20087
+  pdf: https://arxiv.org/pdf/2604.20087
+  file: 2026-zhong-skilllearnbench.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 首个持续技能学习基准(COLM'26);技能质量/执行轨迹/任务结果三级评测;发现仅靠 self-feedback 迭代技能会产生 recursive drift(自反馈递归漂移)。
+- id: 2023-ma-prompt-regression-llm-apis
+  title: '(Why) Is My Prompt Getting Worse? Rethinking Regression Testing for Evolving LLM APIs'
+  authors: Wanqin Ma, Chenyang Yang, Christian Kästner
+  year: 2023
+  arxiv: 2311.11123
+  url: https://arxiv.org/abs/2311.11123
+  pdf: https://arxiv.org/pdf/2311.11123
+  file: 2023-ma-prompt-regression-llm-apis.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 最早系统论证"LLM 应用需要重新思考回归测试"的工作:模型 API 演化使既有 prompt 行为回归,传统确定性回归测试假设(确定输出、二值判定)全部失效。
+- id: 2024-dixit-retain
+  title: 'RETAIN: Interactive Tool for Regression Testing Guided LLM Migration'
+  authors: Tanay Dixit, Daniel Lee, Sally Fang, Sai Sree Harsha, Anirudh Sureshan, Akash Maharaj, Yunyao Li
+  year: 2024
+  arxiv: 2409.03928
+  url: https://arxiv.org/abs/2409.03928
+  pdf: https://arxiv.org/pdf/2409.03928
+  file: 2024-dixit-retain.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: Adobe 工业界工具:模型迁移场景下的 prompt 回归测试交互系统,行为差异可视化+错误发现辅助,证明回归测试在 LLM 应用运维中的实际需求形态。
+- id: 2026-muse-casper
+  title: 'CASPER: Change-Aware Slice Prioritization for Efficient Regression Testing of LLM-based Systems'
+  authors: Biruk Asmare Muse, Lionel Briand, Yiwei Lu, Keheliya Gallaba
+  year: 2026
+  arxiv: 2608.00378
+  url: https://arxiv.org/abs/2608.00378
+  pdf: https://arxiv.org/pdf/2608.00378
+  file: 2026-muse-casper.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 面向 LLM 系统的回归测试:单实例失败信息量不足,以"语义切片"为单位做变更感知的回归用例优先级排序,降低全量回归评测成本——回归集运行成本问题的直接方法论参考。
+- id: 2023-cohen-ripple-effects
+  title: 'Evaluating the Ripple Effects of Knowledge Editing in Language Models'
+  authors: Roi Cohen, Eden Biran, Ori Yoran, Amir Globerson, Mor Geva
+  year: 2023
+  arxiv: 2307.12976
+  url: https://arxiv.org/abs/2307.12976
+  pdf: https://arxiv.org/pdf/2307.12976
+  file: 2023-cohen-ripple-effects.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: model editing 的"涟漪效应"评测(RippleEdits):单点编辑必须连带更新逻辑关联事实、且不得波及无关事实——locality/portability 指标体系是 harness 层 retention 度量的最直接方法论迁移源。
+- id: 2024-gu-model-editing-hurts
+  title: 'Model Editing Can Hurt General Abilities of Large Language Models'
+  authors: Jia-Chen Gu, Hao-Xiang Xu, Jun-Yu Ma, Pan Lu, Zhen-Hua Ling, Kai-Wei Chang, Nanyun Peng
+  year: 2024
+  arxiv: 2401.04700
+  url: https://arxiv.org/abs/2401.04700
+  pdf: https://arxiv.org/pdf/2401.04700
+  file: 2024-gu-model-editing-hurts.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 系统量化参数编辑对通用能力的副作用(跨 8 任务基准回归评测),确立"编辑收益必须与通用能力保持一起报告"的评测范式——D1 主张的参数层先例。
+- id: 2025-dong-minja
+  title: 'A Practical Memory Injection Attack against LLM Agents (MINJA)'
+  authors: Shen Dong, Shaocheng Xu, Pengfei He, Yige Li, Jiliang Tang, Tianming Liu, Hui Liu, Zhen Xiang
+  year: 2025
+  arxiv: 2503.03704
+  url: https://arxiv.org/abs/2503.03704
+  pdf: https://arxiv.org/pdf/2503.03704
+  file: 2025-dong-minja.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 仅凭 query 交互即可向 agent 记忆库注入恶意记录并在后续会话触发(≈98% 注入成功率);证明记忆写入路径缺乏行为级验收——对抗版的"记忆更新副作用"。
+- id: 2026-chen-slipstream
+  title: 'Slipstream: Trajectory-Grounded Compaction Validation for Long-Horizon Agents'
+  authors: Zhuofu Chen, Rui Pan, Yinwei Dai, Ravi Netravali
+  year: 2026
+  arxiv: 2605.08580
+  url: https://arxiv.org/abs/2605.08580
+  pdf: https://arxiv.org/pdf/2605.08580
+  file: 2026-chen-slipstream.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 把 compaction(harness 触发的明文重写)当作需要验证的变更:异步生成摘要并用 agent 后续行为对照验证摘要是否丢了关键信息——"明文更新需行为验证"思想在 context 层的实例。
+- id: 2026-xia-context-rot-search
+  title: 'Diagnosing and Mitigating Context Rot in Long-horizon Search'
+  authors: Shijie Xia, Yikun Wang, Zhen Huang, Pengfei Liu
+  year: 2026
+  arxiv: 2606.29718
+  url: https://arxiv.org/abs/2606.29718
+  pdf: https://arxiv.org/pdf/2606.29718
+  file: 2026-xia-context-rot-search.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 诊断长程搜索中 context rot 的行为机理,并对比 compaction/trimming/isolation 各种 context 管理策略如何重塑模型行为——"context 层退化"与其缓解手段的行为级分析。
+- id: 2023-zamfirescu-conversation-regression-testing
+  title: 'Conversation Regression Testing: A Design Technique for Prototyping Generalizable Prompt Strategies for Pre-trained Language Models'
+  authors: J.D. Zamfirescu-Pereira, Bjoern Hartmann, Qian Yang
+  year: 2023
+  arxiv: 2302.03154
+  url: https://arxiv.org/abs/2302.03154
+  pdf: https://arxiv.org/pdf/2302.03154
+  file: 2023-zamfirescu-conversation-regression-testing.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: 最早提出"对话回归测试"概念(HCI 视角):prompt 改动修复一处对话缺陷时可能破坏其它对话,需在固定对话集上回归检查——D1 问题在 prompt 设计工具层的雏形。
+- id: 2026-xue-past-bench
+  title: 'PAST-Bench: Benchmarking the Foundations of Recursive Self-Improvement in Personal Agents'
+  authors: Shuhan Xue, Zixin Ding, Yichen Shen, Yinjie Wang, Zhenfei Yin, Yingcheng Wu, Yuxin Chen, Mengdi Wang, Ling Yang
+  year: 2026
+  arxiv: 2608.04003
+  url: https://arxiv.org/abs/2608.04003
+  pdf: https://arxiv.org/pdf/2608.04003
+  file: 2026-xue-past-bench.pdf
+  added: 2026-08-28 17:35
+  agent: survey-agent-D1
+  direction: D1
+  summary: 归因式基准:26 场景/204 episode,开关"持久经验"做配对对照,并检查收益是否真经由 save/retrieve/update 通路;含"update"能力(过时状态必须被替换)——与 retention 回归互补的"更新正确性"维度。
+- id: 2026-guan-continualskillbench
+  title: 'ContinualSkillBench: Can LLM Agents Truly Evolve Their Capabilities?'
+  authors: Tianyi Guan, Yiding Wang, Haotong Yang, Siyuan Cao, Shirui Liu, Jiaqi Li, Muhan Zhang
+  year: 2026
+  arxiv: 2608.03874
+  url: https://arxiv.org/abs/2608.03874
+  pdf: https://arxiv.org/pdf/2608.03874
+  file: 2026-guan-continualskillbench.pdf
+  added: 2026-08-28 17:35
+  agent: survey-agent-D1
+  direction: D1
+  summary: 在真实 coding harness(Codex CLI/Claude Code 改造)上测技能持续演化;发现 ICL 与显式技能维护平均相当(0.605 vs 0.602),技能库会膨胀且质量参差——真实 harness 上的技能演化收益/风险实证。
+- id: 2024-miller-error-bars-evals
+  title: 'Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations'
+  authors: Evan Miller (Anthropic)
+  year: 2024
+  arxiv: 2411.00640
+  url: https://arxiv.org/abs/2411.00640
+  pdf: https://arxiv.org/pdf/2411.00640
+  file: 2024-miller-error-bars-evals.pdf
+  added: 2026-08-28 17:20
+  agent: survey-agent-D1
+  direction: D1
+  summary: LLM 评测的统计学处理(CLT、成对差检验、方差缩减);retention 回归集"多大规模才有统计效力"的直接计算依据(成对比较可大幅缩减所需样本量)。

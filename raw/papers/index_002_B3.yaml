@@ -1,0 +1,235 @@
+# change-002 方向 B3(弱评估器下的自进化)新增论文登记
+# 由 survey-agent-B3 于 2026-08-28 生成;主 agent 稍后合并入 index.yaml
+# 字段:pdf(raw/papers/ 下文件名)/title/authors/year/arxiv/url/pdf_url/summary/direction
+papers:
+- pdf: 2024-yuan-self-rewarding-lms.pdf
+  title: Self-Rewarding Language Models
+  authors: Weizhe Yuan et al. (Meta)
+  year: 2024
+  arxiv: "2401.10020"
+  url: https://arxiv.org/abs/2401.10020
+  pdf_url: https://arxiv.org/pdf/2401.10020
+  summary: 模型自己当 judge 给自己的输出打分构造 DPO 偏好数据,迭代自训练;LLM-as-judge 驱动自进化的奠基工作,也是后续 judge hacking 批评的主要靶子。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2025-zuo-ttrl.pdf
+  title: "TTRL: Test-Time Reinforcement Learning"
+  authors: Yuxin Zuo et al. (Tsinghua/PRIME)
+  year: 2025
+  arxiv: "2504.16084"
+  url: https://arxiv.org/abs/2504.16084
+  pdf_url: https://arxiv.org/pdf/2504.16084
+  summary: 无标签测试数据上用多数投票伪标签作 RL 奖励,Qwen-Math-7B 在 AIME24 提升约 159%;self-consistency 代理信号路线的旗舰,但依赖"存在唯一正确答案"的任务结构。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2025-zhao-intuitor.pdf
+  title: Learning to Reason without External Rewards (Intuitor)
+  authors: Xuandong Zhao et al. (UC Berkeley)
+  year: 2025
+  arxiv: "2505.19590"
+  url: https://arxiv.org/abs/2505.19590
+  pdf_url: https://arxiv.org/pdf/2505.19590
+  summary: 提出 RLIF 范式,用模型自身 self-certainty(输出分布对均匀分布的 KL)作内在奖励替代外部 verifier,数学域内比肩 GRPO 且跨域泛化更好;置信度类代理信号代表作。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2025-saadfalcon-weaver.pdf
+  title: "Weaver: Shrinking the Generation-Verification Gap with Weak Verifiers"
+  authors: Jon Saad-Falcon et al. (Stanford)
+  year: 2025
+  arxiv: "2506.18203"
+  url: https://arxiv.org/abs/2506.18203
+  pdf_url: https://arxiv.org/pdf/2506.18203
+  summary: 用弱监督(无标签估计各弱 verifier 准确率)加权集成多个 LM judge/奖励模型,Llama-70B 达 o3-mini 级选答准确率,并可蒸馏成 400M 交叉编码器;弱 verifier 组合的方法论基石(NeurIPS 2025)。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2025-gunjal-rubrics-as-rewards.pdf
+  title: "Rubrics as Rewards: Reinforcement Learning Beyond Verifiable Domains"
+  authors: Anisha Gunjal et al. (Scale AI)
+  year: 2025
+  arxiv: "2507.17746"
+  url: https://arxiv.org/abs/2507.17746
+  pdf_url: https://arxiv.org/pdf/2507.17746
+  summary: 把 instance-specific checklist 式 rubric 作为 on-policy RL 奖励,医学/科学域比 Likert judge 基线相对提升至多 31%(HealthBench);rubric-RL 路线的命名之作。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-huang-g-zero.pdf
+  title: "G-Zero: Self-Play for Open-Ended Generation from Zero Data"
+  authors: Chengsong Huang et al.
+  year: 2026
+  arxiv: "2605.09959"
+  url: https://arxiv.org/abs/2605.09959
+  pdf_url: https://arxiv.org/pdf/2605.09959
+  summary: 完全 verifier-free 的开放式生成自进化:Hint-δ 内在信号(提示引起的对数似然偏移)驱动 Proposer(GRPO)与 Generator(DPO)共进化,绕开 judge 能力天花板与 reward hacking;R-Zero 作者对开放域的续作,附 best-iterate 次优性理论保证。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-zhu-score-deep-research.pdf
+  title: Self-Evolving Deep Research via Joint Generation and Evaluation (SCORE)
+  authors: Han Zhu et al.
+  year: 2026
+  arxiv: "2606.04507"
+  url: https://arxiv.org/abs/2606.04507
+  pdf_url: https://arxiv.org/pdf/2606.04507
+  summary: 深研报告生成无 ground-truth,静态 judge 会饱和;SCORE 让共享参数的 evaluator 与 solver 共进化,外加 meta-harness 约束评估环境防跑偏;"评估器与被评者共同进化"在不可验证域的代表(权重层)。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-wang-serpo.pdf
+  title: "SERPO: Self-Evolving Rubric Policy Optimization for Open-Ended Test-Time RL"
+  authors: Jianze Wang et al. (HUST/Alibaba)
+  year: 2026
+  arxiv: "2607.26873"
+  url: https://arxiv.org/abs/2607.26873
+  pdf_url: https://arxiv.org/pdf/2607.26873
+  summary: 把 TTRL 从答案投票推广到开放域:Good-Normal-Bad 响应档案、查询特定 rubric、策略参数三方闭环共进化,HealthBench/ResearchQA 提升至多 20 分;开放式 test-time 自进化的当前 SOTA。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-ding-evorubrics.pdf
+  title: "EvoRubrics: Dynamic Rubrics as Rewards via Adversarial Co-Evolution"
+  authors: Hongxin Ding et al.
+  year: 2026
+  arxiv: "2606.23038"
+  url: https://arxiv.org/abs/2606.23038
+  pdf_url: https://arxiv.org/pdf/2606.23038
+  summary: 静态 rubric 随策略变强失去判别力导致奖励饱和/hacking;让 Policy 与 Rubric Generator 每步对抗共进化形成自动课程,纯自监督变体也有增益,rubric 生成器可迁移为奖励模型。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-guan-evorubric.pdf
+  title: "EvoRubric: Self-Evolving Rubric-Driven RL for Open-Ended Generation"
+  authors: Xin Guan et al.
+  year: 2026
+  arxiv: "2605.29847"
+  url: https://arxiv.org/abs/2605.29847
+  pdf_url: https://arxiv.org/pdf/2605.29847
+  summary: 单策略内交替扮演 Reasoner 与 Rubric Generator,配 meta-verifier、零方差剪枝、Leave-One-Out 同伴共识的多级验证防 reward hacking,验证过的准则入记忆池;覆盖医学/写作/科学三域。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-nie-tthe.pdf
+  title: "TTHE: Test-Time Harness Evolution"
+  authors: Jun Nie et al. (HKBU/USTC/HKUST)
+  year: 2026
+  arxiv: "2607.08124"
+  url: https://arxiv.org/abs/2607.08124
+  pdf_url: https://arxiv.org/pdf/2607.08124
+  summary: 首个测试时 harness 进化:冻结 LLM 分饰 solver/proposer/judge,凭无标签执行轨迹的代理信号维护并演化 harness 种群;任务域(SQL/编程/SWE)本质可验证,作者自认"执行派生代理信号的可靠性"是中心挑战——B3 空白核实的关键证据。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-zhou-self-play-reward-hacking.pdf
+  title: "More Convincing, Not More Correct: Self-Play Reward Hacking of Reference-Free LLM Judges"
+  authors: Chenyu Zhou
+  year: 2026
+  arxiv: "2607.05904"
+  url: https://arxiv.org/abs/2607.05904
+  pdf_url: https://arxiv.org/pdf/2607.05904
+  summary: 结构性证伪 reference-free judge:条件在候选答案上的 judge 评的是 plausibility 而非 correctness,self-play 把 judge 通过率从 0.72 刷到 0.94 而真实准确率停在 0.20;解法是 de-anchoring(judge 先独立作答再评),假阳性率 0.719→0.012。B3 风险与防御的核心文献。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-yang-rubric-dropout.pdf
+  title: "Rubric Dropout: A Simple Way to Mitigate Reward Hacking in Rubric-as-Reward RL"
+  authors: Minglai Yang et al.
+  year: 2026
+  arxiv: "2608.11669"
+  url: https://arxiv.org/abs/2608.11669
+  pdf_url: https://arxiv.org/pdf/2608.11669
+  summary: 实测 rubric-RL 中训练 judge 分数持续上升而 gold judge 分数先升后跌(ResearchQA 跌 22 分)证明 hacking 而非噪声;每步随机丢弃部分 rubric 准则使策略无法过拟合固定代理,一行代码缓解。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-ye-llm-as-a-coach.pdf
+  title: "LLM-as-a-Coach: Experiential Learning for Non-Verifiable Tasks"
+  authors: Tianzhu Ye et al. (含 Furu Wei, MSRA)
+  year: 2026
+  arxiv: "2607.18110"
+  url: https://arxiv.org/abs/2607.18110
+  pdf_url: https://arxiv.org/pdf/2607.18110
+  summary: 把 judge 升级为 coach:不压缩成标量,而是把逐响应评估蒸馏为可迁移的经验知识,经 on-policy 上下文蒸馏内化进策略;比 rubric-RL 泛化更好且缓解 reward hacking——"富文本反馈优于标量"在不可验证域的直接证据。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-dong-echo.pdf
+  title: "Echo: Learning from Experience Data via User-Driven Refinement"
+  authors: Hande Dong et al.
+  year: 2026
+  arxiv: "2605.21984"
+  url: https://arxiv.org/abs/2605.21984
+  pdf_url: https://arxiv.org/pdf/2605.21984
+  summary: 生产环境代码补全中,把用户对 agent 输出的后续修改序列(最终稳定进编辑器的代码=事后 ground truth)挖掘为训练信号,接受率 25.7%→35.7%;人类偏好回流路线的工业级验证。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-sui-conl.pdf
+  title: "Conversation for Non-verifiable Learning: Self-Evolving LLMs through Meta-Evaluation (CoNL)"
+  authors: Yuan Sui et al.
+  year: 2026
+  arxiv: "2601.21464"
+  url: https://arxiv.org/abs/2601.21464
+  pdf_url: https://arxiv.org/pdf/2601.21464
+  summary: 直面"judge 质量上限"问题:critique 的质量用"是否帮别人改进了解"来度量(diagnostic reward),多 agent 自博弈联合优化生成、评估与元评估;鸡生蛋问题的一个可操作解。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-li-r-diverse.pdf
+  title: "R-Diverse: Mitigating Diversity Illusion in Self-Play LLM Training"
+  authors: Gengsheng Li et al.
+  year: 2026
+  arxiv: "2602.13103"
+  url: https://arxiv.org/abs/2602.13103
+  pdf_url: https://arxiv.org/pdf/2602.13103
+  summary: 指出 self-play 的两类多样性幻觉(跨轮模式循环、表面多样但技能同质),用记忆增强惩罚+技能感知度量维持可持续进化;弱信号自进化的多样性坍缩防御代表。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-piao-hote.pdf
+  title: Hybrid Open-Ended Tri-Evolution Makes Better Deep Researcher (HOTE)
+  authors: Hongming Piao et al.
+  year: 2026
+  arxiv: "2606.13710"
+  url: https://arxiv.org/abs/2606.13710
+  pdf_url: https://arxiv.org/pdf/2606.13710
+  summary: 明言"agent evolution 只在可验证任务上被验证过,与开放式研究任务之间存在 gap",用混合模式 RL 让 proposer/solver/judge 三方共进化,8B 模型超静态 8-32B;与 B3 立项最像的竞品之一(权重层)。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-chen-swe-ci.pdf
+  title: "SWE-CI: Evaluating Agent Capabilities in Maintaining Codebases via Continuous Integration"
+  authors: Jialong Chen et al. (中山大学/Alibaba)
+  year: 2026
+  arxiv: "2603.03823"
+  url: https://arxiv.org/abs/2603.03823
+  pdf_url: https://arxiv.org/pdf/2603.03823
+  summary: 用真实仓库平均 233 天/71 连续提交的演化史构造 CI 循环任务,提出 EvoScore(未来加权的功能正确率)量化长期可维护性与技术债;"repo 长期健康"首次有了可计算度量,但尚无人将其闭环为进化信号。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-chen-harnessx.pdf
+  title: "HarnessX: A Composable, Adaptive, and Evolvable Agent Harness Foundry"
+  authors: Tingyang Chen et al.
+  year: 2026
+  arxiv: "2606.14249"
+  url: https://arxiv.org/abs/2606.14249
+  pdf_url: https://arxiv.org/pdf/2606.14249
+  summary: 类型化 harness 原语的替换代数 + 轨迹驱动多 agent 进化引擎(AEGIS),五基准平均 +14.5%;harness 层进化的工程化集大成,但进化信号仍来自可验证基准分。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3
+- pdf: 2026-zheng-seagym.pdf
+  title: "SEAGym: An Evaluation Environment for Self-Evolving LLM Agents"
+  authors: Congjie Zheng et al.
+  year: 2026
+  arxiv: "2606.17546"
+  url: https://arxiv.org/abs/2606.17546
+  pdf_url: https://arxiv.org/pdf/2606.17546
+  summary: 主张评自进化必须度量更新过程本身(证据来源、快照回归、改进持久性、成本/不稳定性)而非只报终分;为"进化是否真的变好"提供了评测方法论,是 B3 实验设计的直接参照。
+  direction: B3
+  added: 2026-08-28
+  agent: survey-agent-B3

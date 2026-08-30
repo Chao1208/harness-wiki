@@ -2,7 +2,7 @@
 
 > **一句话结论**：harness 已成为继模型权重之后的**第二学习载体**——前沿模型在 SWE-bench Verified 上收敛到 1pp 以内而 harness 差异可摆动 20pp 以上；2025–2026 年所有主流 harness 收敛到"分层 markdown 指令文件 + 按需披露的 skills + 可选 auto memory"三件套，但记忆写入策略无理论、harness-level forgetting 无人防护、沉淀止步于文本，是三大设计空位。
 
-← 返回 [wiki 总览](index.md) · 相关页：[agent记忆](agent记忆.md)（记忆机制）、[agent自进化](agent自进化.md)（harness 作为进化对象）、[agent持续学习](agent持续学习.md)（学习闭环）
+← 返回 [wiki 总览](index.md) · 相关页：[agent记忆](agent记忆.md)（记忆机制）、[agent自进化](agent自进化.md)（harness 作为进化对象）、[agent持续学习](agent持续学习.md)（学习闭环）、[可编辑面](可编辑面.md)（harness 组件作为进化对象的谱系）、[harness遗忘与回归](harness遗忘与回归.md)（forgetting 的量化与回归集）
 
 ## 核心概念与分类法
 
@@ -18,7 +18,7 @@
 
 **沉淀强度光谱**：memory（事实）→ rule（约束）→ skill（流程）→ 编译 harness（SIGIL 的类型化编译）。"何种经验应沉淀到哪一层"没有任何理论。
 
-**harness-level forgetting**（HCL, 2026）：更新任一 harness 组件（prompt/记忆/工具/技能）可能在模型完全不动的情况下破坏既有可靠行为——把持续学习的"遗忘"概念正式扩展到 harness 状态。
+**harness-level forgetting**（HCL, 2026）：更新任一 harness 组件（prompt/记忆/工具/技能）可能在模型完全不动的情况下破坏既有可靠行为——把持续学习的"遗忘"概念正式扩展到 harness 状态。change-002 深挖确认现象层证据已在各组件层密集出现（详见 [harness遗忘与回归](harness遗忘与回归.md)）。
 
 ## 代表工作
 
@@ -42,8 +42,8 @@
 
 ## 开放问题
 
-1. **记忆写入策略无理论**：何时记、记什么、如何合并去重全靠 prompt 纪律条款，无可度量的记忆价值函数（search tree D-2）
-2. **harness-level forgetting 无人防护**：除 HCL 外没有任何生产 harness 做 retention 回归检查（search tree D-1，高潜论文方向）
+1. **记忆写入策略无理论**：何时记、记什么、如何合并去重全靠 prompt 纪律条款，无可度量的记忆价值函数（search tree D-2）；change-002 A5 深挖确认"写入决策质量"（写不写/写到哪层/compaction 存活）在评测侧也是空白，见 [记忆与持续学习基准](记忆与持续学习基准.md)
+2. **harness-level forgetting（change-002 深挖后修正）**：现象层空白已关闭——HCL 命名并测量之外，HarnessFix/Adaptive Auto-Harness/SkillFlow/ACE/Misevolution 各自撞见同一现象；真空白转为"以 harness 更新为被测变更单元的公开 retention 回归基准 + 回归集构建方法学"，详见 [harness遗忘与回归](harness遗忘与回归.md)（仍是高潜论文方向）
 3. **记忆安全**：持久记忆文件是新攻击面（OpenHands 官方已警告），防御手段几乎空白（search tree D-3）
 4. **记忆的 token 经济学**：全量注入 vs 索引+按需 vs 向量检索，缺公开的召回/成本 tradeoff 实证（search tree D-4）
 5. **跨工具记忆孤岛**：AGENTS.md/MCP/SKILL.md 三标准之外，记忆是唯一没有开放标准的一层
@@ -52,6 +52,8 @@
 ## 参考
 
 - 分支底稿：`Project/survey/branch_D_harness动态.md`（含十大 harness 逐一盘点、记忆机制对比表、官方博客摘编）
+- 深挖底稿：`Project/survey/deep_D1_harness遗忘量化.md`（retention 回归证据全查与构建方案）、`Project/survey/deep_B1_可编辑面消融.md`（harness 组件作为进化对象）
 
 ---
 落款：report-agent · 2026-08-27 12:17
+更新：survey-agent · 2026-08-30 10:15（融入 change-002 D1/B1/A5 深挖结论：开放问题 1、2 更新判定并链入新概念页）

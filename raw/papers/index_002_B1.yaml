@@ -1,0 +1,139 @@
+# change-002 / 方向 B1(harness 可编辑面的最小充分集:逐组件消融)新增归档论文
+# 由 survey-agent-B1 生成,待主 agent 合并入 index.yaml
+# 注:arxiv.org 直连被网络重置,PDF 实际经 alphaxiv 镜像(pdfs.assets.alphaxiv.org)下载,链接栏保留 arXiv 官方地址
+
+papers:
+  - file: 2026-yu-execute-code-ablation.pdf
+    title: "When Does Restricting a Coding Agent to execute_code Help? A Regime x Agent-Design Ablation"
+    authors: "Qi Yu, Travis Desell"
+    year: 2026
+    arxiv: "2607.10569"
+    url: "https://arxiv.org/abs/2607.10569"
+    summary: "对 coding agent 工具面(baseline/bash_only/code_only)在任务域(regime)x agent 设计上做交叉消融,证明工具面选择由任务域与 agent 设计共同决定——目前最接近'单组件受控消融'的工作,但只覆盖工具面。"
+    direction: B1
+
+  - file: 2026-macedo-what-makes-a-harness.pdf
+    title: "What makes a harness a harness: necessary and sufficient conditions for an agent harness"
+    authors: "Sanderson Oliveira de Macedo"
+    year: 2026
+    arxiv: "2606.10106"
+    url: "https://arxiv.org/abs/2606.10106"
+    summary: "概念论文,给出 agent harness 的必要/充分条件定义,可作为组件枚举的理论参照,无实证消融。"
+    direction: B1
+
+  - file: 2026-bensghaier-harness-evolution-quality.pdf
+    title: "Don't Blame the Large Language Model: How Agent Harness Evolution Shapes Coding Agent Quality"
+    authors: "Oussama Ben Sghaier, Hao Li, Bram Adams, Ahmed E. Hassan"
+    year: 2026
+    arxiv: "2607.03691"
+    url: "https://arxiv.org/abs/2607.03691"
+    summary: "首个隔离 harness 贡献的受控纵向研究:固定模型、跨版本对比真实 harness(如 OpenHands)演化,发现 LLM Provider 与 Context Management 等架构组件回归风险最高——观察性组件敏感度证据,非主动逐组件进化消融。"
+    direction: B1
+
+  - file: 2026-park-autosaddler.pdf
+    title: "AutoSaddler: Automatic Harness Optimization with Durable Updates from Agent Execution Traces"
+    authors: "Sungho Park, Wonjoong Kim, Rongyuan Tan, Jue Zhang, Wook-Shin Han, et al."
+    year: 2026
+    arxiv: "2608.23041"
+    url: "https://arxiv.org/abs/2608.23041"
+    summary: "从执行 trace 自动优化 harness 的持久更新;消融针对方法阶段(深度诊断/结构化干预/泛化感知选择)而非 harness 组件本身。"
+    direction: B1
+
+  - file: 2026-chen-harnessforge.pdf
+    title: "HarnessForge: Joint Harness and Policy Evolution for Adaptive Agent Systems"
+    authors: "Mingju Chen, Can Lv, Guibin Zhang, Heng Chang, Shiji Zhou"
+    year: 2026
+    arxiv: "2606.01779"
+    url: "https://arxiv.org/abs/2606.01779"
+    summary: "harness 与模型策略联合进化;可编辑面为整体 harness 配置,未做逐组件消融。"
+    direction: B1
+
+  - file: 2026-raj-model-or-harness.pdf
+    title: "Model or Harness? An Interaction-Centric Taxonomy for Localizing Agent Failures"
+    authors: "Harsh Raj, Vipul Gupta, Anas Mahmoud, et al. (Scale AI)"
+    year: 2026
+    arxiv: "2607.28802"
+    url: "https://arxiv.org/abs/2607.28802"
+    summary: "提出以交互为中心的失败归因分类法,把 agent 失败定位到模型或 harness 的具体环节,可为逐组件消融提供失败归因工具。"
+    direction: B1
+
+  - file: 2026-nie-evolvenet.pdf
+    title: "EvolveNet: Collaborative Harness Evolution for Agent Self-Improvement"
+    authors: "Jun Nie, Yonggang Zhang, Qianshu Cai, Yiu-ming Cheung, Xinmei Tian, Bo Han"
+    year: 2026
+    arxiv: "2608.04968"
+    url: "https://arxiv.org/abs/2608.04968"
+    summary: "多 agent 协作式 harness 进化;开放面为 harness 配置整体,无逐组件消融。"
+    direction: B1
+
+  - file: 2026-lin-harness-updating-not-benefit.pdf
+    title: "Harness Updating Is Not Harness Benefit: Disentangling Evolution Capabilities in Self-Evolving LLM Agents"
+    authors: "Minhua Lin, Juncheng Wu, Zijun Wang, et al."
+    year: 2026
+    arxiv: "2605.30621"
+    url: "https://arxiv.org/abs/2605.30621"
+    summary: "区分'harness 更新能力'与'harness 受益能力':不同能力模型产生相似更新但受益非单调;更新对象含 prompt/skill/memory/tool,按更新类型而非组件维度分析。"
+    direction: B1
+
+  - file: 2026-liu-dive-into-claude-code.pdf
+    title: "Dive into Claude Code: The Design Space of Today's and Future AI Agent Systems"
+    authors: "Jiacheng Liu, Xiaohan Zhao, Xinyi Shang, Zhiqiang Shen"
+    year: 2026
+    arxiv: "2604.14228"
+    url: "https://arxiv.org/abs/2604.14228"
+    summary: "对 Claude Code 架构的解剖研究(权限系统、上下文管线、MCP/plugins/skills/hooks 扩展机制、subagent 委派),为 Claude Code 类 harness 的组件枚举提供直接依据。"
+    direction: B1
+
+  - file: 2026-ma-skillclaw.pdf
+    title: "SkillClaw: Let Skills Evolve Collectively with Agentic Evolver"
+    authors: "Ziyu Ma, Shidong Yang, Yuxiang Ji, et al. (Alibaba DreamX)"
+    year: 2026
+    arxiv: "2604.08377"
+    url: "https://arxiv.org/abs/2604.08377"
+    summary: "跨 agent 集体 skill 进化;可编辑面仅限 skills 单面,提供 skill 面内证据。"
+    direction: B1
+
+  - file: 2026-hebbar-sia.pdf
+    title: "SIA: Self Improving AI with Harness & Weight Updates"
+    authors: "Prannay Hebbar, Yogendra Manawat, et al. (Hexo Labs)"
+    year: 2026
+    arxiv: "2605.27276"
+    url: "https://arxiv.org/abs/2605.27276"
+    summary: "同时更新 harness 与模型权重的自改进闭环;harness/权重两大面有对照,组件级无。"
+    direction: B1
+
+  - file: 2026-qi-llm-as-code.pdf
+    title: "LLM-as-Code: Agentic Programming for Agent Harness"
+    authors: "Junjia Qi, Wenlin Zhang, et al."
+    year: 2026
+    arxiv: "2606.15874"
+    url: "https://arxiv.org/abs/2606.15874"
+    summary: "把 harness 表达为可被 agent 编程的代码(LLM-as-Code),可编辑面为全代码;粒度谱系'全代码库'一端的新代表。"
+    direction: B1
+
+  - file: 2026-hu-self-evolving-coding-agents-survey.pdf
+    title: "Self-Evolving Coding Agents (Survey)"
+    authors: "Haichuan Hu, Tianyu Luo, Ye Shang, Hao Zhou, Quanjun Zhang"
+    year: 2026
+    arxiv: "2608.03392"
+    url: "https://arxiv.org/abs/2608.03392"
+    summary: "以'进化目标'为中心的六类分类综述(framework/memory/skill&tool/model/workflow/environment);明确指出产品级能力多无隔离消融、harness 膨胀与可逆性是开放问题——为 B1 空白点提供综述级佐证。"
+    direction: B1
+
+  - file: 2026-li-codeskill.pdf
+    title: "CODESKILL: Learning Self-Evolving Skills for Coding Agents"
+    authors: "Yanzhou Li, Yiran Zhang, Xiaoyu Zhang, Xiaoxia Liu, Yang Liu"
+    year: 2026
+    arxiv: "2605.25430"
+    url: "https://arxiv.org/abs/2605.25430"
+    summary: "训练 skill 管理模型维护 skill bank;Table 2 给出 skill 面内部生命周期消融(extraction/evolution/maintenance 逐级启用),是 skill 单面进化收益的最强实证之一。"
+    direction: B1
+
+  - file: 2026-xue-past-bench.pdf
+    title: "PAST-Bench: Benchmarking the Foundations of Recursive Self-Improvement in Personal Agents"
+    authors: "Shuhan Xue, Zixin Ding, Yichen Shen, Yinjie Wang, Zhenfei Yin, et al."
+    year: 2026
+    arxiv: "2608.04003"
+    url: "https://arxiv.org/abs/2608.04003"
+    summary: "配对 persistence 开/关对照(固定模型/prompt/工具/seed)隔离'留存经验'这一面的贡献,7 模型 x 4 框架;Hermes+ 提供逐机制(Plan/Render/Route/Gate/Close)消融——经验/记忆面的受控消融范式,可直接借鉴到 B1 实验设计。"
+    direction: B1

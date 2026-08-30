@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工作日志 · change-002 高论文潜力方向深挖与选题收敛</title>
+<style>
+  :root {
+    --ink: #1a1a2e; --sub: #666; --accent: #1f4e79;
+    --line: #c5d6e8; --bg: #fdfdfb; --warn: #8b3a3a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.8;
+    margin: 0; font-size: 15.5px;
+  }
+  .page { max-width: 860px; margin: 0 auto; padding: 44px 36px 72px; }
+  header { border-bottom: 3px double var(--accent); padding-bottom: 16px; margin-bottom: 30px; }
+  h1 { font-size: 23px; color: var(--accent); margin: 0 0 6px; }
+  .meta { color: var(--sub); font-size: 13.5px; }
+  h2 { font-size: 18px; color: var(--accent); margin: 38px 0 14px; padding-left: 10px; border-left: 5px solid var(--accent); }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.87em; background: #eef0f3; padding: 1px 5px; border-radius: 3px; }
+  .timeline { position: relative; margin: 10px 0 10px 8px; padding-left: 30px; border-left: 2px solid var(--line); }
+  .event { position: relative; margin: 0 0 26px; }
+  .event::before {
+    content: ""; position: absolute; left: -37px; top: 7px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--accent);
+  }
+  .event.warn::before { background: var(--warn); box-shadow: 0 0 0 2px var(--warn); }
+  .stamp { font-weight: 700; color: var(--accent); font-size: 14px; letter-spacing: 0.5px; }
+  .event.warn .stamp { color: var(--warn); }
+  .event h3 { margin: 2px 0 6px; font-size: 16px; }
+  .event p, .event ul { margin: 4px 0; color: #333; font-size: 14.5px; }
+  .event ul { padding-left: 20px; }
+  .lesson {
+    background: #f6f3ea; border-left: 4px solid #b8963e;
+    border-radius: 0 6px 6px 0; padding: 14px 20px; margin: 14px 0;
+  }
+  .lesson strong { color: #7a6222; }
+  .warnbox { background: #faf0f0; border-left: 4px solid var(--warn); padding: 12px 18px; margin: 12px 0; border-radius: 0 6px 6px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13.5px; }
+  th { background: #eaf1f8; color: var(--accent); }
+  th, td { border: 1px solid #d9dee5; padding: 6px 10px; text-align: left; }
+  footer { margin-top: 56px; padding-top: 14px; border-top: 1px solid #d9dee5; color: var(--sub); font-size: 13.5px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>工作日志：change-002 高论文潜力方向深挖与选题收敛</h1>
+  <div class="meta">项目 harness-wiki(主题:Harness 的记忆与持续学习)· 时间线依据 git log、文件时间戳与主 session 记录重建 · 记录者 main-agent</div>
+</header>
+
+<h2>一、时间线</h2>
+<div class="timeline">
+
+  <div class="event">
+    <div class="stamp">2026-08-28 16:58</div>
+    <h3>立项:change-002 提案与 search tree</h3>
+    <p>main-agent 基于 change-001 标记的 5 个 <code>paper_potential: high</code> 候选(A5/B1/B3/C6/D1)建立提案、任务清单与 BFS search tree,commit <code>c86df77</code>。目标:逐向核实空白点、收敛 1-2 个可立项选题。</p>
+  </div>
+
+  <div class="event">
+    <div class="stamp">2026-08-28 17:52 – 2026-08-29 01:45</div>
+    <h3>五个 survey subagent 并行深挖</h3>
+    <ul>
+      <li><strong>D1</strong>(harness 遗忘量化)最先交稿(08-28 17:52),<strong>B3</strong>(01:25)、<strong>B1</strong>(01:28)、<strong>C6</strong>(01:40 前后)、<strong>A5</strong>(01:45)次第完成;底稿落 <code>Project/survey/deep_*.md</code>,共约 900 行。</li>
+      <li>新论文归档 <code>raw/papers/</code> 并各自登记分支索引 <code>index_002_{A5,B1,B3,C6,D1}.yaml</code>(计 80 条);网页剪藏 11 份落 <code>Clipping/2026-08-28_*</code>。</li>
+      <li>五方向空白点判定全部为「部分成立/需收窄」,原「几乎空白」类表述(B3、C6)均被 2025-2026 密集新工作证伪,但各自剩余合取空白真实可辩护(详见 search_tree.yaml 各分支 conclusion)。</li>
+    </ul>
+  </div>
+
+  <div class="event warn">
+    <div class="stamp">2026-08-29 01:08 – 01:47</div>
+    <h3>网络障碍:arXiv 直连 TLS 被重置</h3>
+    <p>多个 agent 报告 <code>curl</code> 对 arxiv.org 的 TLS 握手被间歇重置(疑指纹过滤)。B1 经 alphaxiv 镜像(<code>pdfs.assets.alphaxiv.org/{id}v1.pdf</code>)下载;C6 经浏览器通道抓取,base64 中间件遗留仓库根目录(<code>c6_*.b64</code> 6 个);A5 有 4 条登记为 <code>pdf_status: pending</code> 未下成。</p>
+  </div>
+
+  <div class="event">
+    <div class="stamp">2026-08-30 09:54 – 10:20</div>
+    <h3>main-agent 验收(任务 7)</h3>
+    <ul>
+      <li>核实 5 份底稿均有明确结论与落款;逐条核对分支索引对应 PDF:A5=15/B1=15/B3=21/C6=12/D1=17,除 A5 的 4 条 pending 外全部为有效 <code>%PDF</code>。</li>
+      <li>A5 缺失 3 篇(2608.11095/2606.25161/2605.28732)经 alphaxiv 镜像补下载;第 4 条(SWE-ContextBench)确认与 C6 已归档同篇(arXiv 2602.08316),索引改指既有文件。</li>
+      <li>五分支索引合并入主 <code>index.yaml</code>:新增 72 条、跨分支去重 8 条,总计 139 条;发现 1 处同文重复归档(gloaguen 2602.11988,A5 与 C6 各存一份文件名不同的 PDF),已在索引加注。</li>
+      <li>清理:6 个 <code>c6_*.b64</code> 确认已解码入库后删除;<code>agent-tools/</code> 30 份检索原始转储按归档红线移入 <code>Clipping/2026-08-29_agent检索转储_change002/</code>。</li>
+      <li>search_tree 全分支标 done 并登记结论;tasks.md 勾选 2-7 并附验收记录。</li>
+    </ul>
+  </div>
+
+  <div class="event">
+    <div class="stamp">2026-08-30 10:20 – 18:26</div>
+    <h3>选题收敛与知识沉淀(任务 8/9,双 agent 并行)</h3>
+    <ul>
+      <li><strong>report-agent</strong> 产出选题收敛报告 <code>Project/survey_reports/2026-08-30_change002_选题收敛报告.html</code>:收敛出两个选题——<strong>LiveRepoMem</strong>(A5+C6+D1 合并:演化仓库上的 harness 原生记忆与持续学习基准,主投 NeurIPS 2027 D&B)与 <strong>HarnessAblate</strong>(B1 独立:可编辑面前瞻消融,主投 ICML 2027);B3 降级留树(high→medium),其三角审计协议与信号可靠性思想被两选题吸收。</li>
+      <li><strong>survey-agent</strong> 沉淀 wiki:新建概念页 4 个(<code>记忆与持续学习基准</code>/<code>harness遗忘与回归</code>/<code>进化信号构造</code>/<code>可编辑面</code>),更新主题页 5 个,空白点判定与 search_tree 结论对齐。</li>
+    </ul>
+  </div>
+
+  <div class="event">
+    <div class="stamp">2026-08-30 18:30</div>
+    <h3>收尾(任务 10)</h3>
+    <p>本日志落盘;version.yaml 升至 0.3;全部产出 commit 推送。另:应用户要求为 Obsidian vault 安装 HTML Reader 插件(v1.0.16),报告类 html 可直接在 Obsidian 内查看。</p>
+  </div>
+
+</div>
+
+<h2>二、产出清单</h2>
+<table>
+  <tr><th>类别</th><th>产出</th></tr>
+  <tr><td>深挖底稿</td><td><code>Project/survey/deep_{A5,B1,B3,C6,D1}_*.md</code> 5 份,附分支索引 5 份</td></tr>
+  <tr><td>论文归档</td><td>新增约 76 篇 PDF 入 <code>raw/papers/</code>,主索引 67→139 条</td></tr>
+  <tr><td>选题报告</td><td><code>Project/survey_reports/2026-08-30_change002_选题收敛报告.html</code>(两选题完整立项论证)</td></tr>
+  <tr><td>wiki</td><td>新建 4 概念页、更新 5 主题页</td></tr>
+  <tr><td>工程管理</td><td>search_tree 全 done、tasks.md 全勾、version 0.2→0.3</td></tr>
+</table>
+
+<h2>三、经验教训</h2>
+<div class="lesson">
+  <strong>教训 1:</strong>subagent 的「已归档」不可轻信——A5 索引中 4 条 <code>pdf_status: pending</code> 若不逐条核对 PDF 魔数就会漏检。「完成判定看真实产出」的准则再次验证有效。
+</div>
+<div class="lesson">
+  <strong>教训 2:</strong>跨分支重复归档需要统一去重键——A5 与 C6 对同一篇论文用了不同 id 与文件名,arXiv id 是唯一可靠的去重键;后续 change 应要求 subagent 登记时必填 <code>arxiv:</code> 字段。
+</div>
+<div class="lesson">
+  <strong>教训 3:</strong>浏览器通道抓取的中间产物(base64 转储、检索缓存)应由 subagent 自行清理或直接写入规定目录,避免污染仓库根目录。
+</div>
+<div class="warnbox">
+  <strong>环境风险:</strong>本机对 arxiv.org 的 TLS 直连持续不稳定,alphaxiv 镜像(<code>pdfs.assets.alphaxiv.org/{id}v{n}.pdf</code>)为当前可用替代通道,已验证三次成功;后续下载脚本应内置该回退。
+</div>
+
+<h2>四、下一步(change-003 建议)</h2>
+<ul>
+  <li>按选题报告时间线双轨启动:LiveRepoMem(数据基座:SWE-bench-Live/SWE-rebench 管线 + 真实仓库演化序列)与 HarnessAblate(4-6 周实验窗口,对冲 AHE 团队抢发)。</li>
+  <li>B3 观察点:EvoScore 回流闭环、TTHE 后续;每月扫描一次。</li>
+  <li>其余 19 个 change-001 候选维持留树。</li>
+</ul>
+
+<footer>
+  main-agent · 2026-08-30 18:32
+</footer>
+
+</div>
+</body>
+</html>
